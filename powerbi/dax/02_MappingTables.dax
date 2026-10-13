@@ -1,0 +1,108 @@
+// =====================================================================
+//  Hand-maintained mapping tables (Modeling > New table, one each).
+//  They are NOT related to anything directly; the Dim* tables in
+//  03_Dimensions.dax look values up from them and fall back to a default,
+//  so a brand-new service or action from Genesys never breaks the model.
+//  Hide both tables in the report view.
+// =====================================================================
+
+
+// ---------------------------------------------------------------------
+//  ServiceMap   -- friendly name + category for each audit serviceName
+//  Keep in sync with GET /api/v2/audits/query/servicemapping
+// ---------------------------------------------------------------------
+ServiceMap =
+DATATABLE (
+    "ServiceName", STRING, "Service", STRING, "ServiceCategory", STRING,
+    {
+        { "AnalyticsReporting",      "Analytics & Reporting",     "Reporting" },
+        { "Architect",               "Architect (Flows / IVR)",   "Configuration" },
+        { "Authentication",          "Authentication",            "Security" },
+        { "Authorization",           "Roles & Permissions",       "Security" },
+        { "ContactCenter",           "Contact Center",            "Operations" },
+        { "ContentManagement",       "Content Management",        "Operations" },
+        { "Directory",               "Users & Directory",         "Identity" },
+        { "ExternalContacts",        "External Contacts",         "Operations" },
+        { "Groups",                  "Groups",                    "Identity" },
+        { "Integrations",            "Integrations",              "Configuration" },
+        { "Knowledge",               "Knowledge",                 "Operations" },
+        { "LanguageUnderstanding",   "Language Understanding",    "Configuration" },
+        { "OAuth",                   "OAuth Clients",             "Security" },
+        { "OrganizationAuthorization", "Org Trust",               "Security" },
+        { "Outbound",                "Outbound Dialing",          "Operations" },
+        { "PeoplePermissions",       "Roles & Permissions",       "Security" },
+        { "Presence",                "Presence",                  "Configuration" },
+        { "Quality",                 "Quality Management",        "Operations" },
+        { "ResponseManagement",      "Canned Responses",          "Configuration" },
+        { "Routing",                 "Routing",                   "Configuration" },
+        { "SpeechAndTextAnalytics",  "Speech & Text Analytics",   "Operations" },
+        { "Telephony",               "Telephony",                 "Configuration" },
+        { "WebDeployments",          "Web Deployments",           "Configuration" },
+        { "WorkforceManagement",     "Workforce Management",      "Operations" }
+    }
+)
+
+
+// ---------------------------------------------------------------------
+//  ActionRiskMap   -- risk level + category for each audit action
+//  Anything not listed gets RiskLevel "Medium", Category "Other".
+// ---------------------------------------------------------------------
+ActionRiskMap =
+DATATABLE (
+    "Action", STRING, "RiskLevel", STRING, "ActionCategory", STRING, "RiskSort", INTEGER,
+    {
+        // destructive / irreversible
+        { "Delete",            "High",   "Destructive",  1 },
+        { "Purge",             "High",   "Destructive",  1 },
+        { "Remove",            "High",   "Destructive",  1 },
+        { "Terminate",         "High",   "Destructive",  1 },
+        { "Expire",            "High",   "Destructive",  1 },
+        // privilege / security posture
+        { "Deactivate",        "High",   "Privilege",    1 },
+        { "Disable",           "High",   "Privilege",    1 },
+        { "Revoke",            "High",   "Privilege",    1 },
+        { "Reset",             "High",   "Privilege",    1 },
+        { "Deauthorize",       "High",   "Privilege",    1 },
+        { "Unpublish",         "High",   "Change",       1 },
+        { "RemoveProtection",  "High",   "Privilege",    1 },
+        { "Authorize",         "Medium", "Privilege",    2 },
+        { "Assign",            "Medium", "Privilege",    2 },
+        { "Unassign",          "Medium", "Privilege",    2 },
+        { "Activate",          "Medium", "Privilege",    2 },
+        { "Enable",            "Medium", "Privilege",    2 },
+        { "Reinstate",         "Medium", "Privilege",    2 },
+        { "ApplyProtection",   "Medium", "Privilege",    2 },
+        // configuration change
+        { "Create",            "Medium", "Change",       2 },
+        { "Update",            "Medium", "Change",       2 },
+        { "Add",               "Medium", "Change",       2 },
+        { "Publish",           "Medium", "Change",       2 },
+        { "Move",              "Medium", "Change",       2 },
+        { "Copy",              "Medium", "Change",       2 },
+        { "Clone",             "Medium", "Change",       2 },
+        { "Rename",            "Medium", "Change",       2 },
+        { "Restore",           "Medium", "Change",       2 },
+        { "Reassign",          "Medium", "Change",       2 },
+        { "Apply",             "Medium", "Change",       2 },
+        { "Execute",           "Medium", "Change",       2 },
+        { "Checkin",           "Medium", "Change",       2 },
+        { "Checkout",          "Medium", "Change",       2 },
+        { "Approve",           "Medium", "Change",       2 },
+        { "Reject",            "Medium", "Change",       2 },
+        { "Share",             "Medium", "Change",       2 },
+        { "Unshare",           "Medium", "Change",       2 },
+        { "Upload",            "Medium", "Change",       2 },
+        { "Import",            "Medium", "Change",       2 },
+        // data access
+        { "Download",          "Medium", "Data Access",  2 },
+        { "Export",            "Medium", "Data Access",  2 },
+        // read-only / session
+        { "View",              "Low",    "Read",         3 },
+        { "Read",              "Low",    "Read",         3 },
+        { "Search",            "Low",    "Read",         3 },
+        { "Open",              "Low",    "Read",         3 },
+        { "Verify",            "Low",    "Read",         3 },
+        { "Login",             "Low",    "Session",      3 },
+        { "Logout",            "Low",    "Session",      3 }
+    }
+)

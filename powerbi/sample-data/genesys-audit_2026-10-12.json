@@ -1,0 +1,4282 @@
+[
+ {
+  "id": "0969089d-f000-49ea-9a5e-3a630b0bc7ba",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:18:30.408Z",
+  "message": {
+   "message": "{user} updated Dashboard {entityName}",
+   "messageWithParams": "Kavya Raman updated Dashboard Ops Wallboard",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "Ops Wallboard"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "8cad2211-8401-4d33-a5d4-3fe35228f952",
+   "name": "Ops Wallboard",
+   "selfUri": "/api/v2/analytics/dashboards/8cad2211-8401-4d33-a5d4-3fe35228f952"
+  },
+  "entityType": "Dashboard",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "c3c6001a-7745-4ecb-a182-7360d5b9addd",
+   "transactionId": "558d6adc-e56f-492c-a83b-4d4c8ad5c8c0"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "61ec9fa8-617f-4e28-b201-000f1384d94c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "OAuth",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:25:06.544Z",
+  "message": {
+   "message": "{user} deleted Client {entityName}",
+   "messageWithParams": "Alice Nguyen deleted Client Bulk User Loader",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Bulk User Loader"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "50b0f1f0-6a3f-4366-a41f-957d9325e8de",
+   "name": "Bulk User Loader",
+   "selfUri": "/api/v2/oauth/clients/50b0f1f0-6a3f-4366-a41f-957d9325e8de"
+  },
+  "entityType": "Client",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "a133e457-cdcd-4265-89a0-475ac10aee1a",
+   "transactionId": "fd80f03c-4219-42d4-b8b0-992adc1b58cf"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Client.State",
+    "entity": {
+     "id": "50b0f1f0-6a3f-4366-a41f-957d9325e8de",
+     "name": "Bulk User Loader"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "eeda5997-9291-4a20-b5b9-400f6090b3c8",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:30:28.835Z",
+  "message": {
+   "message": "{user} updated Conversation {entityName}",
+   "messageWithParams": "Kavya Raman updated Conversation a27ebd67-daee-47c5-9ec5-9f5e667266c5",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "a27ebd67-daee-47c5-9ec5-9f5e667266c5"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "a27ebd67-daee-47c5-9ec5-9f5e667266c5",
+   "selfUri": "/api/v2/conversations/a27ebd67-daee-47c5-9ec5-9f5e667266c5"
+  },
+  "entityType": "Conversation",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "ad8170ae-9dcb-4c02-8c7f-b738ab03e072",
+   "transactionId": "dea10cfa-e4c0-4abe-9ea7-d705fd4a4d36"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "ccdc1740-3166-43f6-be9e-43591b02b889",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.142"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:41:36.103Z",
+  "message": {
+   "message": "{user} published EvaluationForm {entityName}",
+   "messageWithParams": "Hugo Silva published EvaluationForm Standard QA v3",
+   "messageParams": {
+    "user": "Hugo Silva",
+    "entityName": "Standard QA v3"
+   }
+  },
+  "action": "Publish",
+  "entity": {
+   "id": "9b390282-d0cf-4095-9add-1dee83158e81",
+   "name": "Standard QA v3",
+   "selfUri": "/api/v2/quality/forms/evaluations/9b390282-d0cf-4095-9add-1dee83158e81"
+  },
+  "entityType": "EvaluationForm",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "b14a5b0a-8bff-4638-923f-f4b194d76467",
+   "transactionId": "70361b59-f028-4200-b8f9-e7d9e60029db"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "752f8a3a-d489-469e-a411-f9391682084f",
+   "name": "Hugo Silva",
+   "selfUri": "/api/v2/users/752f8a3a-d489-469e-a411-f9391682084f"
+  }
+ },
+ {
+  "id": "ff2a6fcd-09f1-482e-b568-cb03feb2118f",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:51:03.460Z",
+  "message": {
+   "message": "{user} exported Report {entityName}",
+   "messageWithParams": "Chloe Martin exported Report Queue Performance",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "Queue Performance"
+   }
+  },
+  "action": "Export",
+  "entity": {
+   "id": "7a9db551-b792-40d8-9d45-af372c8842b0",
+   "name": "Queue Performance",
+   "selfUri": "/api/v2/analytics/reporting/exports/7a9db551-b792-40d8-9d45-af372c8842b0"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "0fe08a35-6d8c-44dc-9dc3-97640943657c",
+   "transactionId": "f7e0351b-a2de-475b-a328-989f24177dbd"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "e0eb5ac7-e7ef-4c99-af8d-72316a0a59ac",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T00:58:50.676Z",
+  "message": {
+   "message": "{user} deleted Integration {entityName}",
+   "messageWithParams": "Ben Okafor deleted Integration Salesforce",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Salesforce"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "89b742ec-59b0-474d-a461-452e8dce42c8",
+   "name": "Salesforce",
+   "selfUri": "/api/v2/integrations/89b742ec-59b0-474d-a461-452e8dce42c8"
+  },
+  "entityType": "Integration",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "c0a252f0-9a6f-4d90-bfb5-e3c6aea90045",
+   "transactionId": "2a48fd8a-9e64-4c82-927a-876e29cd3f60"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Integration.State",
+    "entity": {
+     "id": "89b742ec-59b0-474d-a461-452e8dce42c8",
+     "name": "Salesforce"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "0672b918-1423-40c3-833f-3ad6f406561c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.10"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:10:32.504Z",
+  "message": {
+   "message": "{user} assigned DID {entityName}",
+   "messageWithParams": "Isla Murphy assigned DID +61 3 9000 2000",
+   "messageParams": {
+    "user": "Isla Murphy",
+    "entityName": "+61 3 9000 2000"
+   }
+  },
+  "action": "Assign",
+  "entity": {
+   "id": "6d802de0-48cb-4dea-a800-92985d624cbf",
+   "name": "+61 3 9000 2000",
+   "selfUri": "/api/v2/telephony/providers/edges/dids/6d802de0-48cb-4dea-a800-92985d624cbf"
+  },
+  "entityType": "DID",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "cd8ce83a-8052-4ad6-ab1c-5c9964a81631",
+   "transactionId": "b175c7ff-ffda-4e4f-bd8a-47e95fbb9c62"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  }
+ },
+ {
+  "id": "733f8bc0-8a88-4be4-9afe-00c44c0e01e4",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.149"
+  ],
+  "serviceName": "Architect",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:29:58.964Z",
+  "message": {
+   "message": "{user} updated Flow {entityName}",
+   "messageWithParams": "Farid Haddad updated Flow Sales Inbound",
+   "messageParams": {
+    "user": "Farid Haddad",
+    "entityName": "Sales Inbound"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "57ff4286-8f9c-481b-ba4d-f6ed25fea9ca",
+   "name": "Sales Inbound",
+   "selfUri": "/api/v2/flows/57ff4286-8f9c-481b-ba4d-f6ed25fea9ca"
+  },
+  "entityType": "Flow",
+  "status": "Failure",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "3ddba308-6700-4663-ae9d-b0d26b7c6a5c",
+   "transactionId": "907a45a2-8605-42f5-a7a3-6b602ac74fd3"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  }
+ },
+ {
+  "id": "8ff02b35-3aff-405a-b50d-e42c3df3ae6d",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.141"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:33:49.990Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Dev Patel viewed Recording 8002cdc6-c6ac-4a5c-b5a2-79e8cfd3bee5",
+   "messageParams": {
+    "user": "Dev Patel",
+    "entityName": "8002cdc6-c6ac-4a5c-b5a2-79e8cfd3bee5"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "8002cdc6-c6ac-4a5c-b5a2-79e8cfd3bee5",
+   "selfUri": "/api/v2/conversations/recordings/8002cdc6-c6ac-4a5c-b5a2-79e8cfd3bee5"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "f15b5091-5297-44d7-a39b-c71ba1058fa0",
+   "transactionId": "3a7b1aea-2974-4ae5-bdfa-6bf0bfdf2644"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9b78edcb-131e-4575-bba5-87808f4cc5fd",
+   "name": "Dev Patel",
+   "selfUri": "/api/v2/users/9b78edcb-131e-4575-bba5-87808f4cc5fd"
+  }
+ },
+ {
+  "id": "b67536c0-780f-4ec4-86aa-598c84d360d8",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.67"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:45:49.226Z",
+  "message": {
+   "message": "{user} viewed Conversation {entityName}",
+   "messageWithParams": "Liam O'Brien viewed Conversation 9ef7d614-1005-4a39-a087-3c25d877d5fe",
+   "messageParams": {
+    "user": "Liam O'Brien",
+    "entityName": "9ef7d614-1005-4a39-a087-3c25d877d5fe"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "9ef7d614-1005-4a39-a087-3c25d877d5fe",
+   "selfUri": "/api/v2/conversations/9ef7d614-1005-4a39-a087-3c25d877d5fe"
+  },
+  "entityType": "Conversation",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "e86e1efc-7870-454a-9ffb-a265448ea7a2",
+   "transactionId": "d77abad5-64ef-4f48-a976-1bc11a4077a2"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "f02c1321-852e-49ea-a68f-f1a2e236b200",
+   "name": "Liam O'Brien",
+   "selfUri": "/api/v2/users/f02c1321-852e-49ea-a68f-f1a2e236b200"
+  }
+ },
+ {
+  "id": "8f4a6a25-a69f-4d91-b8d0-ea2734043ea7",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.142"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:47:04.464Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Hugo Silva viewed Recording 18e8cb10-e423-4414-99cb-71282ef3d81b",
+   "messageParams": {
+    "user": "Hugo Silva",
+    "entityName": "18e8cb10-e423-4414-99cb-71282ef3d81b"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "18e8cb10-e423-4414-99cb-71282ef3d81b",
+   "selfUri": "/api/v2/conversations/recordings/18e8cb10-e423-4414-99cb-71282ef3d81b"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "5d99b250-a771-470e-9650-4d1cd5280c60",
+   "transactionId": "e6f45775-30f7-4b87-8119-ef4d41b8655f"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "752f8a3a-d489-469e-a411-f9391682084f",
+   "name": "Hugo Silva",
+   "selfUri": "/api/v2/users/752f8a3a-d489-469e-a411-f9391682084f"
+  }
+ },
+ {
+  "id": "4c812e81-296a-4e02-8ec2-45c945d04571",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.121"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:51:28.384Z",
+  "message": {
+   "message": "{user} exported Report {entityName}",
+   "messageWithParams": "Jonas Weber exported Report Queue Performance",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Queue Performance"
+   }
+  },
+  "action": "Export",
+  "entity": {
+   "id": "7a9db551-b792-40d8-9d45-af372c8842b0",
+   "name": "Queue Performance",
+   "selfUri": "/api/v2/analytics/reporting/exports/7a9db551-b792-40d8-9d45-af372c8842b0"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "a579725a-dca9-4d8f-b1f2-7e2a13c86545",
+   "transactionId": "c9d9821c-212c-4b9c-853c-5ff0f1f35b08"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "a6acce7b-e42f-4c2f-92f8-83aa3f644005",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.10"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:51:59.783Z",
+  "message": {
+   "message": "{user} updated Trunk {entityName}",
+   "messageWithParams": "Isla Murphy updated Trunk SIP Trunk B",
+   "messageParams": {
+    "user": "Isla Murphy",
+    "entityName": "SIP Trunk B"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "d745c624-2054-4a44-bc0d-a3cd92f2a6a0",
+   "name": "SIP Trunk B",
+   "selfUri": "/api/v2/telephony/providers/edges/trunks/d745c624-2054-4a44-bc0d-a3cd92f2a6a0"
+  },
+  "entityType": "Trunk",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "e6c70431-d608-4d6e-8bc2-8e32b9fb6f81",
+   "transactionId": "03d15d64-506d-4c20-87d2-b1f9382aa42d"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Trunk.Inbound.MaxCalls",
+    "entity": {
+     "id": "d745c624-2054-4a44-bc0d-a3cd92f2a6a0",
+     "name": "SIP Trunk B",
+     "selfUri": "/api/v2/telephony/providers/edges/trunks/d745c624-2054-4a44-bc0d-a3cd92f2a6a0"
+    },
+    "oldValues": [
+     "100"
+    ],
+    "newValues": [
+     "150"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  }
+ },
+ {
+  "id": "e04b3184-d8d7-4dec-89cf-5bdcc39737c2",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T01:56:07.503Z",
+  "message": {
+   "message": "{user} created WrapupCode {entityName}",
+   "messageWithParams": "Chloe Martin created WrapupCode Wrong Number",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "Wrong Number"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "40a795c9-6d32-4199-8669-2c2cd640e9cb",
+   "name": "Wrong Number",
+   "selfUri": "/api/v2/routing/wrapupcodes/40a795c9-6d32-4199-8669-2c2cd640e9cb"
+  },
+  "entityType": "WrapupCode",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "76effbcc-f102-453c-9d40-ce1172c756be",
+   "transactionId": "6757646d-1cb0-4b5c-afda-2a7c22e76131"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "57f76615-ca89-46a1-b1fa-4afc3a031af2",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:02:57.960Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Chloe Martin viewed Recording 69ccd9ad-2db1-416d-92a5-410a8f33b216",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "69ccd9ad-2db1-416d-92a5-410a8f33b216"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "69ccd9ad-2db1-416d-92a5-410a8f33b216",
+   "selfUri": "/api/v2/conversations/recordings/69ccd9ad-2db1-416d-92a5-410a8f33b216"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "c9f6611b-adf8-41d0-b514-fff3171f2a78",
+   "transactionId": "38fc3f3d-fae0-432e-8f03-28314bba051a"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "b57d0952-99b3-4d12-88e4-57bcc0bedb30",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:06:04.741Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Grace Kim viewed Recording 06b08b12-d61c-40cd-ac37-c679bc2ab1ae",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "06b08b12-d61c-40cd-ac37-c679bc2ab1ae"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "06b08b12-d61c-40cd-ac37-c679bc2ab1ae",
+   "selfUri": "/api/v2/conversations/recordings/06b08b12-d61c-40cd-ac37-c679bc2ab1ae"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "740eae0c-a75e-41ea-9d43-990f6786b924",
+   "transactionId": "b83c321d-c7b5-4928-b372-d868a40f2ad9"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "0e329c36-8a7e-4373-b46a-ef1ee0044225",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Authorization",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:27:08.100Z",
+  "message": {
+   "message": "{user} deleted Role {entityName}",
+   "messageWithParams": "Ben Okafor deleted Role Agent",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Agent"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "1140b9e0-edfc-4e1a-ab84-dd710135ccd0",
+   "name": "Agent",
+   "selfUri": "/api/v2/authorization/roles/1140b9e0-edfc-4e1a-ab84-dd710135ccd0"
+  },
+  "entityType": "Role",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "27659229-4910-4fef-8a9e-e1d6ca2edd2c",
+   "transactionId": "39474902-9598-4be1-99ef-9ab2efa1bb3b"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Role.State",
+    "entity": {
+     "id": "1140b9e0-edfc-4e1a-ab84-dd710135ccd0",
+     "name": "Agent"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "90a8fade-8e7e-41ca-a43d-8817d23370c5",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:35:30.790Z",
+  "message": {
+   "message": "{user} updated Conversation {entityName}",
+   "messageWithParams": "Chloe Martin updated Conversation 3baf7ce9-ecb8-459b-bc88-9e42045a1034",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "3baf7ce9-ecb8-459b-bc88-9e42045a1034"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "3baf7ce9-ecb8-459b-bc88-9e42045a1034",
+   "selfUri": "/api/v2/conversations/3baf7ce9-ecb8-459b-bc88-9e42045a1034"
+  },
+  "entityType": "Conversation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "0d772371-0c7e-48f3-a3ae-6079b6dd47ac",
+   "transactionId": "85776101-215f-41e6-9632-f72465de601e"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "c4bac200-8367-4958-9592-99956b86d09b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:44:14.223Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Grace Kim viewed Recording 72d9aaa0-56aa-4f2b-90ab-82351c53af3d",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "72d9aaa0-56aa-4f2b-90ab-82351c53af3d"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "72d9aaa0-56aa-4f2b-90ab-82351c53af3d",
+   "selfUri": "/api/v2/conversations/recordings/72d9aaa0-56aa-4f2b-90ab-82351c53af3d"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "4d503157-8ed9-40a3-bab9-06ee3d6c4bd6",
+   "transactionId": "32fec324-1a61-4f2a-a0b8-cf1841a0bf43"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "ad31921f-eee9-469d-aaf7-047fe1143ecf",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.142"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:53:09.957Z",
+  "message": {
+   "message": "{user} updated Evaluation {entityName}",
+   "messageWithParams": "Hugo Silva updated Evaluation f1b5621c-9e61-4cc8-a43a-df4f05f7da22",
+   "messageParams": {
+    "user": "Hugo Silva",
+    "entityName": "f1b5621c-9e61-4cc8-a43a-df4f05f7da22"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "f1b5621c-9e61-4cc8-a43a-df4f05f7da22",
+   "selfUri": "/api/v2/quality/evaluations/f1b5621c-9e61-4cc8-a43a-df4f05f7da22"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "f5b9591e-c5d6-42b6-aa75-3cfe1e606bef",
+   "transactionId": "6acda51a-3969-462c-b9aa-33de4d0a8b70"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "752f8a3a-d489-469e-a411-f9391682084f",
+   "name": "Hugo Silva",
+   "selfUri": "/api/v2/users/752f8a3a-d489-469e-a411-f9391682084f"
+  }
+ },
+ {
+  "id": "2896fd10-802d-4414-8956-9d5fe6428bb0",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.140"
+  ],
+  "serviceName": "Architect",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:58:19.993Z",
+  "message": {
+   "message": "{user} checked out Flow {entityName}",
+   "messageWithParams": "Emma Rossi checked out Flow Callback Flow",
+   "messageParams": {
+    "user": "Emma Rossi",
+    "entityName": "Callback Flow"
+   }
+  },
+  "action": "Checkout",
+  "entity": {
+   "id": "c55d776e-8b44-40b6-aec7-51b56fd0b362",
+   "name": "Callback Flow",
+   "selfUri": "/api/v2/flows/c55d776e-8b44-40b6-aec7-51b56fd0b362"
+  },
+  "entityType": "Flow",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "4b2b9616-52fc-4a7d-9f3c-923f5bcf4188",
+   "transactionId": "2c98f508-0c16-4c2c-bf99-9b23b0643e01"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "bc579609-1d57-4d09-affc-201a50d6c424",
+   "name": "Emma Rossi",
+   "selfUri": "/api/v2/users/bc579609-1d57-4d09-affc-201a50d6c424"
+  }
+ },
+ {
+  "id": "b218827d-7246-466f-bb88-3d46df9f9705",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.67"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T02:58:54.606Z",
+  "message": {
+   "message": "{user} downloaded Recording {entityName}",
+   "messageWithParams": "Liam O'Brien downloaded Recording 340fee1b-0414-4d39-aef2-9be3c9b9f07a",
+   "messageParams": {
+    "user": "Liam O'Brien",
+    "entityName": "340fee1b-0414-4d39-aef2-9be3c9b9f07a"
+   }
+  },
+  "action": "Download",
+  "entity": {
+   "id": "340fee1b-0414-4d39-aef2-9be3c9b9f07a",
+   "selfUri": "/api/v2/conversations/recordings/340fee1b-0414-4d39-aef2-9be3c9b9f07a"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "583d4a9c-7296-4662-9758-cad8604f6b7e",
+   "transactionId": "f5d6c870-0055-4fbb-9de4-d5db2563efa4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "f02c1321-852e-49ea-a68f-f1a2e236b200",
+   "name": "Liam O'Brien",
+   "selfUri": "/api/v2/users/f02c1321-852e-49ea-a68f-f1a2e236b200"
+  }
+ },
+ {
+  "id": "869a4f5d-8a3e-45aa-9345-88acb76bf68f",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T03:02:42.688Z",
+  "message": {
+   "message": "{user} created User {entityName}",
+   "messageWithParams": "Ben Okafor created User Ben Okafor",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Ben Okafor"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "ff316504-3cce-46c9-9bf6-63332b67432e",
+   "transactionId": "dfe09475-63bc-4cba-87bb-dc9a19d594fa"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "9cf33726-4f70-4070-b18d-41fdf88d92d0",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.140"
+  ],
+  "serviceName": "WebDeployments",
+  "level": "USER",
+  "eventDate": "2026-10-12T03:33:16.858Z",
+  "message": {
+   "message": "{user} updated Deployment {entityName}",
+   "messageWithParams": "Emma Rossi updated Deployment Mobile App Messaging",
+   "messageParams": {
+    "user": "Emma Rossi",
+    "entityName": "Mobile App Messaging"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "bb4efe0d-1cc3-4abb-8461-a74b409014fe",
+   "name": "Mobile App Messaging",
+   "selfUri": "/api/v2/webdeployments/deployments/bb4efe0d-1cc3-4abb-8461-a74b409014fe"
+  },
+  "entityType": "Deployment",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "b2e2d50c-dbec-4a96-938f-347d9cfc499a",
+   "transactionId": "a0f67372-19c7-4c50-ba2d-e6220de7ddbd"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "bc579609-1d57-4d09-affc-201a50d6c424",
+   "name": "Emma Rossi",
+   "selfUri": "/api/v2/users/bc579609-1d57-4d09-affc-201a50d6c424"
+  }
+ },
+ {
+  "id": "b8a25327-0e1f-49da-99c8-bef6c5160f07",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.10"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T03:35:31.805Z",
+  "message": {
+   "message": "{user} assigned DID {entityName}",
+   "messageWithParams": "Isla Murphy assigned DID +61 2 8000 1050",
+   "messageParams": {
+    "user": "Isla Murphy",
+    "entityName": "+61 2 8000 1050"
+   }
+  },
+  "action": "Assign",
+  "entity": {
+   "id": "147fed26-3bfd-4e01-9154-165536f82cc2",
+   "name": "+61 2 8000 1050",
+   "selfUri": "/api/v2/telephony/providers/edges/dids/147fed26-3bfd-4e01-9154-165536f82cc2"
+  },
+  "entityType": "DID",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "7f77d0cf-54e5-4904-b2de-e3a29526542f",
+   "transactionId": "c28e78d2-6755-4d6e-ba0e-a1d8cc01f7a6"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  }
+ },
+ {
+  "id": "31d8ee83-5f4e-4702-8900-5d76bb45f23c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:01:17.573Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Kavya Raman viewed Report Interactions Detail",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "Interactions Detail"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "93e3cbd6-4885-4ff1-8b38-93b76740d6ed",
+   "name": "Interactions Detail",
+   "selfUri": "/api/v2/analytics/reporting/exports/93e3cbd6-4885-4ff1-8b38-93b76740d6ed"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "63b3a311-ca96-4114-85ab-c046b0aae84b",
+   "transactionId": "94730226-1657-4559-8b2a-6a5ef505c937"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "76401850-4287-4c39-88a0-ed95c6e68098",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:18:47.167Z",
+  "message": {
+   "message": "{user} updated Evaluation {entityName}",
+   "messageWithParams": "Grace Kim updated Evaluation ea1bf4d5-88fa-471b-84a0-fa94e332c0f4",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "ea1bf4d5-88fa-471b-84a0-fa94e332c0f4"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "ea1bf4d5-88fa-471b-84a0-fa94e332c0f4",
+   "selfUri": "/api/v2/quality/evaluations/ea1bf4d5-88fa-471b-84a0-fa94e332c0f4"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "9a0bfe98-80a1-4526-8a42-4655e154c01f",
+   "transactionId": "991f2402-c29d-4df7-ac9f-cf1b47e573a8"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "ab233596-c1d8-41f9-859e-2213993b71e9",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:27:28.680Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Ben Okafor updated Queue Support L2",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Support L2"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+   "name": "Support L2",
+   "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "63a3d9fd-273c-480a-9821-f21dd94dab3c",
+   "transactionId": "c03a8e07-3f3c-482d-97f7-5fd99c30c05a"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.Members",
+    "entity": {
+     "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+     "name": "Support L2",
+     "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+    },
+    "oldValues": [
+     "Alice Nguyen",
+     "Ben Okafor"
+    ],
+    "newValues": [
+     "Alice Nguyen",
+     "Ben Okafor",
+     "Chloe Martin"
+    ]
+   },
+   {
+    "property": "Queue.AcwSettings.WrapupPrompt",
+    "entity": {
+     "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+     "name": "Support L2",
+     "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+    },
+    "oldValues": [
+     "OPTIONAL"
+    ],
+    "newValues": [
+     "MANDATORY_TIMEOUT"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "8196a4fa-0498-4db1-92a8-e9393b2d94ac",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.121"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:29:45.738Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Jonas Weber updated Queue Support L1",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Support L1"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+   "name": "Support L1",
+   "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "3300eb19-bbc0-4ba2-a48a-ee228c636581",
+   "transactionId": "f203fe95-f40a-49d8-b8d7-c1cf1c426888"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.Members",
+    "entity": {
+     "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+     "name": "Support L1",
+     "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+    },
+    "oldValues": [
+     "Alice Nguyen",
+     "Ben Okafor"
+    ],
+    "newValues": [
+     "Alice Nguyen",
+     "Ben Okafor",
+     "Chloe Martin"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "e76027bf-a462-47f6-89ab-19d121894152",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:40:38.498Z",
+  "message": {
+   "message": "{user} updated Trunk {entityName}",
+   "messageWithParams": "Ben Okafor updated Trunk SIP Trunk A",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "SIP Trunk A"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "5602f01e-c06d-4eaa-a9e1-56ef899adc61",
+   "name": "SIP Trunk A",
+   "selfUri": "/api/v2/telephony/providers/edges/trunks/5602f01e-c06d-4eaa-a9e1-56ef899adc61"
+  },
+  "entityType": "Trunk",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "f36972ad-0672-4c9d-bf4b-001679f795c7",
+   "transactionId": "f4451962-7a08-44e2-aa9e-e7f12d1fec2d"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Trunk.Inbound.MaxCalls",
+    "entity": {
+     "id": "5602f01e-c06d-4eaa-a9e1-56ef899adc61",
+     "name": "SIP Trunk A",
+     "selfUri": "/api/v2/telephony/providers/edges/trunks/5602f01e-c06d-4eaa-a9e1-56ef899adc61"
+    },
+    "oldValues": [
+     "100"
+    ],
+    "newValues": [
+     "150"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "b1992935-acc2-4786-9107-4591b1661644",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:49:00.842Z",
+  "message": {
+   "message": "{user} updated User {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated User Grace Kim",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Grace Kim"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "b6ac5e93-e79d-449d-adec-dc10337130e7",
+   "transactionId": "ec6f9104-3345-489b-be9d-b2ada91173d2"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "User.Title",
+    "entity": {
+     "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+     "name": "Grace Kim",
+     "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+    },
+    "oldValues": [
+     "Agent"
+    ],
+    "newValues": [
+     "Senior Agent"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "778aee21-9672-40a3-93c3-ac23f53cc3bc",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.58"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:49:04.903Z",
+  "message": {
+   "message": "{user} updated Location {entityName}",
+   "messageWithParams": "Ben Okafor updated Location Manila",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Manila"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "6695d27d-808a-4410-9dcc-aaf4fe5d986c",
+   "name": "Manila",
+   "selfUri": "/api/v2/locations/6695d27d-808a-4410-9dcc-aaf4fe5d986c"
+  },
+  "entityType": "Location",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "e9a33bb7-7768-4e72-8f44-b21a47f06061",
+   "transactionId": "55dd3fe9-89d2-4a61-b4a5-98f7e6970394"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "fec6058c-1f22-415d-b2cd-4eefef3cde99",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T04:59:09.905Z",
+  "message": {
+   "message": "{user} updated Credential {entityName}",
+   "messageWithParams": "Alice Nguyen updated Credential Salesforce OAuth",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Salesforce OAuth"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "53b3f261-79a4-420e-913f-9d199a7e2777",
+   "name": "Salesforce OAuth",
+   "selfUri": "/api/v2/integrations/credentials/53b3f261-79a4-420e-913f-9d199a7e2777"
+  },
+  "entityType": "Credential",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "f1e5d28f-0633-4a60-9bc5-a908b5c0d596",
+   "transactionId": "9894637f-bf89-4ef8-a68e-373304f9b2dd"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "712b7f22-51ce-46d7-909e-1273ddef0af0",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.121"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T05:32:09.979Z",
+  "message": {
+   "message": "{user} created Queue {entityName}",
+   "messageWithParams": "Jonas Weber created Queue Retention",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Retention"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "3b03a066-033b-4885-944d-fa24764490d2",
+   "name": "Retention",
+   "selfUri": "/api/v2/routing/queues/3b03a066-033b-4885-944d-fa24764490d2"
+  },
+  "entityType": "Queue",
+  "status": "Failure",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "61eb0b53-9889-4e27-b34c-0df02e493109",
+   "transactionId": "fcce130d-ead3-413d-94ea-45e1e5161d47"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "5fc077ea-d1e2-4abc-977b-053b541d0d2a",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.191"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T05:35:29.103Z",
+  "message": {
+   "message": "{user} updated Edge {entityName}",
+   "messageWithParams": "Isla Murphy updated Edge Edge-SYD-01",
+   "messageParams": {
+    "user": "Isla Murphy",
+    "entityName": "Edge-SYD-01"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "d29632f7-8e96-425a-a1e6-d9babe36c7ad",
+   "name": "Edge-SYD-01",
+   "selfUri": "/api/v2/telephony/providers/edges/d29632f7-8e96-425a-a1e6-d9babe36c7ad"
+  },
+  "entityType": "Edge",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "21866290-b748-4b97-b591-c7f253efc06f",
+   "transactionId": "8cb6b07e-375d-4371-ad47-b741981cbbb0"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  }
+ },
+ {
+  "id": "20db31b8-f9d3-4f17-915b-2d9e3c9a9b56",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.121"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T05:53:05.056Z",
+  "message": {
+   "message": "{user} deleted Queue {entityName}",
+   "messageWithParams": "Jonas Weber deleted Queue Support L2",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Support L2"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+   "name": "Support L2",
+   "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "5fd0e205-44dd-424f-8513-ad3be2b464d5",
+   "transactionId": "674e1d34-6549-4552-b376-91de1f509520"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.State",
+    "entity": {
+     "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+     "name": "Support L2"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "a4d76588-e556-4699-9073-a6430c2ec59d",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.121"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:00:08.066Z",
+  "message": {
+   "message": "{user} deleted Queue {entityName}",
+   "messageWithParams": "Jonas Weber deleted Queue Billing",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Billing"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+   "name": "Billing",
+   "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "2e6d28ca-4e11-4d78-9a79-baa83d3b8885",
+   "transactionId": "886e7e93-8cf7-4df9-b6ec-4ed854e8e955"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.State",
+    "entity": {
+     "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+     "name": "Billing"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "ef4015d0-e3a2-4e4c-a4d6-477b66278bb6",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:12:16.639Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Grace Kim viewed Recording 26d4c567-5137-440b-bab8-513187fb2d3b",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "26d4c567-5137-440b-bab8-513187fb2d3b"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "26d4c567-5137-440b-bab8-513187fb2d3b",
+   "selfUri": "/api/v2/conversations/recordings/26d4c567-5137-440b-bab8-513187fb2d3b"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "62e26d28-cce0-45eb-a338-3644b545bba9",
+   "transactionId": "5cfb0f6a-1c82-4bdd-b5e4-86f4ab41db62"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "8bc32edc-408f-4a68-845e-a50e2edc2e59",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.191"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:13:25.908Z",
+  "message": {
+   "message": "{user} unassigned DID {entityName}",
+   "messageWithParams": "Isla Murphy unassigned DID +61 3 9000 2000",
+   "messageParams": {
+    "user": "Isla Murphy",
+    "entityName": "+61 3 9000 2000"
+   }
+  },
+  "action": "Unassign",
+  "entity": {
+   "id": "6d802de0-48cb-4dea-a800-92985d624cbf",
+   "name": "+61 3 9000 2000",
+   "selfUri": "/api/v2/telephony/providers/edges/dids/6d802de0-48cb-4dea-a800-92985d624cbf"
+  },
+  "entityType": "DID",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "87f11b9a-b17b-4689-9dda-bbffaad02cac",
+   "transactionId": "eea15e00-d9b6-488e-839e-57eba864eb92"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  }
+ },
+ {
+  "id": "0dd2a824-ed0a-418d-ba5f-725bc421596c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:15:14.570Z",
+  "message": {
+   "message": "{user} created Queue {entityName}",
+   "messageWithParams": "Alice Nguyen created Queue Support L1",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Support L1"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+   "name": "Support L1",
+   "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "aa8d738a-1223-4929-b238-63d230f6b9a4",
+   "transactionId": "548b1f62-ada8-4f5b-b9ef-950b167a8334"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "3358c5de-57cc-47e4-a817-bb2c0c93612a",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:38:42.464Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Grace Kim viewed Recording d1e4222d-83b6-4910-9550-efbe9f6648cd",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "d1e4222d-83b6-4910-9550-efbe9f6648cd"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "d1e4222d-83b6-4910-9550-efbe9f6648cd",
+   "selfUri": "/api/v2/conversations/recordings/d1e4222d-83b6-4910-9550-efbe9f6648cd"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "87bf8a0a-f9f0-43f6-9072-135d80938464",
+   "transactionId": "ef5792b9-ff7e-4f72-8486-a548eb04d7e6"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "a024f514-6352-4214-9315-0bf099dbbb24",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.141"
+  ],
+  "serviceName": "Outbound",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:45:14.107Z",
+  "message": {
+   "message": "{user} downloaded ContactList {entityName}",
+   "messageWithParams": "Dev Patel downloaded ContactList Renewals_2026_10",
+   "messageParams": {
+    "user": "Dev Patel",
+    "entityName": "Renewals_2026_10"
+   }
+  },
+  "action": "Download",
+  "entity": {
+   "id": "b32ad309-7170-4b6a-832e-9daebb7fdd4c",
+   "name": "Renewals_2026_10",
+   "selfUri": "/api/v2/outbound/contactlists/b32ad309-7170-4b6a-832e-9daebb7fdd4c"
+  },
+  "entityType": "ContactList",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "296bfd63-dadc-4369-accf-3b3933af40c3",
+   "transactionId": "fdcf4b97-b400-402b-82f2-b8bcdb6c70ca"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9b78edcb-131e-4575-bba5-87808f4cc5fd",
+   "name": "Dev Patel",
+   "selfUri": "/api/v2/users/9b78edcb-131e-4575-bba5-87808f4cc5fd"
+  }
+ },
+ {
+  "id": "2f9e4715-7d41-41c8-baff-35a0b6d80071",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.58"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:50:33.359Z",
+  "message": {
+   "message": "{user} updated User {entityName}",
+   "messageWithParams": "Ben Okafor updated User Ben Okafor",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Ben Okafor"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "4881766b-48c4-4cd8-8fb2-225b8c22b1d1",
+   "transactionId": "691210c4-3321-4d10-96a0-c2e2a439645f"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "User.Manager",
+    "entity": {
+     "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+     "name": "Ben Okafor",
+     "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+    },
+    "oldValues": [
+     "Chloe Martin"
+    ],
+    "newValues": [
+     "Dev Patel"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "6bfd7cbd-4cc7-4f34-ab89-978e1a040c4b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "OAuth",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:52:30.637Z",
+  "message": {
+   "message": "{user} deleted Client {entityName}",
+   "messageWithParams": "Ben Okafor deleted Client Salesforce CTI Sync",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Salesforce CTI Sync"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "943b6fde-ca5a-4998-bd11-42a3e0eb29a3",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/943b6fde-ca5a-4998-bd11-42a3e0eb29a3"
+  },
+  "entityType": "Client",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "1c266fe4-9efd-4bd3-bf4f-af607fead844",
+   "transactionId": "8efe2376-5cdf-474e-a395-cd61a431deb1"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Client.State",
+    "entity": {
+     "id": "943b6fde-ca5a-4998-bd11-42a3e0eb29a3",
+     "name": "Salesforce CTI Sync"
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "83b00c0d-56f7-4c59-9d6b-02d603623d3c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T06:57:29.207Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Kavya Raman viewed Recording cfa06f52-c2b0-40ea-ac05-3247250cde64",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "cfa06f52-c2b0-40ea-ac05-3247250cde64"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "cfa06f52-c2b0-40ea-ac05-3247250cde64",
+   "selfUri": "/api/v2/conversations/recordings/cfa06f52-c2b0-40ea-ac05-3247250cde64"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "661472cf-a58c-4985-afa7-9c1308553a20",
+   "transactionId": "f956b968-0ecd-46a8-b8b5-d4314c23c3b8"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "9dd0ed9b-5ce3-4cfc-92c7-5928101dd39b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.149"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T07:16:34.866Z",
+  "message": {
+   "message": "{user} created Skill {entityName}",
+   "messageWithParams": "Farid Haddad created Skill Tech Tier 2",
+   "messageParams": {
+    "user": "Farid Haddad",
+    "entityName": "Tech Tier 2"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "ea761ab8-021c-4609-bf34-fb882e174f1b",
+   "name": "Tech Tier 2",
+   "selfUri": "/api/v2/routing/skills/ea761ab8-021c-4609-bf34-fb882e174f1b"
+  },
+  "entityType": "Skill",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "04693cde-bfc8-4a2f-a06b-7b9621292246",
+   "transactionId": "eebfaa6c-7fb0-49f9-b8ba-367e0c0b3635"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  }
+ },
+ {
+  "id": "9b2b50c6-637c-431e-b62a-9ec84d59e0de",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.149"
+  ],
+  "serviceName": "WebDeployments",
+  "level": "USER",
+  "eventDate": "2026-10-12T07:27:22.396Z",
+  "message": {
+   "message": "{user} published Configuration {entityName}",
+   "messageWithParams": "Farid Haddad published Configuration Website Chat Config",
+   "messageParams": {
+    "user": "Farid Haddad",
+    "entityName": "Website Chat Config"
+   }
+  },
+  "action": "Publish",
+  "entity": {
+   "id": "1fab7315-c545-4fae-91a2-3ea42be6cd4a",
+   "name": "Website Chat Config",
+   "selfUri": "/api/v2/webdeployments/configurations/1fab7315-c545-4fae-91a2-3ea42be6cd4a"
+  },
+  "entityType": "Configuration",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "56c38ae9-97c1-4ebe-8aa7-a828d48e108f",
+   "transactionId": "ca264bab-709d-42ef-9894-cc768660dcd3"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  }
+ },
+ {
+  "id": "e6eb79e4-35f8-4ee6-8ee2-37821b6bf6d5",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "OAuth",
+  "level": "USER",
+  "eventDate": "2026-10-12T07:34:27.183Z",
+  "message": {
+   "message": "{user} created Client {entityName}",
+   "messageWithParams": "Alice Nguyen created Client Bulk User Loader",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Bulk User Loader"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "50b0f1f0-6a3f-4366-a41f-957d9325e8de",
+   "name": "Bulk User Loader",
+   "selfUri": "/api/v2/oauth/clients/50b0f1f0-6a3f-4366-a41f-957d9325e8de"
+  },
+  "entityType": "Client",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "f130b462-1b56-4a0d-840a-3c87ff8fbf8b",
+   "transactionId": "f311ad58-5744-4f52-b5ea-f377a852f6f7"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "14bbbd6e-47f0-4a87-b962-baed87d3e817",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T07:53:06.512Z",
+  "message": {
+   "message": "{user} viewed Conversation {entityName}",
+   "messageWithParams": "Chloe Martin viewed Conversation f222e79d-1790-406e-8ebd-bc88d14e7f8f",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "f222e79d-1790-406e-8ebd-bc88d14e7f8f"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "f222e79d-1790-406e-8ebd-bc88d14e7f8f",
+   "selfUri": "/api/v2/conversations/f222e79d-1790-406e-8ebd-bc88d14e7f8f"
+  },
+  "entityType": "Conversation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "220baeb1-f727-4579-b00f-1a7512409262",
+   "transactionId": "34d8e6fd-0520-47d3-a0cc-4d39e98866fb"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "489cfd80-f8bc-4e4e-a885-29ff8cd731bf",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.62.44.186"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T07:59:11.408Z",
+  "message": {
+   "message": "{user} updated Integration {entityName}",
+   "messageWithParams": "Workforce Scheduler Bot updated Integration ServiceNow",
+   "messageParams": {
+    "user": "Workforce Scheduler Bot",
+    "entityName": "ServiceNow"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "800e7c83-9471-4826-a9f4-0ab5af11f22d",
+   "name": "ServiceNow",
+   "selfUri": "/api/v2/integrations/800e7c83-9471-4826-a9f4-0ab5af11f22d"
+  },
+  "entityType": "Integration",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "1f283230-c2a2-4d15-9daa-795d7d59c5ae",
+   "transactionId": "e243c4bc-e238-4edd-8ae3-1db2f5689099"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Integration.State",
+    "entity": {
+     "id": "800e7c83-9471-4826-a9f4-0ab5af11f22d",
+     "name": "ServiceNow",
+     "selfUri": "/api/v2/integrations/800e7c83-9471-4826-a9f4-0ab5af11f22d"
+    },
+    "oldValues": [
+     "ENABLED"
+    ],
+    "newValues": [
+     "DISABLED"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "id": "b9dd18b6-6c68-4667-b38f-de509eb375ba",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.62.44.186"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T08:07:56.342Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Workforce Scheduler Bot updated Queue Billing",
+   "messageParams": {
+    "user": "Workforce Scheduler Bot",
+    "entityName": "Billing"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+   "name": "Billing",
+   "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "614bfb16-5556-45fc-b9da-591ebd7399a9",
+   "transactionId": "36cbd91a-686e-43e6-b706-4816d5c04896"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.MediaSettings.Call.AlertingTimeoutSeconds",
+    "entity": {
+     "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+     "name": "Billing",
+     "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+    },
+    "oldValues": [
+     "8"
+    ],
+    "newValues": [
+     "12"
+    ]
+   },
+   {
+    "property": "Queue.AcwSettings.WrapupPrompt",
+    "entity": {
+     "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+     "name": "Billing",
+     "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+    },
+    "oldValues": [
+     "OPTIONAL"
+    ],
+    "newValues": [
+     "MANDATORY_TIMEOUT"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "id": "7e74148a-b7a4-4544-a7ce-85ac0f1200fb",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "OAuth",
+  "level": "USER",
+  "eventDate": "2026-10-12T08:10:12.333Z",
+  "message": {
+   "message": "{user} updated Client {entityName}",
+   "messageWithParams": "Ben Okafor updated Client Azure Audit Pipeline",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Azure Audit Pipeline"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "dbaf01f3-2d06-464e-b5ba-6b497743a3c7",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/dbaf01f3-2d06-464e-b5ba-6b497743a3c7"
+  },
+  "entityType": "Client",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "9667a0eb-c6cb-4786-adcc-9747dee2aed7",
+   "transactionId": "5d6a95d7-aead-4654-bb6d-27de7ba2bf14"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "a123176f-7ac3-4ca4-bb05-e35a0d9bded6",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.142"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T08:51:26.352Z",
+  "message": {
+   "message": "{user} deleted Evaluation {entityName}",
+   "messageWithParams": "Hugo Silva deleted Evaluation 51892b13-8498-45ba-b312-9d8f04a305d1",
+   "messageParams": {
+    "user": "Hugo Silva",
+    "entityName": "51892b13-8498-45ba-b312-9d8f04a305d1"
+   }
+  },
+  "action": "Delete",
+  "entity": {
+   "id": "51892b13-8498-45ba-b312-9d8f04a305d1",
+   "selfUri": "/api/v2/quality/evaluations/51892b13-8498-45ba-b312-9d8f04a305d1"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "8c889c6c-1335-4125-9824-cfd96714fdd3",
+   "transactionId": "aff05614-7bda-4b7f-84d8-10c52fc6a909"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Evaluation.State",
+    "entity": {
+     "id": "51892b13-8498-45ba-b312-9d8f04a305d1",
+     "name": null
+    },
+    "oldValues": [
+     "active"
+    ],
+    "newValues": [
+     "deleted"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "752f8a3a-d489-469e-a411-f9391682084f",
+   "name": "Hugo Silva",
+   "selfUri": "/api/v2/users/752f8a3a-d489-469e-a411-f9391682084f"
+  }
+ },
+ {
+  "id": "616ac028-509a-47f0-83a6-d32390f7f70d",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.62.44.186"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T08:58:03.141Z",
+  "message": {
+   "message": "{user} updated User {entityName}",
+   "messageWithParams": "Workforce Scheduler Bot updated User Ben Okafor",
+   "messageParams": {
+    "user": "Workforce Scheduler Bot",
+    "entityName": "Ben Okafor"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "5bdb79dc-da91-4c65-b88d-d074c61c9f44",
+   "transactionId": "18c188b1-d897-4084-9101-e69ad0accbd5"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "User.Department",
+    "entity": {
+     "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+     "name": "Ben Okafor",
+     "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+    },
+    "oldValues": [
+     "Sales"
+    ],
+    "newValues": [
+     "Customer Success"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "id": "708ce76b-f5ca-4793-8968-88462c9a5c54",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T09:03:14.246Z",
+  "message": {
+   "message": "{user} updated User {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated User Chloe Martin",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Chloe Martin"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "d02072e7-b41e-4590-a6b4-dbce39f91430",
+   "transactionId": "87f99d69-0eb4-4799-9895-c0c7a9624221"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "User.Department",
+    "entity": {
+     "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+     "name": "Chloe Martin",
+     "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+    },
+    "oldValues": [
+     "Sales"
+    ],
+    "newValues": [
+     "Customer Success"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "24e5b006-5d8e-40cc-b2bd-a0bc54b510c4",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [],
+  "serviceName": "Routing",
+  "level": "SYSTEM",
+  "eventDate": "2026-10-12T11:45:39.723Z",
+  "message": {
+   "message": "Queue {entityName} membership recalculated",
+   "messageWithParams": "Queue Sales Queue membership recalculated",
+   "messageParams": {
+    "entityName": "Sales Queue"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Sales Queue",
+   "selfUri": "/api/v2/routing/queues/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Platform",
+  "initiatingAction": {
+   "id": "77a8d1df-0eac-4ffd-9014-ed0ab7a658bc",
+   "transactionId": "77513b3a-b189-4882-8a59-c394cd129389"
+  },
+  "transactionInitiator": false,
+  "propertyChanges": [],
+  "context": {}
+ },
+ {
+  "id": "89643ba5-f717-4abe-bc87-3e8ac286df77",
+  "userHomeOrgId": "a3b7d9e1-2f4c-4b8a-8e6d-5c1f0a9b8c7d",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.213"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T12:07:52.031Z",
+  "message": {
+   "message": "{user} updated Credential {entityName}",
+   "messageWithParams": "Partner Support (Acme MSP) updated Credential Salesforce OAuth",
+   "messageParams": {
+    "user": "Partner Support (Acme MSP)",
+    "entityName": "Salesforce OAuth"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "53b3f261-79a4-420e-913f-9d199a7e2777",
+   "name": "Salesforce OAuth",
+   "selfUri": "/api/v2/integrations/credentials/53b3f261-79a4-420e-913f-9d199a7e2777"
+  },
+  "entityType": "Credential",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "f274ce40-3e15-4a8e-ac96-4cda280b0e63",
+   "transactionId": "4ddd725f-07aa-4570-8ada-00c5fbd01899"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3182ac3f-510f-4fb3-b9ac-f377140ba9d7",
+   "name": "Partner Support (Acme MSP)",
+   "selfUri": "/api/v2/users/3182ac3f-510f-4fb3-b9ac-f377140ba9d7"
+  }
+ },
+ {
+  "id": "0064d0c6-51b5-48a6-a29c-d688ce63e385",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.149"
+  ],
+  "serviceName": "WebDeployments",
+  "level": "USER",
+  "eventDate": "2026-10-12T13:08:40.353Z",
+  "message": {
+   "message": "{user} updated Deployment {entityName}",
+   "messageWithParams": "Farid Haddad updated Deployment Website Chat",
+   "messageParams": {
+    "user": "Farid Haddad",
+    "entityName": "Website Chat"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "d5baef95-be9a-4db7-9f83-06aa5918f5fa",
+   "name": "Website Chat",
+   "selfUri": "/api/v2/webdeployments/deployments/d5baef95-be9a-4db7-9f83-06aa5918f5fa"
+  },
+  "entityType": "Deployment",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "fddf99d6-0cf6-4103-86d2-d8cd58618fb4",
+   "transactionId": "b8742768-604e-4b18-9a58-3c5b2df998b6"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  }
+ },
+ {
+  "id": "e195ea46-03d0-40e5-9cdf-a3a1836173e4",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Outbound",
+  "level": "USER",
+  "eventDate": "2026-10-12T13:45:58.304Z",
+  "message": {
+   "message": "{user} uploaded ContactList {entityName}",
+   "messageWithParams": "Salesforce CTI Sync uploaded ContactList Renewals_2026_10",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Renewals_2026_10"
+   }
+  },
+  "action": "Upload",
+  "entity": {
+   "id": "b32ad309-7170-4b6a-832e-9daebb7fdd4c",
+   "name": "Renewals_2026_10",
+   "selfUri": "/api/v2/outbound/contactlists/b32ad309-7170-4b6a-832e-9daebb7fdd4c"
+  },
+  "entityType": "ContactList",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "fbf98ef5-7530-400b-9cea-777039e0ff3a",
+   "transactionId": "c9d43058-95f7-41a7-83b0-38ed0156e0fc"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "9caf53f8-2cc4-4608-8677-c09b6f0b5606",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T13:56:18.610Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated Queue Sales Queue",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Sales Queue"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Sales Queue",
+   "selfUri": "/api/v2/routing/queues/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "aa0952ac-4923-46d8-ad40-d30c4f720938",
+   "transactionId": "139363b0-747f-400a-9968-34b78eaa0400"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.MediaSettings.Call.ServiceLevel.Percentage",
+    "entity": {
+     "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+     "name": "Sales Queue",
+     "selfUri": "/api/v2/routing/queues/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+    },
+    "oldValues": [
+     "0.8"
+    ],
+    "newValues": [
+     "0.85"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "f61b5bf4-398d-438f-8312-7153034b46f2",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Outbound",
+  "level": "USER",
+  "eventDate": "2026-10-12T14:11:20.419Z",
+  "message": {
+   "message": "{user} uploaded ContactList {entityName}",
+   "messageWithParams": "Salesforce CTI Sync uploaded ContactList Renewals_2026_10",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Renewals_2026_10"
+   }
+  },
+  "action": "Upload",
+  "entity": {
+   "id": "b32ad309-7170-4b6a-832e-9daebb7fdd4c",
+   "name": "Renewals_2026_10",
+   "selfUri": "/api/v2/outbound/contactlists/b32ad309-7170-4b6a-832e-9daebb7fdd4c"
+  },
+  "entityType": "ContactList",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "b6ffbf85-c073-41f7-979b-478dae858049",
+   "transactionId": "797f8a03-9c3e-4639-818a-3bf91dfc47a2"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "60e6fd85-e071-4b22-9ad8-ad92d2fca14e",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.62.44.186"
+  ],
+  "serviceName": "Outbound",
+  "level": "USER",
+  "eventDate": "2026-10-12T14:40:23.556Z",
+  "message": {
+   "message": "{user} uploaded ContactList {entityName}",
+   "messageWithParams": "Workforce Scheduler Bot uploaded ContactList Survey_Sample",
+   "messageParams": {
+    "user": "Workforce Scheduler Bot",
+    "entityName": "Survey_Sample"
+   }
+  },
+  "action": "Upload",
+  "entity": {
+   "id": "565d7322-fa9a-40cf-b9d4-1d900e4bd652",
+   "name": "Survey_Sample",
+   "selfUri": "/api/v2/outbound/contactlists/565d7322-fa9a-40cf-b9d4-1d900e4bd652"
+  },
+  "entityType": "ContactList",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "4a314a2b-1b33-4945-a7e9-44afc8272e6e",
+   "transactionId": "9bbc187b-af46-432f-98d3-5f46d9a8bd9c"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "client": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "id": "9133c8c4-1628-4e26-87ee-020ccca087a7",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.141"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T14:58:20.822Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Dev Patel viewed Report Interactions Detail",
+   "messageParams": {
+    "user": "Dev Patel",
+    "entityName": "Interactions Detail"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "93e3cbd6-4885-4ff1-8b38-93b76740d6ed",
+   "name": "Interactions Detail",
+   "selfUri": "/api/v2/analytics/reporting/exports/93e3cbd6-4885-4ff1-8b38-93b76740d6ed"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "38e221e6-ad39-462e-bc5e-876ba64d0816",
+   "transactionId": "6443a5dc-2818-4b7d-841f-2144bae58fc6"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9b78edcb-131e-4575-bba5-87808f4cc5fd",
+   "name": "Dev Patel",
+   "selfUri": "/api/v2/users/9b78edcb-131e-4575-bba5-87808f4cc5fd"
+  }
+ },
+ {
+  "id": "9a190f83-7dfc-43e3-8622-7c9f870970ad",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.13.83.220"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T15:05:22.844Z",
+  "message": {
+   "message": "{user} exported Report {entityName}",
+   "messageWithParams": "Azure Audit Pipeline exported Report Agent Status",
+   "messageParams": {
+    "user": "Azure Audit Pipeline",
+    "entityName": "Agent Status"
+   }
+  },
+  "action": "Export",
+  "entity": {
+   "id": "f1d56c76-705a-405a-8fc1-e5f1923ef348",
+   "name": "Agent Status",
+   "selfUri": "/api/v2/analytics/reporting/exports/f1d56c76-705a-405a-8fc1-e5f1923ef348"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "fe1ee3ef-404e-4bdf-87cd-540f056f87de",
+   "transactionId": "318d19ae-4ceb-4457-a83f-29395cac433c"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {
+   "jobType": "auditExport"
+  },
+  "client": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "id": "ba8b3ccd-346d-4bd0-a0de-4ff21457a45f",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T16:53:42.510Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Kavya Raman viewed Report Queue Performance",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "Queue Performance"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "7a9db551-b792-40d8-9d45-af372c8842b0",
+   "name": "Queue Performance",
+   "selfUri": "/api/v2/analytics/reporting/exports/7a9db551-b792-40d8-9d45-af372c8842b0"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "9986ec5f-75ab-4d8e-86cf-2ffe7d70e7c5",
+   "transactionId": "9f444c87-2de8-4d2a-b742-a0cdeea554d4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "02354e2f-c4a1-43b1-b8d6-f67a7a824e42",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.149"
+  ],
+  "serviceName": "WebDeployments",
+  "level": "USER",
+  "eventDate": "2026-10-12T18:05:47.478Z",
+  "message": {
+   "message": "{user} updated Deployment {entityName}",
+   "messageWithParams": "Farid Haddad updated Deployment Mobile App Messaging",
+   "messageParams": {
+    "user": "Farid Haddad",
+    "entityName": "Mobile App Messaging"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "bb4efe0d-1cc3-4abb-8461-a74b409014fe",
+   "name": "Mobile App Messaging",
+   "selfUri": "/api/v2/webdeployments/deployments/bb4efe0d-1cc3-4abb-8461-a74b409014fe"
+  },
+  "entityType": "Deployment",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "1101d4eb-00e1-4c2a-a47a-7df87187d32a",
+   "transactionId": "40729ad8-ee66-4976-9ca2-ee2dd19fa8dc"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  }
+ },
+ {
+  "id": "d5942c17-2443-48a4-aa02-31669ab57b25",
+  "userHomeOrgId": "a3b7d9e1-2f4c-4b8a-8e6d-5c1f0a9b8c7d",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.213"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T18:37:59.515Z",
+  "message": {
+   "message": "{user} updated Credential {entityName}",
+   "messageWithParams": "Partner Support (Acme MSP) updated Credential Salesforce OAuth",
+   "messageParams": {
+    "user": "Partner Support (Acme MSP)",
+    "entityName": "Salesforce OAuth"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "53b3f261-79a4-420e-913f-9d199a7e2777",
+   "name": "Salesforce OAuth",
+   "selfUri": "/api/v2/integrations/credentials/53b3f261-79a4-420e-913f-9d199a7e2777"
+  },
+  "entityType": "Credential",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "856aa049-3d99-4b1f-a22d-02ea98d052ef",
+   "transactionId": "c578f546-4358-4cc9-83cb-03a5f91fdd0a"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3182ac3f-510f-4fb3-b9ac-f377140ba9d7",
+   "name": "Partner Support (Acme MSP)",
+   "selfUri": "/api/v2/users/3182ac3f-510f-4fb3-b9ac-f377140ba9d7"
+  }
+ },
+ {
+  "id": "05da09c4-81ef-48e6-8c0a-e0fd7e9bfa2b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T18:44:48.018Z",
+  "message": {
+   "message": "{user} updated Evaluation {entityName}",
+   "messageWithParams": "Grace Kim updated Evaluation bab0fa0c-0e8f-4071-b9d2-ce5b1fff9f66",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "bab0fa0c-0e8f-4071-b9d2-ce5b1fff9f66"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "bab0fa0c-0e8f-4071-b9d2-ce5b1fff9f66",
+   "selfUri": "/api/v2/quality/evaluations/bab0fa0c-0e8f-4071-b9d2-ce5b1fff9f66"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "28c0ce94-df08-4f48-b10a-240476af6847",
+   "transactionId": "bd4632db-49af-49b6-bc76-a223440e3363"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "6f899b52-8e99-471e-8f3c-7624fdfc7fff",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.67"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T19:29:38.587Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Liam O'Brien viewed Recording 0ddc8153-887f-49a7-8941-e3484f0e651a",
+   "messageParams": {
+    "user": "Liam O'Brien",
+    "entityName": "0ddc8153-887f-49a7-8941-e3484f0e651a"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "0ddc8153-887f-49a7-8941-e3484f0e651a",
+   "selfUri": "/api/v2/conversations/recordings/0ddc8153-887f-49a7-8941-e3484f0e651a"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "fa0a164b-4cd1-4b49-8583-168953238e66",
+   "transactionId": "a4c42a1b-0db3-493e-a2f5-087801808ac6"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "f02c1321-852e-49ea-a68f-f1a2e236b200",
+   "name": "Liam O'Brien",
+   "selfUri": "/api/v2/users/f02c1321-852e-49ea-a68f-f1a2e236b200"
+  }
+ },
+ {
+  "id": "94e046b8-800b-425e-b578-ad8af8931a05",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [],
+  "serviceName": "Routing",
+  "level": "SYSTEM",
+  "eventDate": "2026-10-12T20:09:03.733Z",
+  "message": {
+   "message": "Queue {entityName} membership recalculated",
+   "messageWithParams": "Queue Support L1 membership recalculated",
+   "messageParams": {
+    "entityName": "Support L1"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+   "name": "Support L1",
+   "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Platform",
+  "initiatingAction": {
+   "id": "de633afa-672c-4275-a759-716df0cd44d6",
+   "transactionId": "e1cedb0d-1a81-4069-96d7-5f0c2f7b1ec5"
+  },
+  "transactionInitiator": false,
+  "propertyChanges": [],
+  "context": {}
+ },
+ {
+  "id": "92b9fad2-5c86-4b76-bde0-70205cfc7926",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.62.44.186"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T20:44:41.179Z",
+  "message": {
+   "message": "{user} updated Integration {entityName}",
+   "messageWithParams": "Workforce Scheduler Bot updated Integration ServiceNow",
+   "messageParams": {
+    "user": "Workforce Scheduler Bot",
+    "entityName": "ServiceNow"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "800e7c83-9471-4826-a9f4-0ab5af11f22d",
+   "name": "ServiceNow",
+   "selfUri": "/api/v2/integrations/800e7c83-9471-4826-a9f4-0ab5af11f22d"
+  },
+  "entityType": "Integration",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "f2e233a7-36bb-4a8b-9038-7f3c305e3887",
+   "transactionId": "6fd280ff-afa5-4bfe-8b02-cc731ee74c14"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Integration.State",
+    "entity": {
+     "id": "800e7c83-9471-4826-a9f4-0ab5af11f22d",
+     "name": "ServiceNow",
+     "selfUri": "/api/v2/integrations/800e7c83-9471-4826-a9f4-0ab5af11f22d"
+    },
+    "oldValues": [
+     "ENABLED"
+    ],
+    "newValues": [
+     "DISABLED"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "id": "eceb24fd-247d-42a7-a753-f766025c7257",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T21:02:24.277Z",
+  "message": {
+   "message": "{user} updated User {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated User Isla Murphy",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Isla Murphy"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+   "name": "Isla Murphy",
+   "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "e5038227-cdc6-4c0b-9299-48c9df649ba9",
+   "transactionId": "01a1a215-d67d-49dc-aa8b-474c5a1051fd"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "User.Department",
+    "entity": {
+     "id": "9cd3ef8c-4add-452c-9261-8590563648ad",
+     "name": "Isla Murphy",
+     "selfUri": "/api/v2/users/9cd3ef8c-4add-452c-9261-8590563648ad"
+    },
+    "oldValues": [
+     "Sales"
+    ],
+    "newValues": [
+     "Customer Success"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "3996f968-b7be-4c11-9bc2-5a33cc905aac",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T21:36:07.227Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated Queue Billing",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Billing"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+   "name": "Billing",
+   "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "ea1902ce-7879-4031-89c8-7b278b567919",
+   "transactionId": "df9f7b32-3a27-4253-baf7-5ba2e64410d5"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.AcwSettings.WrapupPrompt",
+    "entity": {
+     "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+     "name": "Billing",
+     "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+    },
+    "oldValues": [
+     "OPTIONAL"
+    ],
+    "newValues": [
+     "MANDATORY_TIMEOUT"
+    ]
+   },
+   {
+    "property": "Queue.Members",
+    "entity": {
+     "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+     "name": "Billing",
+     "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+    },
+    "oldValues": [
+     "Alice Nguyen",
+     "Ben Okafor"
+    ],
+    "newValues": [
+     "Alice Nguyen",
+     "Ben Okafor",
+     "Chloe Martin"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "966f5d64-3c8e-4ed4-8be5-42fab1a19d56",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "20.15.181.123"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T21:49:39.376Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Salesforce CTI Sync updated Queue Support L2",
+   "messageParams": {
+    "user": "Salesforce CTI Sync",
+    "entityName": "Support L2"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+   "name": "Support L2",
+   "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "0fd95ee2-ad98-4a68-b536-36bc19cbb53c",
+   "transactionId": "7f4465a4-beef-44e8-a0e9-e06e7638b894"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.MediaSettings.Call.ServiceLevel.Percentage",
+    "entity": {
+     "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+     "name": "Support L2",
+     "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+    },
+    "oldValues": [
+     "0.8"
+    ],
+    "newValues": [
+     "0.85"
+    ]
+   },
+   {
+    "property": "Queue.MediaSettings.Call.AlertingTimeoutSeconds",
+    "entity": {
+     "id": "2709e3ef-bf24-4824-b410-b87306164f4b",
+     "name": "Support L2",
+     "selfUri": "/api/v2/routing/queues/2709e3ef-bf24-4824-b410-b87306164f4b"
+    },
+    "oldValues": [
+     "8"
+    ],
+    "newValues": [
+     "12"
+    ]
+   }
+  ],
+  "context": {},
+  "client": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "id": "b8264c0b-a539-4435-8055-e9b052fe4605",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:11:02.704Z",
+  "message": {
+   "message": "{user} unassigned DID {entityName}",
+   "messageWithParams": "Alice Nguyen unassigned DID +61 2 8000 1050",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "+61 2 8000 1050"
+   }
+  },
+  "action": "Unassign",
+  "entity": {
+   "id": "147fed26-3bfd-4e01-9154-165536f82cc2",
+   "name": "+61 2 8000 1050",
+   "selfUri": "/api/v2/telephony/providers/edges/dids/147fed26-3bfd-4e01-9154-165536f82cc2"
+  },
+  "entityType": "DID",
+  "status": "Failure",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "34a7f44d-351d-488c-8a1a-c8cedcbfd5f8",
+   "transactionId": "57a1ea5c-e2af-4d88-aeda-34f7766d1ae9"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "ba1e178d-fcdf-4e0a-b7a6-175c77f168fc",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.141"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:14:42.430Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Dev Patel updated Queue Billing",
+   "messageParams": {
+    "user": "Dev Patel",
+    "entityName": "Billing"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "07ff9eec-6cb5-4a61-90cf-414638e979c2",
+   "name": "Billing",
+   "selfUri": "/api/v2/routing/queues/07ff9eec-6cb5-4a61-90cf-414638e979c2"
+  },
+  "entityType": "Queue",
+  "status": "Failure",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "71ab26cf-0b09-4e61-bd25-9f2d62a23271",
+   "transactionId": "98236af9-c76f-476a-b043-63ecfeea743b"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "9b78edcb-131e-4575-bba5-87808f4cc5fd",
+   "name": "Dev Patel",
+   "selfUri": "/api/v2/users/9b78edcb-131e-4575-bba5-87808f4cc5fd"
+  }
+ },
+ {
+  "id": "009c0229-faf1-4bc2-ba45-303daab5d2cb",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.58"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:14:56.613Z",
+  "message": {
+   "message": "{user} disabled Integration {entityName}",
+   "messageWithParams": "Ben Okafor disabled Integration ServiceNow",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "ServiceNow"
+   }
+  },
+  "action": "Disable",
+  "entity": {
+   "id": "800e7c83-9471-4826-a9f4-0ab5af11f22d",
+   "name": "ServiceNow",
+   "selfUri": "/api/v2/integrations/800e7c83-9471-4826-a9f4-0ab5af11f22d"
+  },
+  "entityType": "Integration",
+  "status": "Failure",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "4245e0dd-02f4-4ac2-8fdb-1a7a274e54c7",
+   "transactionId": "a13dae45-9750-4abc-ab64-2b12faf17925"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "06a2a274-8651-444b-9b1f-91c6faf15270",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.137"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:15:08.094Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Jonas Weber viewed Report Queue Performance",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Queue Performance"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "7a9db551-b792-40d8-9d45-af372c8842b0",
+   "name": "Queue Performance",
+   "selfUri": "/api/v2/analytics/reporting/exports/7a9db551-b792-40d8-9d45-af372c8842b0"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "d9d3e056-6a30-438f-891a-7ab957d6aca4",
+   "transactionId": "355b3955-ba01-4cc1-bb96-6d1dfe8b372d"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "ffe96c29-f584-412b-998f-b805e51c2e5b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.137"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:15:48.039Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Jonas Weber viewed Report Agent Status",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Agent Status"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "f1d56c76-705a-405a-8fc1-e5f1923ef348",
+   "name": "Agent Status",
+   "selfUri": "/api/v2/analytics/reporting/exports/f1d56c76-705a-405a-8fc1-e5f1923ef348"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "d534b97b-271c-4906-a7fc-dcd91b9d94f9",
+   "transactionId": "26a52a4c-49f8-4506-9f5f-f564855568a0"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "9d194133-dc1e-4def-b975-5cde3c0f32fa",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:18:29.159Z",
+  "message": {
+   "message": "{user} downloaded Recording {entityName}",
+   "messageWithParams": "Chloe Martin downloaded Recording 5097f434-7096-475d-bbc0-778a7a7c8aca",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "5097f434-7096-475d-bbc0-778a7a7c8aca"
+   }
+  },
+  "action": "Download",
+  "entity": {
+   "id": "5097f434-7096-475d-bbc0-778a7a7c8aca",
+   "selfUri": "/api/v2/conversations/recordings/5097f434-7096-475d-bbc0-778a7a7c8aca"
+  },
+  "entityType": "Recording",
+  "status": "Failure",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "6ada6002-8926-4e6a-9635-7fc2ac5934fb",
+   "transactionId": "a684f899-a434-4415-bc8d-ef87ce0274f1"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "04946cab-c2ec-46f1-9056-60086c8a6a29",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.214"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:21:03.623Z",
+  "message": {
+   "message": "{user} viewed Conversation {entityName}",
+   "messageWithParams": "Kavya Raman viewed Conversation 4139eb83-a5dd-48df-a6c2-7a9dbf86e187",
+   "messageParams": {
+    "user": "Kavya Raman",
+    "entityName": "4139eb83-a5dd-48df-a6c2-7a9dbf86e187"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "4139eb83-a5dd-48df-a6c2-7a9dbf86e187",
+   "selfUri": "/api/v2/conversations/4139eb83-a5dd-48df-a6c2-7a9dbf86e187"
+  },
+  "entityType": "Conversation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "b573663a-7585-464b-a54b-3403bcc22c41",
+   "transactionId": "a1912528-2866-4a4b-9961-adf52c85ce16"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4b3b9c14-130a-4ecd-a6a5-8e30b5292474",
+   "name": "Kavya Raman",
+   "selfUri": "/api/v2/users/4b3b9c14-130a-4ecd-a6a5-8e30b5292474"
+  }
+ },
+ {
+  "id": "418e0105-3fd8-4a74-ba49-c009057a9712",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.67"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:26:30.039Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Liam O'Brien viewed Recording d0e215ac-b239-46eb-9728-64cd3c35503f",
+   "messageParams": {
+    "user": "Liam O'Brien",
+    "entityName": "d0e215ac-b239-46eb-9728-64cd3c35503f"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "d0e215ac-b239-46eb-9728-64cd3c35503f",
+   "selfUri": "/api/v2/conversations/recordings/d0e215ac-b239-46eb-9728-64cd3c35503f"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "899ad4cd-44ae-4806-930e-4c27e7f1af63",
+   "transactionId": "7c844c43-c1bc-4f97-ad1e-0e7afd79a643"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "f02c1321-852e-49ea-a68f-f1a2e236b200",
+   "name": "Liam O'Brien",
+   "selfUri": "/api/v2/users/f02c1321-852e-49ea-a68f-f1a2e236b200"
+  }
+ },
+ {
+  "id": "b756ae0a-639b-4d3f-8c32-cf6628f23ede",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "ContactCenter",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:31:25.308Z",
+  "message": {
+   "message": "{user} viewed Recording {entityName}",
+   "messageWithParams": "Chloe Martin viewed Recording a99cbf4f-004a-48c9-a579-e879a5ab9fe4",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "a99cbf4f-004a-48c9-a579-e879a5ab9fe4"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "a99cbf4f-004a-48c9-a579-e879a5ab9fe4",
+   "selfUri": "/api/v2/conversations/recordings/a99cbf4f-004a-48c9-a579-e879a5ab9fe4"
+  },
+  "entityType": "Recording",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "491ee9a9-c9b8-4650-9c5b-8ae2212a01d8",
+   "transactionId": "466855bf-8489-4cbd-8761-5eee08c929a4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "8d0bd517-636c-47a5-984b-92b8c4ebe296",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.181"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:33:40.902Z",
+  "message": {
+   "message": "{user} updated Evaluation {entityName}",
+   "messageWithParams": "Grace Kim updated Evaluation 8307e09c-5a9a-43b4-aa04-bbb90a77ed4a",
+   "messageParams": {
+    "user": "Grace Kim",
+    "entityName": "8307e09c-5a9a-43b4-aa04-bbb90a77ed4a"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "8307e09c-5a9a-43b4-aa04-bbb90a77ed4a",
+   "selfUri": "/api/v2/quality/evaluations/8307e09c-5a9a-43b4-aa04-bbb90a77ed4a"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "4d3df2dd-a0d2-4cb2-b452-9e064f3d03e7",
+   "transactionId": "f2166c8a-aba1-40b5-802a-d901132f4b38"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "4a861507-1003-4528-9ea6-9f9b7370ae32",
+   "name": "Grace Kim",
+   "selfUri": "/api/v2/users/4a861507-1003-4528-9ea6-9f9b7370ae32"
+  }
+ },
+ {
+  "id": "0017cbca-8ec2-4fd1-aae7-1f2e75c75af0",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "198.51.100.58"
+  ],
+  "serviceName": "Integrations",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:37:39.374Z",
+  "message": {
+   "message": "{user} enabled Integration {entityName}",
+   "messageWithParams": "Ben Okafor enabled Integration Data Actions",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "Data Actions"
+   }
+  },
+  "action": "Enable",
+  "entity": {
+   "id": "be30f7ba-41b7-4302-8118-fc69ba80987a",
+   "name": "Data Actions",
+   "selfUri": "/api/v2/integrations/be30f7ba-41b7-4302-8118-fc69ba80987a"
+  },
+  "entityType": "Integration",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "79116d85-f2f5-42ea-8d83-a7ff5f26f92d",
+   "transactionId": "d96459bf-8834-4a23-827f-f3f6ff86b2d4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "cb022495-94d5-4353-b684-3c441231c6b0",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.173"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:46:43.876Z",
+  "message": {
+   "message": "{user} created Queue {entityName}",
+   "messageWithParams": "Ben Okafor created Queue VIP Desk",
+   "messageParams": {
+    "user": "Ben Okafor",
+    "entityName": "VIP Desk"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "1d6ab0c7-c7fa-4cda-bad7-009ac0fa7bf2",
+   "name": "VIP Desk",
+   "selfUri": "/api/v2/routing/queues/1d6ab0c7-c7fa-4cda-bad7-009ac0fa7bf2"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "4863316c-9753-4d95-be2e-30e5a4424b05",
+   "transactionId": "65637be4-71dd-4155-9b65-56df3b3db376"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+   "name": "Ben Okafor",
+   "selfUri": "/api/v2/users/87f637f7-c2b0-43c2-911d-625e8fd7fa69"
+  }
+ },
+ {
+  "id": "3019ed7a-1e58-4efa-833b-f3214e01559a",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:55:12.431Z",
+  "message": {
+   "message": "{user} created Queue {entityName}",
+   "messageWithParams": "Chloe Martin created Queue VIP Desk",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "VIP Desk"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "1d6ab0c7-c7fa-4cda-bad7-009ac0fa7bf2",
+   "name": "VIP Desk",
+   "selfUri": "/api/v2/routing/queues/1d6ab0c7-c7fa-4cda-bad7-009ac0fa7bf2"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "930abd02-226e-4e6b-a4a1-87fc7998575b",
+   "transactionId": "07e0531a-ae02-4683-9669-74fcaed4d8f4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "7d16fa7f-e364-432d-8378-c89f06f78529",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T22:59:14.015Z",
+  "message": {
+   "message": "{user} exported Report {entityName}",
+   "messageWithParams": "Chloe Martin exported Report Queue Performance",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "Queue Performance"
+   }
+  },
+  "action": "Export",
+  "entity": {
+   "id": "7a9db551-b792-40d8-9d45-af372c8842b0",
+   "name": "Queue Performance",
+   "selfUri": "/api/v2/analytics/reporting/exports/7a9db551-b792-40d8-9d45-af372c8842b0"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "36f11bc7-540b-4546-bcc9-d9f36693d241",
+   "transactionId": "51f1fc36-8336-416f-91f8-2c8c1611c5ac"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "96259457-c0bf-4b13-954b-ed3601fafec6",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [],
+  "serviceName": "Routing",
+  "level": "SYSTEM",
+  "eventDate": "2026-10-12T23:05:14.531Z",
+  "message": {
+   "message": "Queue {entityName} membership recalculated",
+   "messageWithParams": "Queue Sales Queue membership recalculated",
+   "messageParams": {
+    "entityName": "Sales Queue"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Sales Queue",
+   "selfUri": "/api/v2/routing/queues/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Platform",
+  "initiatingAction": {
+   "id": "ba636a3c-f3e1-4b89-a225-aa1acac84955",
+   "transactionId": "91afb771-26c2-427d-919f-d00fedf16535"
+  },
+  "transactionInitiator": false,
+  "propertyChanges": [],
+  "context": {}
+ },
+ {
+  "id": "3dd4f77c-edd4-420d-8e81-38daeaeef315",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Authorization",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:22:31.479Z",
+  "message": {
+   "message": "{user} created Role {entityName}",
+   "messageWithParams": "Alice Nguyen created Role Agent",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Agent"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "1140b9e0-edfc-4e1a-ab84-dd710135ccd0",
+   "name": "Agent",
+   "selfUri": "/api/v2/authorization/roles/1140b9e0-edfc-4e1a-ab84-dd710135ccd0"
+  },
+  "entityType": "Role",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "27a3dacc-d949-4e4b-a610-5505f45d0958",
+   "transactionId": "a6adc6b6-de7b-4453-adb1-7058ab360e58"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "5c7a7dba-8c29-49f8-aa18-a9a2355a4b3f",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.141"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:23:04.146Z",
+  "message": {
+   "message": "{user} updated Queue {entityName}",
+   "messageWithParams": "Dev Patel updated Queue Support L1",
+   "messageParams": {
+    "user": "Dev Patel",
+    "entityName": "Support L1"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+   "name": "Support L1",
+   "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+  },
+  "entityType": "Queue",
+  "status": "Success",
+  "application": "Public API",
+  "initiatingAction": {
+   "id": "e6ada831-ed29-4541-8b39-3f65a772a6f7",
+   "transactionId": "d6831b50-4066-4eb6-af58-2b4bad43cabf"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [
+   {
+    "property": "Queue.Members",
+    "entity": {
+     "id": "4188e5e5-7423-4848-b896-a01443cbcefc",
+     "name": "Support L1",
+     "selfUri": "/api/v2/routing/queues/4188e5e5-7423-4848-b896-a01443cbcefc"
+    },
+    "oldValues": [
+     "Alice Nguyen",
+     "Ben Okafor"
+    ],
+    "newValues": [
+     "Alice Nguyen",
+     "Ben Okafor",
+     "Chloe Martin"
+    ]
+   }
+  ],
+  "context": {},
+  "user": {
+   "id": "9b78edcb-131e-4575-bba5-87808f4cc5fd",
+   "name": "Dev Patel",
+   "selfUri": "/api/v2/users/9b78edcb-131e-4575-bba5-87808f4cc5fd"
+  }
+ },
+ {
+  "id": "ad91a991-73a5-4a1a-84f1-2b487c3607e5",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.142"
+  ],
+  "serviceName": "Quality",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:29:45.816Z",
+  "message": {
+   "message": "{user} created Evaluation {entityName}",
+   "messageWithParams": "Hugo Silva created Evaluation 3cd445b6-b431-44ee-9b46-015731628457",
+   "messageParams": {
+    "user": "Hugo Silva",
+    "entityName": "3cd445b6-b431-44ee-9b46-015731628457"
+   }
+  },
+  "action": "Create",
+  "entity": {
+   "id": "3cd445b6-b431-44ee-9b46-015731628457",
+   "selfUri": "/api/v2/quality/evaluations/3cd445b6-b431-44ee-9b46-015731628457"
+  },
+  "entityType": "Evaluation",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "102a0d02-dde8-4fd0-90d6-2a0dc0cfb12d",
+   "transactionId": "41e1a92b-9fd6-4866-a2f4-1784b8316331"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "752f8a3a-d489-469e-a411-f9391682084f",
+   "name": "Hugo Silva",
+   "selfUri": "/api/v2/users/752f8a3a-d489-469e-a411-f9391682084f"
+  }
+ },
+ {
+  "id": "2807feb8-fd63-48ee-9beb-11d0a2a8b0a9",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "Outbound",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:39:54.347Z",
+  "message": {
+   "message": "{user} downloaded ContactList {entityName}",
+   "messageWithParams": "Chloe Martin downloaded ContactList Renewals_2026_10",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "Renewals_2026_10"
+   }
+  },
+  "action": "Download",
+  "entity": {
+   "id": "b32ad309-7170-4b6a-832e-9daebb7fdd4c",
+   "name": "Renewals_2026_10",
+   "selfUri": "/api/v2/outbound/contactlists/b32ad309-7170-4b6a-832e-9daebb7fdd4c"
+  },
+  "entityType": "ContactList",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "5dcfc625-0555-49a5-86ea-9841cea270bf",
+   "transactionId": "31fd6ed4-e74f-42da-a402-3494d5fef3c0"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "574d4685-bd17-4221-a0c0-c2eab5dcf211",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Telephony",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:41:38.595Z",
+  "message": {
+   "message": "{user} unassigned DID {entityName}",
+   "messageWithParams": "Alice Nguyen unassigned DID +61 2 8000 1000",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "+61 2 8000 1000"
+   }
+  },
+  "action": "Unassign",
+  "entity": {
+   "id": "a5620674-0552-464b-bb96-8b4cda1f05f8",
+   "name": "+61 2 8000 1000",
+   "selfUri": "/api/v2/telephony/providers/edges/dids/a5620674-0552-464b-bb96-8b4cda1f05f8"
+  },
+  "entityType": "DID",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "cb02f2cf-ded1-4058-8f22-6f6bbbc8808c",
+   "transactionId": "861128da-239f-4213-a7db-f78fd53e45a4"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ },
+ {
+  "id": "9d152ef8-6b55-4b09-a2c9-25945573735b",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.144"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:44:44.049Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Chloe Martin viewed Report Agent Status",
+   "messageParams": {
+    "user": "Chloe Martin",
+    "entityName": "Agent Status"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "f1d56c76-705a-405a-8fc1-e5f1923ef348",
+   "name": "Agent Status",
+   "selfUri": "/api/v2/analytics/reporting/exports/f1d56c76-705a-405a-8fc1-e5f1923ef348"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "7e06eeff-b69c-4b4f-9538-59b89fb9c86e",
+   "transactionId": "278d0d3a-558c-4a88-8fa9-f6e13f73554e"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "3adc9689-2bb9-4ad6-8cdb-932964d1fc80",
+   "name": "Chloe Martin",
+   "selfUri": "/api/v2/users/3adc9689-2bb9-4ad6-8cdb-932964d1fc80"
+  }
+ },
+ {
+  "id": "668d9c38-35b1-46d3-b3fe-c704f027a22f",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.137"
+  ],
+  "serviceName": "AnalyticsReporting",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:49:19.519Z",
+  "message": {
+   "message": "{user} viewed Report {entityName}",
+   "messageWithParams": "Jonas Weber viewed Report Interactions Detail",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Interactions Detail"
+   }
+  },
+  "action": "View",
+  "entity": {
+   "id": "93e3cbd6-4885-4ff1-8b38-93b76740d6ed",
+   "name": "Interactions Detail",
+   "selfUri": "/api/v2/analytics/reporting/exports/93e3cbd6-4885-4ff1-8b38-93b76740d6ed"
+  },
+  "entityType": "Report",
+  "status": "Success",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "04cfe2c9-c89a-450b-8588-21eda2c38dbf",
+   "transactionId": "33c11744-7013-4489-bd8d-7e8e000dee9d"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "fad75186-7fbf-434a-a19a-1308ec8e075c",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.137"
+  ],
+  "serviceName": "Routing",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:49:44.674Z",
+  "message": {
+   "message": "{user} updated Skill {entityName}",
+   "messageWithParams": "Jonas Weber updated Skill Spanish",
+   "messageParams": {
+    "user": "Jonas Weber",
+    "entityName": "Spanish"
+   }
+  },
+  "action": "Update",
+  "entity": {
+   "id": "04210404-2a99-4373-8eff-7c22cc9c1913",
+   "name": "Spanish",
+   "selfUri": "/api/v2/routing/skills/04210404-2a99-4373-8eff-7c22cc9c1913"
+  },
+  "entityType": "Skill",
+  "status": "Failure",
+  "application": "Genesys Cloud Mobile",
+  "initiatingAction": {
+   "id": "917220e3-fe59-4e3f-bbdf-9ce111f00ff6",
+   "transactionId": "933213c3-5cf5-428a-a112-7b9ab00b730f"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "91bc1acd-523b-45e0-a7c5-558c20646937",
+   "name": "Jonas Weber",
+   "selfUri": "/api/v2/users/91bc1acd-523b-45e0-a7c5-558c20646937"
+  }
+ },
+ {
+  "id": "feed3a7e-8504-4856-b493-6ebff283b242",
+  "userHomeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "userTrusteeOrgId": "6f1c1c2e-9b1a-4c2a-9f3e-0d9a1b2c3d4e",
+  "remoteIp": [
+   "203.0.113.2"
+  ],
+  "serviceName": "Directory",
+  "level": "USER",
+  "eventDate": "2026-10-12T23:55:56.766Z",
+  "message": {
+   "message": "{user} deactivated User {entityName}",
+   "messageWithParams": "Alice Nguyen deactivated User Farid Haddad",
+   "messageParams": {
+    "user": "Alice Nguyen",
+    "entityName": "Farid Haddad"
+   }
+  },
+  "action": "Deactivate",
+  "entity": {
+   "id": "98498e7c-46bf-4462-99fc-432857c43328",
+   "name": "Farid Haddad",
+   "selfUri": "/api/v2/users/98498e7c-46bf-4462-99fc-432857c43328"
+  },
+  "entityType": "User",
+  "status": "Success",
+  "application": "Genesys Cloud Web",
+  "initiatingAction": {
+   "id": "be90fa32-20b1-49df-9dfb-e0261c34ed85",
+   "transactionId": "9d67b28e-fceb-4b29-b2c4-2d7ac9071268"
+  },
+  "transactionInitiator": true,
+  "propertyChanges": [],
+  "context": {},
+  "user": {
+   "id": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+   "name": "Alice Nguyen",
+   "selfUri": "/api/v2/users/0ce98e8d-ca00-4ab0-8205-cd156818f096"
+  }
+ }
+]

@@ -1,0 +1,118 @@
+// =====================================================================
+//  Dimension tables built FROM the fact table (Modeling > New table).
+//
+//  Why DAX and not Power Query?  AuditEvents uses incremental refresh.
+//  A Power Query dimension that references the fact would be evaluated
+//  with the *published* RangeStart/RangeEnd values and silently miss
+//  users/actions that only appear in newer partitions. A calculated
+//  table is rebuilt from whatever is actually loaded, every refresh.
+//
+//  Relationships (all single direction, dimension 1 --> * fact):
+//     DimUser[UserKey]          --> AuditEvents[UserKey]
+//     DimClient[ClientKey]      --> AuditEvents[ClientKey]
+//     DimService[ServiceName]   --> AuditEvents[ServiceName]
+//     DimAction[Action]         --> AuditEvents[Action]
+//     DimEntityType[EntityType] --> AuditEvents[EntityType]
+//     AuditEvents[AuditId]      --> AuditPropertyChanges[AuditId]   (1:*, single)
+// =====================================================================
+
+
+// ---------------------------------------------------------------------
+DimUser =
+ADDCOLUMNS (
+    SUMMARIZE ( AuditEvents, AuditEvents[UserKey] ),
+    "UserId",          CALCULATE ( MAX ( AuditEvents[UserId] ) ),
+    "UserName",        CALCULATE ( MAX ( AuditEvents[UserName] ) ),
+    "UserHomeOrgId",   CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
+    "UserTrusteeOrgId",CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) ),
+    "First Seen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+    "Last Seen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
+    "User",
+        VAR _name = CALCULATE ( MAX ( AuditEvents[UserName] ) )
+        VAR _id   = CALCULATE ( MAX ( AuditEvents[UserId] ) )
+        RETURN
+            SWITCH ( TRUE (),
+                AuditEvents[UserKey] = "SYSTEM", "System / no user",
+                NOT ISBLANK ( _name ) && _name <> "", _name,
+                _id ),
+    // A trustee (partner) user acting on your org under an org trust has a
+    // home org that differs from the trustee org on the event.
+    "IsExternalUser",
+        VAR _home    = CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) )
+        VAR _trustee = CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) )
+        RETURN NOT ISBLANK ( _home ) && NOT ISBLANK ( _trustee ) && _home <> _trustee
+)
+
+
+// ---------------------------------------------------------------------
+DimClient =
+ADDCOLUMNS (
+    SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
+    "ClientId",        CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
+    "ClientName",      CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
+    "First Seen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+    "Last Seen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
+    "Client",
+        VAR _name = CALCULATE ( MAX ( AuditEvents[ClientName] ) )
+        VAR _id   = CALCULATE ( MAX ( AuditEvents[ClientId] ) )
+        RETURN
+            SWITCH ( TRUE (),
+                AuditEvents[ClientKey] = "NONE", "(no client)",
+                NOT ISBLANK ( _name ) && _name <> "", _name,
+                _id )
+)
+
+
+// ---------------------------------------------------------------------
+DimService =
+ADDCOLUMNS (
+    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "ServiceName", AuditEvents[ServiceName] ) ),
+    "Service",
+        COALESCE ( LOOKUPVALUE ( ServiceMap[Service], ServiceMap[ServiceName], [ServiceName] ), [ServiceName] ),
+    "ServiceCategory",
+        COALESCE ( LOOKUPVALUE ( ServiceMap[ServiceCategory], ServiceMap[ServiceName], [ServiceName] ), "Other" )
+)
+
+
+// ---------------------------------------------------------------------
+DimAction =
+ADDCOLUMNS (
+    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] ) ),
+    "RiskLevel",
+        COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskLevel], ActionRiskMap[Action], [Action] ), "Medium" ),
+    "ActionCategory",
+        COALESCE ( LOOKUPVALUE ( ActionRiskMap[ActionCategory], ActionRiskMap[Action], [Action] ), "Other" ),
+    "RiskSort",
+        COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskSort], ActionRiskMap[Action], [Action] ), 2 )
+)
+// Sort-by: RiskLevel -> RiskSort
+
+
+// ---------------------------------------------------------------------
+DimEntityType =
+ADDCOLUMNS (
+    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "EntityType", AuditEvents[EntityType] ) ),
+    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
+    "Services",
+        CONCATENATEX ( CALCULATETABLE ( VALUES ( AuditEvents[ServiceName] ) ), AuditEvents[ServiceName], ", " )
+)
+
+
+// ---------------------------------------------------------------------
+//  "Group By" field parameter  (Modeling > New parameter > Fields)
+//  Create it through the UI and add these fields in this order; the DAX
+//  below is what the UI generates and is here only for reference.
+// ---------------------------------------------------------------------
+// Group By = {
+//     ( "Service",     NAMEOF ( 'DimService'[Service] ),        0 ),
+//     ( "Category",    NAMEOF ( 'DimService'[ServiceCategory] ),1 ),
+//     ( "Action",      NAMEOF ( 'DimAction'[Action] ),          2 ),
+//     ( "Risk level",  NAMEOF ( 'DimAction'[RiskLevel] ),       3 ),
+//     ( "Entity type", NAMEOF ( 'DimEntityType'[EntityType] ),  4 ),
+//     ( "User",        NAMEOF ( 'DimUser'[User] ),              5 ),
+//     ( "Client",      NAMEOF ( 'DimClient'[Client] ),          6 ),
+//     ( "Actor type",  NAMEOF ( 'AuditEvents'[ActorType] ),     7 ),
+//     ( "Status",      NAMEOF ( 'AuditEvents'[Status] ),        8 )
+// }

@@ -1,0 +1,36 @@
+// =====================================================================
+//  DimDate   (Modeling > New table)
+//  After creating:  Table tools > Mark as date table > column [Date]
+//  Sort-by:  Month -> Month Number | Day Name -> Day of Week | Year-Month -> Year-Month Sort
+//  Relationship:  DimDate[Date] 1 --> * AuditEvents[EventDateUtc]   (active)
+//                 DimDate[Date] 1 --> * AuditEvents[EventDateLocal] (inactive, use USERELATIONSHIP)
+// =====================================================================
+DimDate =
+VAR _MinDate = COALESCE ( MIN ( AuditEvents[EventDateUtc] ), TODAY () - 30 )
+VAR _MaxDate = COALESCE ( MAX ( AuditEvents[EventDateUtc] ), TODAY () )
+VAR _Start   = DATE ( YEAR ( _MinDate ), 1, 1 )
+VAR _End     = DATE ( YEAR ( _MaxDate ), 12, 31 )
+RETURN
+ADDCOLUMNS (
+    CALENDAR ( _Start, _End ),
+    "Year",             YEAR ( [Date] ),
+    "Quarter",          "Q" & QUARTER ( [Date] ),
+    "Year-Quarter",     YEAR ( [Date] ) & "-Q" & QUARTER ( [Date] ),
+    "Month Number",     MONTH ( [Date] ),
+    "Month",            FORMAT ( [Date], "MMM" ),
+    "Year-Month",       FORMAT ( [Date], "yyyy-MM" ),
+    "Year-Month Sort",  YEAR ( [Date] ) * 100 + MONTH ( [Date] ),
+    "ISO Week",         WEEKNUM ( [Date], 21 ),
+    "Week Start",       [Date] - WEEKDAY ( [Date], 2 ) + 1,
+    "Day",              DAY ( [Date] ),
+    "Day of Week",      WEEKDAY ( [Date], 2 ),            // 1 = Monday .. 7 = Sunday
+    "Day Name",         FORMAT ( [Date], "ddd" ),
+    "Is Weekend",       WEEKDAY ( [Date], 2 ) >= 6,
+    "Days Ago",         INT ( TODAY () - [Date] ),
+    "Is Last 7 Days",   INT ( TODAY () - [Date] ) >= 0 && INT ( TODAY () - [Date] ) < 7,
+    "Is Last 30 Days",  INT ( TODAY () - [Date] ) >= 0 && INT ( TODAY () - [Date] ) < 30,
+    "Relative Day",     SWITCH ( TRUE (),
+                            [Date] = TODAY (),      "Today",
+                            [Date] = TODAY () - 1,  "Yesterday",
+                            BLANK () )
+)
