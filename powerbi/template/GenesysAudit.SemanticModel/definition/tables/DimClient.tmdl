@@ -82,21 +82,29 @@ table DimClient
 	partition DimClient = calculated
 		mode: import
 		source =
-				ADDCOLUMNS (
-				    SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
-				    "ClientId",        CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
-				    "ClientName",      CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
-				    "First Seen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-				    "Last Seen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-				    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
-				    "Client",
-				        VAR _name = CALCULATE ( MAX ( AuditEvents[ClientName] ) )
-				        VAR _id   = CALCULATE ( MAX ( AuditEvents[ClientId] ) )
-				        RETURN
+				VAR _t =
+				    ADDCOLUMNS (
+				        SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
+				        "@ClientId",       CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
+				        "@ClientName",     CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
+				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
+				    )
+				RETURN
+				    SELECTCOLUMNS (
+				        _t,
+				        "ClientKey",       AuditEvents[ClientKey] & "",
+				        "ClientId",        [@ClientId],
+				        "ClientName",      [@ClientName],
+				        "First Seen",      [@FirstSeen],
+				        "Last Seen",       [@LastSeen],
+				        "Lifetime Events", [@LifetimeEvents],
+				        "Client",
 				            SWITCH ( TRUE (),
 				                AuditEvents[ClientKey] = "NONE", "(no client)",
-				                NOT ISBLANK ( _name ) && _name <> "", _name,
-				                _id )
-				)
+				                NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
+				                [@ClientId] )
+				    )
 
 	annotation PBI_ResultType = Table

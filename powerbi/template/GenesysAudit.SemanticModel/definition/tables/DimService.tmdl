@@ -35,7 +35,7 @@ table DimService
 		mode: import
 		source =
 				ADDCOLUMNS (
-				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "ServiceName", AuditEvents[ServiceName] ) ),
+				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "ServiceName", AuditEvents[ServiceName] & "" ) ),
 				    "Service",
 				        COALESCE ( LOOKUPVALUE ( ServiceMap[Service], ServiceMap[ServiceName], [ServiceName] ), [ServiceName] ),
 				    "ServiceCategory",

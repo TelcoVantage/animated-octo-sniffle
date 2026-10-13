@@ -35,11 +35,19 @@ table DimEntityType
 	partition DimEntityType = calculated
 		mode: import
 		source =
-				ADDCOLUMNS (
-				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "EntityType", AuditEvents[EntityType] ) ),
-				    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
-				    "Services",
-				        CONCATENATEX ( CALCULATETABLE ( VALUES ( AuditEvents[ServiceName] ) ), AuditEvents[ServiceName], ", " )
-				)
+				VAR _t =
+				    ADDCOLUMNS (
+				        SUMMARIZE ( AuditEvents, AuditEvents[EntityType] ),
+				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) ),
+				        "@Services",
+				            CONCATENATEX ( CALCULATETABLE ( VALUES ( AuditEvents[ServiceName] ) ), AuditEvents[ServiceName], ", " )
+				    )
+				RETURN
+				    SELECTCOLUMNS (
+				        _t,
+				        "EntityType",      AuditEvents[EntityType] & "",
+				        "Lifetime Events", [@LifetimeEvents],
+				        "Services",        [@Services]
+				    )
 
 	annotation PBI_ResultType = Table

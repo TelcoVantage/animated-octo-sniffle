@@ -18,57 +18,81 @@
 
 
 // ---------------------------------------------------------------------
+//  IMPORTANT - lineage. A column produced by SUMMARIZE / DISTINCT / VALUES
+//  keeps "lineage" to the fact column (the engine calls it
+//  AuditEvents[UserKey], not UserKey). A relationship to such a column is
+//  rejected when a project file is loaded ("uses an invalid column ID").
+//  Every dimension below therefore ends with SELECTCOLUMNS and `& ""` on
+//  the key, which turns it into a plain, stand-alone column.
+// ---------------------------------------------------------------------
 DimUser =
-ADDCOLUMNS (
-    SUMMARIZE ( AuditEvents, AuditEvents[UserKey] ),
-    "UserId",          CALCULATE ( MAX ( AuditEvents[UserId] ) ),
-    "UserName",        CALCULATE ( MAX ( AuditEvents[UserName] ) ),
-    "UserHomeOrgId",   CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
-    "UserTrusteeOrgId",CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) ),
-    "First Seen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-    "Last Seen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
-    "User",
-        VAR _name = CALCULATE ( MAX ( AuditEvents[UserName] ) )
-        VAR _id   = CALCULATE ( MAX ( AuditEvents[UserId] ) )
-        RETURN
+VAR _t =
+    ADDCOLUMNS (
+        SUMMARIZE ( AuditEvents, AuditEvents[UserKey] ),
+        "@UserId",          CALCULATE ( MAX ( AuditEvents[UserId] ) ),
+        "@UserName",        CALCULATE ( MAX ( AuditEvents[UserName] ) ),
+        "@UserHomeOrgId",   CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
+        "@UserTrusteeOrgId",CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) ),
+        "@FirstSeen",       CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+        "@LastSeen",        CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+        "@LifetimeEvents",  CALCULATE ( COUNTROWS ( AuditEvents ) )
+    )
+RETURN
+    SELECTCOLUMNS (
+        _t,
+        "UserKey",          AuditEvents[UserKey] & "",
+        "UserId",           [@UserId],
+        "UserName",         [@UserName],
+        "UserHomeOrgId",    [@UserHomeOrgId],
+        "UserTrusteeOrgId", [@UserTrusteeOrgId],
+        "First Seen",       [@FirstSeen],
+        "Last Seen",        [@LastSeen],
+        "Lifetime Events",  [@LifetimeEvents],
+        "User",
             SWITCH ( TRUE (),
                 AuditEvents[UserKey] = "SYSTEM", "System / no user",
-                NOT ISBLANK ( _name ) && _name <> "", _name,
-                _id ),
-    // A trustee (partner) user acting on your org under an org trust has a
-    // home org that differs from the trustee org on the event.
-    "IsExternalUser",
-        VAR _home    = CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) )
-        VAR _trustee = CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) )
-        RETURN NOT ISBLANK ( _home ) && NOT ISBLANK ( _trustee ) && _home <> _trustee
-)
+                NOT ISBLANK ( [@UserName] ) && [@UserName] <> "", [@UserName],
+                [@UserId] ),
+        // A trustee (partner) user acting on your org under an org trust has a
+        // home org that differs from the trustee org on the event.
+        "IsExternalUser",
+            NOT ISBLANK ( [@UserHomeOrgId] ) && NOT ISBLANK ( [@UserTrusteeOrgId] )
+                && [@UserHomeOrgId] <> [@UserTrusteeOrgId]
+    )
 
 
 // ---------------------------------------------------------------------
 DimClient =
-ADDCOLUMNS (
-    SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
-    "ClientId",        CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
-    "ClientName",      CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
-    "First Seen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-    "Last Seen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
-    "Client",
-        VAR _name = CALCULATE ( MAX ( AuditEvents[ClientName] ) )
-        VAR _id   = CALCULATE ( MAX ( AuditEvents[ClientId] ) )
-        RETURN
+VAR _t =
+    ADDCOLUMNS (
+        SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
+        "@ClientId",       CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
+        "@ClientName",     CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
+        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
+    )
+RETURN
+    SELECTCOLUMNS (
+        _t,
+        "ClientKey",       AuditEvents[ClientKey] & "",
+        "ClientId",        [@ClientId],
+        "ClientName",      [@ClientName],
+        "First Seen",      [@FirstSeen],
+        "Last Seen",       [@LastSeen],
+        "Lifetime Events", [@LifetimeEvents],
+        "Client",
             SWITCH ( TRUE (),
                 AuditEvents[ClientKey] = "NONE", "(no client)",
-                NOT ISBLANK ( _name ) && _name <> "", _name,
-                _id )
-)
+                NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
+                [@ClientId] )
+    )
 
 
 // ---------------------------------------------------------------------
 DimService =
 ADDCOLUMNS (
-    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "ServiceName", AuditEvents[ServiceName] ) ),
+    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "ServiceName", AuditEvents[ServiceName] & "" ) ),
     "Service",
         COALESCE ( LOOKUPVALUE ( ServiceMap[Service], ServiceMap[ServiceName], [ServiceName] ), [ServiceName] ),
     "ServiceCategory",
@@ -79,7 +103,7 @@ ADDCOLUMNS (
 // ---------------------------------------------------------------------
 DimAction =
 ADDCOLUMNS (
-    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] ) ),
+    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] & "" ) ),
     "RiskLevel",
         COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskLevel], ActionRiskMap[Action], [Action] ), "Medium" ),
     "ActionCategory",
@@ -92,12 +116,20 @@ ADDCOLUMNS (
 
 // ---------------------------------------------------------------------
 DimEntityType =
-ADDCOLUMNS (
-    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "EntityType", AuditEvents[EntityType] ) ),
-    "Lifetime Events", CALCULATE ( COUNTROWS ( AuditEvents ) ),
-    "Services",
-        CONCATENATEX ( CALCULATETABLE ( VALUES ( AuditEvents[ServiceName] ) ), AuditEvents[ServiceName], ", " )
-)
+VAR _t =
+    ADDCOLUMNS (
+        SUMMARIZE ( AuditEvents, AuditEvents[EntityType] ),
+        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) ),
+        "@Services",
+            CONCATENATEX ( CALCULATETABLE ( VALUES ( AuditEvents[ServiceName] ) ), AuditEvents[ServiceName], ", " )
+    )
+RETURN
+    SELECTCOLUMNS (
+        _t,
+        "EntityType",      AuditEvents[EntityType] & "",
+        "Lifetime Events", [@LifetimeEvents],
+        "Services",        [@Services]
+    )
 
 
 // ---------------------------------------------------------------------

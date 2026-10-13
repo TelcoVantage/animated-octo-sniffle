@@ -48,7 +48,7 @@ table DimAction
 		mode: import
 		source =
 				ADDCOLUMNS (
-				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] ) ),
+				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] & "" ) ),
 				    "RiskLevel",
 				        COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskLevel], ActionRiskMap[Action], [Action] ), "Medium" ),
 				    "ActionCategory",
