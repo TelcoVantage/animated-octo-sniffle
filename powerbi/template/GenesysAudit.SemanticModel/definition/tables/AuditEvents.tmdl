@@ -1,0 +1,425 @@
+table AuditEvents
+	lineageTag: 6710a774-2502-5dfa-94f3-997e1fa23f7f
+
+	column AuditId
+		dataType: string
+		lineageTag: a896f059-a98a-584d-9146-b2ee45e1a8ca
+		summarizeBy: none
+		sourceColumn: AuditId
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateTimeUtc
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e9539c7c-a80a-5ce9-a3f4-a132e80488f6
+		summarizeBy: none
+		sourceColumn: EventDateTimeUtc
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateUtc
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 5f5c0ca5-1b8c-5d3c-907f-4880fd582822
+		summarizeBy: none
+		sourceColumn: EventDateUtc
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EventHourUtc
+		dataType: int64
+		formatString: 0
+		lineageTag: 769d5225-529d-5bbf-bcb6-e7db36ebed07
+		summarizeBy: none
+		sourceColumn: EventHourUtc
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateTimeLocal
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: cdf2df45-af1b-53cf-974f-791c9b5d68ce
+		summarizeBy: none
+		sourceColumn: EventDateTimeLocal
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateLocal
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e5fb9631-4184-52df-a406-36986e5e1481
+		summarizeBy: none
+		sourceColumn: EventDateLocal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column EventHourLocal
+		dataType: int64
+		formatString: 0
+		lineageTag: 21517e64-7e20-57f3-8494-c67b3d8adce4
+		summarizeBy: none
+		sourceColumn: EventHourLocal
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDayOfWeekLocal
+		dataType: int64
+		formatString: 0
+		lineageTag: 96e4829d-c162-561e-847b-b3a9e262243f
+		summarizeBy: none
+		sourceColumn: EventDayOfWeekLocal
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsOffHours
+		dataType: boolean
+		lineageTag: 9d305d9b-76d3-5078-981b-2287c12653e9
+		summarizeBy: none
+		sourceColumn: IsOffHours
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceName
+		dataType: string
+		lineageTag: 55aba487-d66e-578e-be61-aa14181d6105
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Action
+		dataType: string
+		lineageTag: 86cfc0ab-0d5f-5df5-bad3-c67465da2acb
+		summarizeBy: none
+		sourceColumn: Action
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityType
+		dataType: string
+		lineageTag: 745cb9d4-350f-5463-a545-38956747026e
+		summarizeBy: none
+		sourceColumn: EntityType
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityId
+		dataType: string
+		lineageTag: e1f45eb2-c946-5bfa-a02b-8f783970946b
+		summarizeBy: none
+		sourceColumn: EntityId
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityName
+		dataType: string
+		lineageTag: d736f208-ab6e-5dfa-a252-4c5ab4d80b1c
+		summarizeBy: none
+		sourceColumn: EntityName
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityDisplay
+		dataType: string
+		lineageTag: 3db40857-a1bb-5073-9c4c-221025812f92
+		summarizeBy: none
+		sourceColumn: EntityDisplay
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: b1bf70d3-039e-571e-b73c-01077d93e5e3
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsFailure
+		dataType: boolean
+		lineageTag: 25f0824f-e575-5cb8-b4d8-f842bd6f3584
+		summarizeBy: none
+		sourceColumn: IsFailure
+
+		annotation SummarizationSetBy = Automatic
+
+	column Level
+		dataType: string
+		lineageTag: 4854ef3f-b38d-5992-857d-6b2ce1cbbfe8
+		summarizeBy: none
+		sourceColumn: Level
+
+		annotation SummarizationSetBy = Automatic
+
+	column Application
+		dataType: string
+		lineageTag: fc3374b9-8f69-5d6a-8ed6-74f100193145
+		summarizeBy: none
+		sourceColumn: Application
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActorType
+		dataType: string
+		lineageTag: df970c4c-4c2a-5ed7-9f67-9f37a7b3b0d4
+		summarizeBy: none
+		sourceColumn: ActorType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActorName
+		dataType: string
+		lineageTag: f72fb784-1d8f-56d6-bcd0-ce8168006788
+		summarizeBy: none
+		sourceColumn: ActorName
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserKey
+		dataType: string
+		isHidden
+		lineageTag: 9ebf75ce-5d2d-5235-acbb-5fa894058e53
+		summarizeBy: none
+		sourceColumn: UserKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserId
+		dataType: string
+		lineageTag: f8e64747-ca51-5f74-abae-db57445bd11b
+		summarizeBy: none
+		sourceColumn: UserId
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserName
+		dataType: string
+		lineageTag: 46e77461-1b75-574c-a606-0a196bce4279
+		summarizeBy: none
+		sourceColumn: UserName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientKey
+		dataType: string
+		isHidden
+		lineageTag: 165e8c36-fd88-5d92-bafd-f61b74bae50b
+		summarizeBy: none
+		sourceColumn: ClientKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientId
+		dataType: string
+		lineageTag: 845c24bf-c4dc-55f4-891e-144972de0681
+		summarizeBy: none
+		sourceColumn: ClientId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientName
+		dataType: string
+		lineageTag: 3b8f55f9-c63a-5da4-a8ee-2061710261b4
+		summarizeBy: none
+		sourceColumn: ClientName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RemoteIp
+		dataType: string
+		lineageTag: b2e213e3-24ce-5883-8a54-5c465af011ef
+		summarizeBy: none
+		sourceColumn: RemoteIp
+
+		annotation SummarizationSetBy = Automatic
+
+	column RemoteIpAll
+		dataType: string
+		lineageTag: 0e9f1661-c396-55eb-adb3-4f89093aed40
+		summarizeBy: none
+		sourceColumn: RemoteIpAll
+
+		annotation SummarizationSetBy = Automatic
+
+	column RemoteIpCount
+		dataType: int64
+		formatString: 0
+		lineageTag: cda051e8-2d49-57ff-8f2e-7f254efb39a6
+		summarizeBy: none
+		sourceColumn: RemoteIpCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column Message
+		dataType: string
+		lineageTag: 99527848-e128-5a08-891e-36f26d57556d
+		summarizeBy: none
+		sourceColumn: Message
+
+		annotation SummarizationSetBy = Automatic
+
+	column MessageTemplate
+		dataType: string
+		lineageTag: e38e8458-2aec-5361-b210-2d03f8415ea4
+		summarizeBy: none
+		sourceColumn: MessageTemplate
+
+		annotation SummarizationSetBy = Automatic
+
+	column PropertyChangeCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b0f5041-5e0c-54d8-b77f-6adf4bc9e3d7
+		summarizeBy: none
+		sourceColumn: PropertyChangeCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column HasPropertyChanges
+		dataType: boolean
+		lineageTag: 92f63491-ea2f-5d8b-91fb-8c85b6438ea2
+		summarizeBy: none
+		sourceColumn: HasPropertyChanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContextJson
+		dataType: string
+		lineageTag: 77f62c18-4c6b-5e73-aba5-463f6216eba2
+		summarizeBy: none
+		sourceColumn: ContextJson
+
+		annotation SummarizationSetBy = Automatic
+
+	column TransactionId
+		dataType: string
+		lineageTag: e7bad163-4347-5604-a1d0-8989fe67fd32
+		summarizeBy: none
+		sourceColumn: TransactionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column InitiatingActionId
+		dataType: string
+		lineageTag: 8ba05b9d-741f-5882-b985-2970497fd072
+		summarizeBy: none
+		sourceColumn: InitiatingActionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TransactionInitiator
+		dataType: boolean
+		lineageTag: b183a3b2-694a-5d80-8e2d-ab4173156db1
+		summarizeBy: none
+		sourceColumn: TransactionInitiator
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserHomeOrgId
+		dataType: string
+		lineageTag: 2f2b320d-ac40-51c5-9f3e-445be7b53b50
+		summarizeBy: none
+		sourceColumn: UserHomeOrgId
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserTrusteeOrgId
+		dataType: string
+		lineageTag: 1d176583-dd4c-56e3-87bd-5977dff2b2e8
+		summarizeBy: none
+		sourceColumn: UserTrusteeOrgId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SourceFile
+		dataType: string
+		lineageTag: 354e69e5-1c54-5b36-a8c6-631fef74a084
+		summarizeBy: none
+		sourceColumn: SourceFile
+
+		annotation SummarizationSetBy = Automatic
+
+	column SourceFileModified
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f3cd094a-b158-57a5-b8bd-9e9b2dee2a45
+		summarizeBy: none
+		sourceColumn: SourceFileModified
+
+		annotation SummarizationSetBy = Automatic
+
+	partition AuditEvents = m
+		mode: import
+		source =
+				// =====================================================================
+				//  AuditEvents         (FACT table, one row per audit event)
+				//  Reference AuditEventsRaw, drop the nested list, add analysis columns.
+				// =====================================================================
+				let
+				    Source  = AuditEventsRaw,
+				    NoLists = Table.RemoveColumns(Source, {"PropertyChanges"}),
+				    // Never let a null break a relationship to a dimension
+				    NoNullKeys = Table.ReplaceValue(NoLists, null, "(unknown)", Replacer.ReplaceValue,
+				                    {"ServiceName", "Action", "EntityType", "Status", "Level"}),
+				    // ---- Time columns ---------------------------------------------------------
+				    AddDateUtc   = Table.AddColumn(NoNullKeys, "EventDateUtc", each Date.From([EventDateTimeUtc]), type date),
+				    AddHourUtc   = Table.AddColumn(AddDateUtc, "EventHourUtc", each Time.Hour([EventDateTimeUtc]), Int64.Type),
+				    AddLocalDT   = Table.AddColumn(AddHourUtc, "EventDateTimeLocal",
+				                        each [EventDateTimeUtc] + Duration.From(LocalUtcOffsetHours / 24), type datetime),
+				    AddLocalDate = Table.AddColumn(AddLocalDT, "EventDateLocal", each Date.From([EventDateTimeLocal]), type date),
+				    AddLocalHour = Table.AddColumn(AddLocalDate, "EventHourLocal", each Time.Hour([EventDateTimeLocal]), Int64.Type),
+				    AddLocalDow  = Table.AddColumn(AddLocalHour, "EventDayOfWeekLocal",
+				                        each Date.DayOfWeek([EventDateTimeLocal], Day.Monday) + 1, Int64.Type),   // 1 = Mon .. 7 = Sun
+				    AddOffHours  = Table.AddColumn(AddLocalDow, "IsOffHours",
+				                        each [EventDayOfWeekLocal] >= 6
+				                          or [EventHourLocal] <  BusinessHoursStart
+				                          or [EventHourLocal] >= BusinessHoursEnd, type logical),
+				    // ---- Actor columns --------------------------------------------------------
+				    // Genesys writes a user for interactive actions, a client for OAuth
+				    // client-credential integrations, and neither for platform/system actions.
+				    AddActorType = Table.AddColumn(AddOffHours, "ActorType",
+				                        each if [UserId] <> null then "User"
+				                             else if [ClientId] <> null then "OAuth Client"
+				                             else "System", type text),
+				    AddActorName = Table.AddColumn(AddActorType, "ActorName",
+				                        each if [UserName] <> null and [UserName] <> "" then [UserName]
+				                             else if [UserId] <> null then [UserId]
+				                             else if [ClientName] <> null and [ClientName] <> "" then [ClientName]
+				                             else if [ClientId] <> null then [ClientId]
+				                             else "System", type text),
+				    AddUserKey   = Table.AddColumn(AddActorName, "UserKey",
+				                        each if [UserId] <> null then [UserId] else "SYSTEM", type text),
+				    AddClientKey = Table.AddColumn(AddUserKey, "ClientKey",
+				                        each if [ClientId] <> null then [ClientId] else "NONE", type text),
+				    // ---- Entity / misc --------------------------------------------------------
+				    AddEntityDisplay = Table.AddColumn(AddClientKey, "EntityDisplay",
+				                        each if [EntityName] <> null and [EntityName] <> "" then [EntityName]
+				                             else if [EntityId] <> null then [EntityId]
+				                             else "(none)", type text),
+				    AddHasChanges = Table.AddColumn(AddEntityDisplay, "HasPropertyChanges",
+				                        each [PropertyChangeCount] > 0, type logical),
+				    AddIsFailure  = Table.AddColumn(AddHasChanges, "IsFailure",
+				                        each Text.Lower([Status]) = "failure", type logical),
+				    // Column order that reads well in the Data view
+				    Reordered = Table.ReorderColumns(AddIsFailure, {
+				        "AuditId", "EventDateTimeUtc", "EventDateUtc", "EventHourUtc",
+				        "EventDateTimeLocal", "EventDateLocal", "EventHourLocal", "EventDayOfWeekLocal", "IsOffHours",
+				        "ServiceName", "Action", "EntityType", "EntityId", "EntityName", "EntityDisplay",
+				        "Status", "IsFailure", "Level", "Application",
+				        "ActorType", "ActorName", "UserKey", "UserId", "UserName", "ClientKey", "ClientId", "ClientName",
+				        "RemoteIp", "RemoteIpAll", "RemoteIpCount",
+				        "Message", "MessageTemplate", "PropertyChangeCount", "HasPropertyChanges", "ContextJson",
+				        "TransactionId", "InitiatingActionId", "TransactionInitiator", "UserHomeOrgId", "UserTrusteeOrgId",
+				        "SourceFile", "SourceFileModified"
+				    })
+				in
+				    Reordered
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

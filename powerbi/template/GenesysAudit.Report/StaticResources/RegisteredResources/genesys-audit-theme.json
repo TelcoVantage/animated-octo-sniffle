@@ -1,0 +1,58 @@
+{
+  "name": "Genesys Audit",
+  "dataColors": [
+    "#2F6FED", "#E8A33D", "#4C9A6A", "#D64545", "#7D5BA6",
+    "#1FA3A3", "#B86E3C", "#8A8F98", "#C94F8C", "#5E7F3A"
+  ],
+  "good": "#4C9A6A",
+  "neutral": "#E8A33D",
+  "bad": "#D64545",
+  "maximum": "#D64545",
+  "center": "#E8A33D",
+  "minimum": "#4C9A6A",
+  "background": "#FFFFFF",
+  "foreground": "#1F2933",
+  "tableAccent": "#2F6FED",
+  "textClasses": {
+    "title":  { "fontSize": 14, "fontFace": "Segoe UI Semibold", "color": "#1F2933" },
+    "label":  { "fontSize": 10, "fontFace": "Segoe UI",          "color": "#3E4C59" },
+    "callout":{ "fontSize": 28, "fontFace": "Segoe UI Semibold", "color": "#1F2933" },
+    "header": { "fontSize": 12, "fontFace": "Segoe UI Semibold", "color": "#1F2933" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "border":     [{ "show": true, "color": { "solid": { "color": "#E4E7EB" } }, "radius": 6 }],
+        "title":      [{ "show": true, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "fontColor": { "solid": { "color": "#1F2933" } } }],
+        "visualHeader": [{ "show": true }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#F4F6F8" } }, "transparency": 0 }]
+      }
+    },
+    "slicer": {
+      "*": {
+        "header": [{ "show": true, "fontSize": 10 }],
+        "items":  [{ "fontSize": 10 }]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "columnHeaders": [{ "fontSize": 10, "fontFamily": "Segoe UI Semibold", "backColor": { "solid": { "color": "#EEF2FF" } } }],
+        "values":        [{ "fontSize": 10 }],
+        "grid":          [{ "rowPadding": 2, "gridHorizontal": true, "gridHorizontalColor": { "solid": { "color": "#EEF1F4" } } }]
+      }
+    },
+    "pivotTable": {
+      "*": {
+        "columnHeaders": [{ "fontSize": 10, "fontFamily": "Segoe UI Semibold", "backColor": { "solid": { "color": "#EEF2FF" } } }],
+        "rowHeaders":    [{ "fontSize": 10 }],
+        "values":        [{ "fontSize": 10 }],
+        "grid":          [{ "rowPadding": 2 }]
+      }
+    }
+  }
+}

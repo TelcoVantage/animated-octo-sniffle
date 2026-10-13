@@ -14,7 +14,7 @@
 //     ADLS Gen2          : https://<account>.dfs.core.windows.net/<container>/<folder>
 //     Local folder (dev) : C:\Data\GenesysAudit
 // ---------------------------------------------------------------------
-"https://<account>.blob.core.windows.net/genesys-audit"
+"C:\GenesysAudit"
 meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
 
 

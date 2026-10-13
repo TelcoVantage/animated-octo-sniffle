@@ -5,6 +5,13 @@ Audit API (`POST /api/v2/audits/query`). The daily pipeline that calls the API i
 out of scope here; this folder assumes it lands **one JSON file per day** and
 builds the report on top of that.
 
+> **Fastest path: download the ready-made template.**
+> `template/GenesysAudit-template.zip` is a complete Power BI Project (model +
+> six report pages + sample data). Unzip, drop your JSON files in
+> `C:\GenesysAudit`, double-click `GenesysAudit.pbip`, refresh. See
+> [`template/README.md`](template/README.md). The sections below describe what
+> is inside it and how to rebuild it by hand.
+
 ```
 powerbi/
 ├── README.md                      <- this guide (API primer, landing contract, model, build steps)
@@ -21,6 +28,8 @@ powerbi/
 │   ├── 03_Dimensions.dax          <- DimUser, DimClient, DimService, DimAction, DimEntityType
 │   └── 04_Measures.dax            <- ~60 measures with format strings
 ├── theme/genesys-audit-theme.json <- report theme (View > Themes > Browse for themes)
+├── template/                      <- generated Power BI Project (.pbip) + GenesysAudit-template.zip
+├── tools/build_pbip.py            <- regenerates template/ from the .pq/.dax files, validates the report JSON
 ├── sample-data/                   <- 14 days of realistic sample files to build against
 └── tools/generate_sample_audit.py <- regenerates the sample data (any day count / layout)
 ```
@@ -127,7 +136,7 @@ field in the API never fails a refresh.
    paste, rename the query to the name in the file header
    (`fnParseAuditFile`, `AuditEventsRaw`, `AuditEvents`, `AuditPropertyChanges`).
 4. In `AuditEventsRaw` keep the connector line that matches your landing zone
-   (`AzureStorage.Blobs`, `AzureStorage.DataLake` or `Folder.Files`) and delete the other two.
+   (`Folder.Files` is the default; switch to `AzureStorage.Blobs` or `AzureStorage.DataLake` when the pipeline lands in Azure).
 5. Right-click `AuditEventsRaw` and `fnParseAuditFile` → **untick Enable load**.
 6. Close & Apply.
 

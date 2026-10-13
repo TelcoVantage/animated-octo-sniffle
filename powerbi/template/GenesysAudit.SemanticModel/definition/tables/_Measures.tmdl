@@ -1,0 +1,424 @@
+table _Measures
+	lineageTag: 1d554758-3073-5bf0-ab29-d96f16b1a0f2
+
+	column Value
+		dataType: string
+		isHidden
+		lineageTag: 1fb8c88f-d87a-5a9f-823b-8a72688e1817
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	measure 'Audit Events' = COUNTROWS ( AuditEvents )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 60b68426-0e70-5cd9-8d77-b25864ae2634
+
+	measure 'Distinct Users' = DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: d77f656b-8b16-5d07-a742-066d70aeae46
+
+	measure 'Distinct Clients' = DISTINCTCOUNTNOBLANK ( AuditEvents[ClientId] )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 36ad1e28-caa0-5033-9f9b-795d76b06261
+
+	measure 'Distinct Entities' = DISTINCTCOUNTNOBLANK ( AuditEvents[EntityId] )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 91d4b103-3f47-5fa8-a0e7-f7687430a347
+
+	measure 'Distinct Services' = DISTINCTCOUNT ( AuditEvents[ServiceName] )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 7ecc9a69-0b60-5698-8dbe-96510fd672c7
+
+	measure 'Distinct Source IPs' = DISTINCTCOUNTNOBLANK ( AuditEvents[RemoteIp] )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: ad89f3a0-a053-58eb-ad58-8f54d39ade22
+
+	measure 'Property Changes' = COUNTROWS ( AuditPropertyChanges )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: 1ee84a8d-69b9-51e5-80c5-d7a152fa7aa2
+
+	measure 'Events With Changes' = CALCULATE ( [Audit Events], AuditEvents[HasPropertyChanges] = TRUE () )
+		formatString: #,0
+		displayFolder: Counts
+		lineageTag: bafb5f8b-7b07-5722-bcc7-f799e7afb2ae
+
+	measure 'Events per Active User' = DIVIDE ( [Audit Events], [Distinct Users] )
+		formatString: #,0.0
+		displayFolder: Counts
+		lineageTag: a0f013a1-d4ae-5001-aa7b-a0a59f83b339
+
+	measure 'IPs per User' = DIVIDE ( [Distinct Source IPs], [Distinct Users] )
+		formatString: #,0.00
+		displayFolder: Counts
+		lineageTag: 09c4c7c9-cba7-5ff7-98ce-a92826a93fbd
+
+	measure 'Audit Events PD' = CALCULATE ( [Audit Events], DATEADD ( DimDate[Date], -1, DAY ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: 3e78be31-f394-5fba-b714-98d6b328e655
+
+	measure 'Audit Events vs PD %' = DIVIDE ( [Audit Events] - [Audit Events PD], [Audit Events PD] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Time intelligence
+		lineageTag: 47bd9c54-5a87-569c-b4b9-1ec84b30b343
+
+	measure 'Audit Events L7D' = CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -7, DAY ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: ac1c7f86-a890-55da-882c-e34b01a864be
+
+	measure 'Audit Events Prev L7D' = CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ) - 7, -7, DAY ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: 7eb9b3dc-c267-5346-83c7-d6676db6f18d
+
+	measure 'Audit Events L7D vs Prev %' = DIVIDE ( [Audit Events L7D] - [Audit Events Prev L7D], [Audit Events Prev L7D] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Time intelligence
+		lineageTag: e9e0fdf3-d27d-58c6-a986-26af46c4f3a5
+
+	measure 'Audit Events L30D' = CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -30, DAY ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: e461657a-6e77-5427-8d3e-4047de4eee6b
+
+	measure 'Daily Avg Events' =
+			VAR _first = MIN ( AuditEvents[EventDateUtc] )
+			VAR _last  = MAX ( AuditEvents[EventDateUtc] )
+			RETURN
+			    AVERAGEX (
+			        FILTER ( VALUES ( DimDate[Date] ), DimDate[Date] >= _first && DimDate[Date] <= _last ),
+			        COALESCE ( [Audit Events], 0 )
+			    )
+		formatString: #,0.0
+		displayFolder: Time intelligence
+		lineageTag: 02e13ceb-8853-5166-81d8-8478bddf84a6
+
+	measure 'Peak Day Events' = MAXX ( VALUES ( DimDate[Date] ), [Audit Events] )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: 0b2f6039-2288-51ac-a9a4-1fdadb00fd42
+
+	measure 'Peak Day' =
+			VAR _t   = ADDCOLUMNS ( VALUES ( DimDate[Date] ), "@n", [Audit Events] )
+			VAR _max = MAXX ( _t, [@n] )
+			RETURN
+			    MINX ( FILTER ( _t, [@n] = _max ), DimDate[Date] )
+		formatString: dd MMM yyyy
+		displayFolder: Time intelligence
+		lineageTag: 65bfae67-d49a-5ce1-8c6c-03a864dd4d48
+
+	measure 'Daily Events Z-Score' =
+			VAR _day      = MAX ( DimDate[Date] )
+			VAR _baseline =
+			    CALCULATETABLE (
+			        ADDCOLUMNS ( VALUES ( DimDate[Date] ), "@n", COALESCE ( [Audit Events], 0 ) ),
+			        DATESINPERIOD ( DimDate[Date], _day - 1, -30, DAY )
+			    )
+			VAR _mean = AVERAGEX ( _baseline, [@n] )
+			VAR _sd   = STDEVX.P ( _baseline, [@n] )
+			RETURN
+			    IF ( _sd > 0, DIVIDE ( COALESCE ( [Audit Events], 0 ) - _mean, _sd ) )
+		formatString: 0.00
+		displayFolder: Time intelligence
+		lineageTag: 9f2315c5-096a-5439-9f0a-cf5a6953f364
+
+	measure 'Is Anomaly Day' = IF ( ABS ( [Daily Events Z-Score] ) >= 3, 1, 0 )
+		formatString: 0
+		displayFolder: Time intelligence
+		lineageTag: f44450aa-d99e-51e8-a5fc-82be8da93e72
+
+	measure 'Events (Local Date)' = CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateLocal] ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: c95fbb7c-27d0-594e-b6ba-9b861cbd7217
+
+	measure 'Delete Events' = CALCULATE ( [Audit Events], DimAction[Action] = "Delete" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 3b4b238c-29d4-5836-ab03-38a4639bef6c
+
+	measure 'High-Risk Events' = CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: bf3173bd-c486-5188-8ea2-7af7cce0a28c
+
+	measure 'High-Risk %' = DIVIDE ( [High-Risk Events], [Audit Events] )
+		formatString: 0.0%
+		displayFolder: Risk & security
+		lineageTag: 72228202-77f5-54fb-9caa-9a93dca44111
+
+	measure 'Failed Events' = CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 3bddfa89-6cd6-56d0-a708-553e883fec69
+
+	measure 'Failure Rate' = DIVIDE ( [Failed Events], [Audit Events] )
+		formatString: 0.0%
+		displayFolder: Risk & security
+		lineageTag: cc7ca2e8-32d5-58ad-8bf1-8b1ccf8a22e4
+
+	measure 'Off-Hours Events' = CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: d0ae8c81-e25d-51c0-a795-ac07a3c4b2eb
+
+	measure 'Off-Hours %' = DIVIDE ( [Off-Hours Events], [Audit Events] )
+		formatString: 0.0%
+		displayFolder: Risk & security
+		lineageTag: 8d21ca77-a61b-5ad9-912c-26abbff43a66
+
+	measure 'Off-Hours High-Risk Events' = CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 72279955-719a-5b48-9f73-262e7c7a32a3
+
+	measure 'OAuth Client Events' = CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 5d3d3695-f66e-525d-b390-8b05ac0e2de2
+
+	measure 'System Events' = CALCULATE ( [Audit Events], AuditEvents[ActorType] = "System" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: e2180b7d-e835-544a-bdbf-823c4f95c3f1
+
+	measure 'User Events' = CALCULATE ( [Audit Events], AuditEvents[ActorType] = "User" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: ee9ff851-a134-5aea-979a-1292bb2a6637
+
+	measure 'External User Events' = CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 263daa84-b0f8-5484-af18-adabaeb8aa12
+
+	measure 'Security Service Events' = CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 18121616-fd72-5c1e-b7e8-3be0de2c4268
+
+	measure 'Users With Deletes' = CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[Action] = "Delete" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: fa8d2eb6-2239-50ec-a3bd-b42df7590d8e
+
+	measure 'Users With High-Risk Actions' = CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: e863faf1-bb78-5dcb-8a40-cf641392e905
+
+	measure 'New Users (First Seen)' =
+			VAR _start = MIN ( DimDate[Date] )
+			RETURN
+			    COUNTROWS (
+			        FILTER (
+			            VALUES ( AuditEvents[UserKey] ),
+			            AuditEvents[UserKey] <> "SYSTEM"
+			                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+			        )
+			    )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 7ae51fde-f443-5799-8caf-425e19ddca9b
+
+	measure 'New Source IPs (First Seen)' =
+			VAR _start = MIN ( DimDate[Date] )
+			RETURN
+			    COUNTROWS (
+			        FILTER (
+			            VALUES ( AuditEvents[RemoteIp] ),
+			            NOT ISBLANK ( AuditEvents[RemoteIp] )
+			                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+			        )
+			    )
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: d28d2e22-176e-53ee-a637-b5dd4795aa02
+
+	measure 'Users With Many IPs' =
+			COUNTROWS (
+			    FILTER (
+			        VALUES ( AuditEvents[UserKey] ),
+			        AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
+			    )
+			)
+		formatString: #,0
+		displayFolder: Risk & security
+		lineageTag: 2c4eb13b-702d-5022-9f2f-857811c94b96
+
+	measure 'Risk Score' =
+			VAR _n = [Audit Events]
+			RETURN
+			    IF (
+			        _n > 0,
+			        MIN ( 100,
+			            ROUND (
+			                40 * DIVIDE ( [High-Risk Events], _n )
+			                + 25 * DIVIDE ( [Off-Hours Events], _n )
+			                + 20 * DIVIDE ( [Failed Events], _n )
+			                + 15 * DIVIDE ( [External User Events], _n ),
+			                0 )
+			        )
+			    )
+		formatString: 0
+		displayFolder: Risk & security
+		lineageTag: f45ab95c-a9c3-5ef5-b4f2-5b26416fbe4f
+
+	measure 'Events % of Total' = DIVIDE ( [Audit Events], CALCULATE ( [Audit Events], ALLSELECTED () ) )
+		formatString: 0.0%
+		displayFolder: Share & ranking
+		lineageTag: 4488f367-6015-5811-8e9b-d3693d12e8ba
+
+	measure 'Top Actor Share %' = DIVIDE ( MAXX ( VALUES ( AuditEvents[UserKey] ), [Audit Events] ), [Audit Events] )
+		formatString: 0.0%
+		displayFolder: Share & ranking
+		lineageTag: 25dc568c-c4ce-5270-ab4e-9d93f8818e9a
+
+	measure 'User Rank' = RANKX ( ALLSELECTED ( DimUser[User] ), [Audit Events],, DESC, DENSE )
+		formatString: 0
+		displayFolder: Share & ranking
+		lineageTag: d5690c94-5e4a-5725-9996-d43db19d8ccf
+
+	measure 'Service Rank' = RANKX ( ALLSELECTED ( DimService[Service] ), [Audit Events],, DESC, DENSE )
+		formatString: 0
+		displayFolder: Share & ranking
+		lineageTag: 15e8f5e6-f352-5e22-9d5a-cf5d140c5008
+
+	measure 'Top Action' =
+			VAR _t = ADDCOLUMNS ( VALUES ( DimAction[Action] ), "@n", [Audit Events] )
+			RETURN
+			    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimAction[Action] )
+		displayFolder: Share & ranking
+		lineageTag: 3489e982-5198-5a18-ae6c-15ec432f89e7
+
+	measure 'Top Service' =
+			VAR _t = ADDCOLUMNS ( VALUES ( DimService[Service] ), "@n", [Audit Events] )
+			RETURN
+			    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimService[Service] )
+		displayFolder: Share & ranking
+		lineageTag: e89bcf76-b79b-553b-aa82-966bd51ac937
+
+	measure 'Top User' =
+			VAR _t = ADDCOLUMNS ( VALUES ( DimUser[User] ), "@n", [Audit Events] )
+			RETURN
+			    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimUser[User] )
+		displayFolder: Share & ranking
+		lineageTag: 9d91f8bf-0355-5650-8dcd-3e29cfc74556
+
+	measure 'First Event (UTC)' = MIN ( AuditEvents[EventDateTimeUtc] )
+		formatString: dd MMM yyyy HH:mm
+		displayFolder: Data health
+		lineageTag: f2621113-2d75-52bd-b76e-aba2d1bfb4a2
+
+	measure 'First Event Date' = MIN ( AuditEvents[EventDateUtc] )
+		formatString: dd MMM yyyy
+		displayFolder: Data health
+		lineageTag: 035d952b-f31d-5a9d-a158-49c82534e45a
+
+	measure 'Last Event Date' = MAX ( AuditEvents[EventDateUtc] )
+		formatString: dd MMM yyyy
+		displayFolder: Data health
+		lineageTag: 11eb2160-64ac-5aae-831c-ac662c5c45e8
+
+	measure 'Last Event (UTC)' = MAX ( AuditEvents[EventDateTimeUtc] )
+		formatString: dd MMM yyyy HH:mm
+		displayFolder: Data health
+		lineageTag: e70b2015-dc48-5281-8caf-a37e73586f60
+
+	measure 'Days of Data' =
+			VAR _f = MIN ( AuditEvents[EventDateUtc] )
+			VAR _l = MAX ( AuditEvents[EventDateUtc] )
+			RETURN IF ( NOT ISBLANK ( _f ), DATEDIFF ( _f, _l, DAY ) + 1 )
+		formatString: #,0
+		displayFolder: Data health
+		lineageTag: a05504ad-905e-55f7-897d-3e3752f537a8
+
+	measure 'Days Without Data' =
+			VAR _f = MIN ( AuditEvents[EventDateUtc] )
+			VAR _l = MAX ( AuditEvents[EventDateUtc] )
+			RETURN
+			    IF (
+			        NOT ISBLANK ( _f ),
+			        COUNTROWS ( FILTER ( DATESBETWEEN ( DimDate[Date], _f, _l ), ISBLANK ( [Audit Events] ) ) )
+			    )
+		formatString: #,0
+		displayFolder: Data health
+		lineageTag: bd3d8f45-5c18-51d9-9756-52bdaa437422
+
+	measure 'Source Files Loaded' = DISTINCTCOUNT ( AuditEvents[SourceFile] )
+		formatString: #,0
+		displayFolder: Data health
+		lineageTag: 2ee8c154-5b93-5c0b-973b-bd4af9e26a04
+
+	measure 'Latest Source File' = MAX ( AuditEvents[SourceFile] )
+		displayFolder: Data health
+		lineageTag: 9f6662c1-ec00-5f34-8996-b027b63f12b8
+
+	measure 'Last File Written' = MAX ( AuditEvents[SourceFileModified] )
+		formatString: dd MMM yyyy HH:mm
+		displayFolder: Data health
+		lineageTag: 728ecf8e-1b56-57d9-b7b0-bf1151c497a2
+
+	measure 'Data Age (hours)' = DATEDIFF ( [Last Event (UTC)], UTCNOW (), HOUR )
+		formatString: #,0
+		displayFolder: Data health
+		lineageTag: cf583a1f-f0ba-5362-aebd-2f0851fc2609
+
+	measure 'Data Freshness Status' =
+			VAR _h = [Data Age (hours)]
+			RETURN
+			    SWITCH ( TRUE (),
+			        ISBLANK ( _h ), "No data",
+			        _h <= 30, "Fresh",
+			        _h <= 54, "Late (1 day)",
+			        "Stale" )
+		displayFolder: Data health
+		lineageTag: 96da39a0-e7eb-5c96-aa36-660d6328dfb8
+
+	measure 'Data Freshness Colour' = SWITCH ( [Data Freshness Status], "Fresh", "#4C9A6A", "Late (1 day)", "#E8A33D", "#D64545" )
+		displayFolder: Data health
+		lineageTag: a00f215d-05d3-5499-b6e9-7dc184603140
+
+	measure 'Selected Period Title' =
+			VAR _f = MIN ( DimDate[Date] )
+			VAR _l = MAX ( DimDate[Date] )
+			RETURN
+			    IF ( _f = _l,
+			        FORMAT ( _f, "ddd d MMM yyyy" ),
+			        FORMAT ( _f, "d MMM yyyy" ) & " to " & FORMAT ( _l, "d MMM yyyy" ) )
+		displayFolder: Titles
+		lineageTag: 232c722d-2f13-56ef-8de0-883b39c88e38
+
+	measure 'Overview Headline' =
+			FORMAT ( [Audit Events], "#,0" ) & " audit events by "
+			    & FORMAT ( [Distinct Users], "#,0" ) & " users across "
+			    & FORMAT ( [Distinct Services], "#,0" ) & " services"
+		displayFolder: Titles
+		lineageTag: 2d5452f1-90a5-55cc-919f-25fe8a32cb97
+
+	measure 'Risk Colour' =
+			SWITCH ( SELECTEDVALUE ( DimAction[RiskLevel] ),
+			    "High",   "#D64545",
+			    "Medium", "#E8A33D",
+			    "Low",    "#4C9A6A",
+			    "#8A8F98" )
+		displayFolder: Titles
+		lineageTag: 213a50c0-8438-5009-b7dc-8475ee20a71c
+
+	partition _Measures = calculated
+		mode: import
+		source =
+				{ "measures" }
+
+	annotation PBI_ResultType = Table

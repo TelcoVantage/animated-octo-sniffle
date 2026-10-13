@@ -1,0 +1,166 @@
+table AuditPropertyChanges
+	lineageTag: fe0ec1b3-cdc7-5908-a653-273274e1bf60
+
+	column AuditId
+		dataType: string
+		lineageTag: 22dad4e7-0bbe-5456-bf62-15a6c1bf2a34
+		summarizeBy: none
+		sourceColumn: AuditId
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateTimeUtc
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a1ddfae7-ee86-5e33-89e4-19f2c02eb8cb
+		summarizeBy: none
+		sourceColumn: EventDateTimeUtc
+
+		annotation SummarizationSetBy = Automatic
+
+	column Property
+		dataType: string
+		lineageTag: 60aad6a7-cff9-5136-8ea8-9cfabe63fa51
+		summarizeBy: none
+		sourceColumn: Property
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChangeEntityId
+		dataType: string
+		lineageTag: 6bf8790c-c787-53d0-abb3-c8a716f1ec66
+		summarizeBy: none
+		sourceColumn: ChangeEntityId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChangeEntityName
+		dataType: string
+		lineageTag: 8f08da11-87b8-5e65-bf9a-a9e003171af5
+		summarizeBy: none
+		sourceColumn: ChangeEntityName
+
+		annotation SummarizationSetBy = Automatic
+
+	column OldValues
+		dataType: string
+		lineageTag: bb0a7afa-afdd-53fe-8004-995c27255092
+		summarizeBy: none
+		sourceColumn: OldValues
+
+		annotation SummarizationSetBy = Automatic
+
+	column NewValues
+		dataType: string
+		lineageTag: 8872bedc-ec70-5f54-8372-e2170e887344
+		summarizeBy: none
+		sourceColumn: NewValues
+
+		annotation SummarizationSetBy = Automatic
+
+	column OldValueCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 7d45b67b-6c16-578d-b945-6e631c7e1797
+		summarizeBy: none
+		sourceColumn: OldValueCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column NewValueCount
+		dataType: int64
+		formatString: 0
+		lineageTag: cbf339f3-26cf-5327-8c12-ffbb9a66bae5
+		summarizeBy: none
+		sourceColumn: NewValueCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChangeType
+		dataType: string
+		lineageTag: 08449771-697c-56ee-a1eb-475d7ae38dca
+		summarizeBy: none
+		sourceColumn: ChangeType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PropertyShort
+		dataType: string
+		lineageTag: 984ea6e4-38c1-566e-9554-16cd3b07b8a6
+		summarizeBy: none
+		sourceColumn: PropertyShort
+
+		annotation SummarizationSetBy = Automatic
+
+	column PropertyChangeKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 153666a5-a189-5a9c-8175-c671efb4f26e
+		summarizeBy: none
+		sourceColumn: PropertyChangeKey
+
+		annotation SummarizationSetBy = Automatic
+
+	partition AuditPropertyChanges = m
+		mode: import
+		source =
+				// =====================================================================
+				//  AuditPropertyChanges   (FACT table, one row per changed property)
+				//  Explodes AuditLogMessage.propertyChanges[]:
+				//     { property, entity{id,name}, oldValues[], newValues[] }
+				//  Related to AuditEvents on AuditId (many-to-one).
+				// =====================================================================
+				let
+				    Source     = AuditEventsRaw,
+				    Selected   = Table.SelectColumns(Source, {"AuditId", "EventDateTimeUtc", "PropertyChanges"}),
+				    HasChanges = Table.SelectRows(Selected, each [PropertyChanges] is list and List.Count([PropertyChanges]) > 0),
+				    Exploded   = Table.ExpandListColumn(HasChanges, "PropertyChanges"),
+				    Flattened = Table.AddColumn(Exploded, "Change", each
+				        let
+				            c    = [PropertyChanges],
+				            ent  = if c is record then Record.FieldOrDefault(c, "entity", null)    else null,
+				            olds = if c is record then Record.FieldOrDefault(c, "oldValues", null) else null,
+				            news = if c is record then Record.FieldOrDefault(c, "newValues", null) else null,
+				            // values are usually strings, but be safe for nested objects
+				            toText = (v) =>
+				                if v is list then
+				                    Text.Combine(List.Transform(v, (x) => if x is text then x else Text.FromBinary(Json.FromValue(x))), "; ")
+				                else if v = null then null
+				                else Text.From(v)
+				        in
+				            [
+				                Property         = if c is record then Record.FieldOrDefault(c, "property", null) else null,
+				                ChangeEntityId   = if ent is record then Record.FieldOrDefault(ent, "id", null)   else null,
+				                ChangeEntityName = if ent is record then Record.FieldOrDefault(ent, "name", null) else null,
+				                OldValues        = toText(olds),
+				                NewValues        = toText(news),
+				                OldValueCount    = if olds is list then List.Count(olds) else 0,
+				                NewValueCount    = if news is list then List.Count(news) else 0
+				            ]
+				    ),
+				    changeCols = {"Property", "ChangeEntityId", "ChangeEntityName", "OldValues", "NewValues", "OldValueCount", "NewValueCount"},
+				    Expanded   = Table.ExpandRecordColumn(Flattened, "Change", changeCols, changeCols),
+				    Cleaned    = Table.RemoveColumns(Expanded, {"PropertyChanges"}),
+				    AddChangeType = Table.AddColumn(Cleaned, "ChangeType",
+				        each if ([OldValues] = null or [OldValues] = "") and ([NewValues] <> null and [NewValues] <> "") then "Added"
+				             else if ([NewValues] = null or [NewValues] = "") and ([OldValues] <> null and [OldValues] <> "") then "Removed"
+				             else "Modified", type text),
+				    // Short, human readable property name (last path segment)
+				    AddPropertyShort = Table.AddColumn(AddChangeType, "PropertyShort",
+				        each if [Property] = null then null
+				             else if Text.Contains([Property], ".") then Text.AfterDelimiter([Property], ".", {0, RelativePosition.FromEnd})
+				             else [Property], type text),
+				    Typed = Table.TransformColumnTypes(AddPropertyShort, {
+				        {"AuditId", type text}, {"EventDateTimeUtc", type datetime},
+				        {"Property", type text}, {"ChangeEntityId", type text}, {"ChangeEntityName", type text},
+				        {"OldValues", type text}, {"NewValues", type text},
+				        {"OldValueCount", Int64.Type}, {"NewValueCount", Int64.Type}
+				    }),
+				    Indexed = Table.AddIndexColumn(Typed, "PropertyChangeKey", 1, 1, Int64.Type)
+				in
+				    Indexed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

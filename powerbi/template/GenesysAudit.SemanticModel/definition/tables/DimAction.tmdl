@@ -1,0 +1,61 @@
+table DimAction
+	lineageTag: e2222bbf-aea2-5ccd-8504-a2a1127617f1
+
+	column Action
+		dataType: string
+		lineageTag: b1cc45a4-2fba-5833-8262-40976240d82e
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Action]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RiskLevel
+		dataType: string
+		lineageTag: 4ac450af-ed5a-50d5-bca6-f2a12b8dfde5
+		sortByColumn: RiskSort
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [RiskLevel]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActionCategory
+		dataType: string
+		lineageTag: a5977c22-e03a-569d-89c7-5771f0b3135a
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ActionCategory]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RiskSort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ac54612c-8372-5ca4-ab3c-c83211e765eb
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [RiskSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimAction = calculated
+		mode: import
+		source =
+				ADDCOLUMNS (
+				    DISTINCT ( SELECTCOLUMNS ( AuditEvents, "Action", AuditEvents[Action] ) ),
+				    "RiskLevel",
+				        COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskLevel], ActionRiskMap[Action], [Action] ), "Medium" ),
+				    "ActionCategory",
+				        COALESCE ( LOOKUPVALUE ( ActionRiskMap[ActionCategory], ActionRiskMap[Action], [Action] ), "Other" ),
+				    "RiskSort",
+				        COALESCE ( LOOKUPVALUE ( ActionRiskMap[RiskSort], ActionRiskMap[Action], [Action] ), 2 )
+				)
+				// Sort-by: RiskLevel -> RiskSort
+
+	annotation PBI_ResultType = Table

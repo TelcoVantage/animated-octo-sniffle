@@ -1,0 +1,237 @@
+table DimDate
+	lineageTag: d47519e6-6ff8-585e-9446-fd1e4c64894a
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: Short Date
+		lineageTag: 0d73c109-08ac-514c-92ad-12f00f852fda
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: f8d1c6da-2615-56ea-8d06-5ba49eba51d3
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: eaf4da10-c255-543c-9b90-055004ae4093
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year-Quarter'
+		dataType: string
+		lineageTag: 3d83711f-d56e-5d54-9ff8-9635a12ebdff
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Year-Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c3ae4b14-01bc-531d-ba94-9f703eb8bb05
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: 78f6fdb8-7112-5094-be93-d52692b77a6e
+		sortByColumn: 'Month Number'
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year-Month'
+		dataType: string
+		lineageTag: d3891518-387f-5024-9323-0f8fe424a452
+		sortByColumn: 'Year-Month Sort'
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Year-Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year-Month Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cb6acee5-a00f-5393-949e-7e9d6acd10ef
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Year-Month Sort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'ISO Week'
+		dataType: int64
+		formatString: 0
+		lineageTag: dd549f63-720b-5e9c-943a-9e1300c359fa
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ISO Week]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Start'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 9e575df5-e7e0-5e14-ae6c-0427004a4bae
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Week Start]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: aed4f016-9fa2-5d3f-a3ae-5db62c9e5053
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Day]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cfa35bd2-c14a-5545-9afa-4b0375e80849
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Day of Week]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		dataType: string
+		lineageTag: 236179d2-a310-5544-b292-07bc44c55f08
+		sortByColumn: 'Day of Week'
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Day Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Weekend'
+		dataType: boolean
+		lineageTag: dfaf4089-1671-580b-9b4f-bc940f0e9ce6
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Is Weekend]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days Ago'
+		dataType: int64
+		formatString: 0
+		lineageTag: bc6491a0-3a3b-5a5b-8f5a-dfb034188c1c
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Days Ago]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Last 7 Days'
+		dataType: boolean
+		lineageTag: f0fda19a-363f-5c11-adf8-61d8ee2ac6d3
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Is Last 7 Days]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Last 30 Days'
+		dataType: boolean
+		lineageTag: dd992175-a3e2-5a34-b6c1-5a4711fc9220
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Is Last 30 Days]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Relative Day'
+		dataType: string
+		lineageTag: bdb1dcbb-cd03-5da7-a449-313641082589
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Relative Day]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = calculated
+		mode: import
+		source =
+				VAR _MinDate = COALESCE ( MIN ( AuditEvents[EventDateUtc] ), TODAY () - 30 )
+				VAR _MaxDate = COALESCE ( MAX ( AuditEvents[EventDateUtc] ), TODAY () )
+				VAR _Start   = DATE ( YEAR ( _MinDate ), 1, 1 )
+				VAR _End     = DATE ( YEAR ( _MaxDate ), 12, 31 )
+				RETURN
+				ADDCOLUMNS (
+				    CALENDAR ( _Start, _End ),
+				    "Year",             YEAR ( [Date] ),
+				    "Quarter",          "Q" & QUARTER ( [Date] ),
+				    "Year-Quarter",     YEAR ( [Date] ) & "-Q" & QUARTER ( [Date] ),
+				    "Month Number",     MONTH ( [Date] ),
+				    "Month",            FORMAT ( [Date], "MMM" ),
+				    "Year-Month",       FORMAT ( [Date], "yyyy-MM" ),
+				    "Year-Month Sort",  YEAR ( [Date] ) * 100 + MONTH ( [Date] ),
+				    "ISO Week",         WEEKNUM ( [Date], 21 ),
+				    "Week Start",       [Date] - WEEKDAY ( [Date], 2 ) + 1,
+				    "Day",              DAY ( [Date] ),
+				    "Day of Week",      WEEKDAY ( [Date], 2 ),            // 1 = Monday .. 7 = Sunday
+				    "Day Name",         FORMAT ( [Date], "ddd" ),
+				    "Is Weekend",       WEEKDAY ( [Date], 2 ) >= 6,
+				    "Days Ago",         INT ( TODAY () - [Date] ),
+				    "Is Last 7 Days",   INT ( TODAY () - [Date] ) >= 0 && INT ( TODAY () - [Date] ) < 7,
+				    "Is Last 30 Days",  INT ( TODAY () - [Date] ) >= 0 && INT ( TODAY () - [Date] ) < 30,
+				    "Relative Day",     SWITCH ( TRUE (),
+				                            [Date] = TODAY (),      "Today",
+				                            [Date] = TODAY () - 1,  "Yesterday",
+				                            BLANK () )
+				)
+
+	annotation PBI_ResultType = Table

@@ -7,9 +7,10 @@
 // =====================================================================
 let
     // ---- 1. List the files. Keep ONE of the three connectors. -----------------
-    Files = AzureStorage.Blobs(AuditSourcePath),
-    // Files = AzureStorage.DataLake(AuditSourcePath),
-    // Files = Folder.Files(AuditSourcePath),
+    // Local / network folder (default, use this with files you download or upload yourself)
+    Files = Folder.Files(AuditSourcePath),
+    // Azure Blob Storage   : Files = AzureStorage.Blobs(AuditSourcePath),
+    // ADLS Gen2            : Files = AzureStorage.DataLake(AuditSourcePath),
 
     JsonFiles = Table.SelectRows(Files, each Text.Lower([Extension]) = ".json"),
 

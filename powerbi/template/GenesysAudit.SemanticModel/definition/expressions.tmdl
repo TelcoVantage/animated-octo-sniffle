@@ -1,0 +1,219 @@
+expression AuditSourcePath = "C:\GenesysAudit" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: f4de0152-1ca3-564e-8e71-7713f9b20229
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression RangeStart = #datetime(2026, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+	lineageTag: e5e054f3-18ea-56f6-a323-f2e3432dfebe
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = DateTime
+
+expression RangeEnd = #datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+	lineageTag: f9c07c14-ae2c-51db-844c-ba9655630a2e
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = DateTime
+
+expression LocalUtcOffsetHours = 0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 5023a8ee-32d7-50e1-aaf2-e0ae8cd0e8b8
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Number
+
+expression BusinessHoursStart = 8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 74f68303-4d91-5015-9b35-3a011603f007
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Number
+
+expression BusinessHoursEnd = 18 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: d6aa4659-8e28-5417-9b49-c2c3d63dd2f7
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Number
+
+expression fnParseAuditFile =
+		// =====================================================================
+		//  fnParseAuditFile
+		//  Blank Query > Advanced Editor > paste > rename query to fnParseAuditFile
+		//
+		//  Input : the binary content of ONE daily file written by the pipeline.
+		//  Output: one row per audit event (AuditLogMessage), flattened.
+		//
+		//  Accepts any of these file layouts, so the pipeline can choose:
+		//    a) a JSON array of AuditLogMessage objects                     [ {...}, {...} ]
+		//    b) the raw results page from GET /api/v2/audits/query/{id}/results
+		//       (an object with an "entities" array)                       { "entities": [ ... ] }
+		//    c) newline-delimited JSON, one AuditLogMessage per line
+		//
+		//  Every field is read with Record.FieldOrDefault, so a missing or null
+		//  field never breaks the refresh and new API fields are simply ignored.
+		// =====================================================================
+		(content as binary) as table =>
+		let
+		    // ---- 1. Decode the file into a list of event records ------------------
+		    parsed = try Json.Document(content) otherwise null,
+		    eventList =
+		        if parsed = null then
+		            // newline-delimited JSON fallback
+		            let
+		                lines    = Lines.FromBinary(content, null, null, 65001),
+		                nonEmpty = List.Select(lines, each Text.Trim(_) <> ""),
+		                docs     = List.Transform(nonEmpty, each Json.Document(_))
+		            in
+		                docs
+		        else if parsed is list then
+		            parsed
+		        else if parsed is record and Record.HasFields(parsed, "entities") then
+		            (if parsed[entities] is list then parsed[entities] else {})
+		        else if parsed is record then
+		            {parsed}
+		        else
+		            {},
+		    asTable = Table.FromList(eventList, Splitter.SplitByNothing(), {"Event"}, null, ExtraValues.Error),
+		    // ---- 2. Flatten each AuditLogMessage into a wide record ---------------
+		    flattened = Table.AddColumn(asTable, "Row", each
+		        let
+		            e      = [Event],
+		            user   = Record.FieldOrDefault(e, "user", null),
+		            client = Record.FieldOrDefault(e, "client", null),
+		            entity = Record.FieldOrDefault(e, "entity", null),
+		            msg    = Record.FieldOrDefault(e, "message", null),
+		            init   = Record.FieldOrDefault(e, "initiatingAction", null),
+		            ips    = Record.FieldOrDefault(e, "remoteIp", null),
+		            pc     = Record.FieldOrDefault(e, "propertyChanges", null),
+		            ctx    = Record.FieldOrDefault(e, "context", null)
+		        in
+		            [
+		                AuditId              = Record.FieldOrDefault(e, "id", null),
+		                EventDateTimeUtc     = Record.FieldOrDefault(e, "eventDate", null),
+		                ServiceName          = Record.FieldOrDefault(e, "serviceName", null),
+		                Action               = Record.FieldOrDefault(e, "action", null),
+		                EntityType           = Record.FieldOrDefault(e, "entityType", null),
+		                EntityId             = if entity is record then Record.FieldOrDefault(entity, "id", null)   else null,
+		                EntityName           = if entity is record then Record.FieldOrDefault(entity, "name", null) else null,
+		                Status               = Record.FieldOrDefault(e, "status", null),
+		                Level                = Record.FieldOrDefault(e, "level", null),
+		                Application          = Record.FieldOrDefault(e, "application", null),
+		                UserId               = if user is record   then Record.FieldOrDefault(user, "id", null)     else null,
+		                UserName             = if user is record   then Record.FieldOrDefault(user, "name", null)   else null,
+		                ClientId             = if client is record then Record.FieldOrDefault(client, "id", null)   else null,
+		                ClientName           = if client is record then Record.FieldOrDefault(client, "name", null) else null,
+		                RemoteIp             = if ips is list and List.Count(ips) > 0 then Text.From(ips{0}) else null,
+		                RemoteIpAll          = if ips is list then Text.Combine(List.Transform(ips, each Text.From(_)), "; ") else null,
+		                RemoteIpCount        = if ips is list then List.Count(ips) else 0,
+		                MessageTemplate      = if msg is record then Record.FieldOrDefault(msg, "message", null) else null,
+		                Message              = if msg is record then Record.FieldOrDefault(msg, "messageWithParams", null) else null,
+		                TransactionId        = if init is record then Record.FieldOrDefault(init, "transactionId", null) else null,
+		                InitiatingActionId   = if init is record then Record.FieldOrDefault(init, "id", null) else null,
+		                TransactionInitiator = Record.FieldOrDefault(e, "transactionInitiator", null),
+		                UserHomeOrgId        = Record.FieldOrDefault(e, "userHomeOrgId", null),
+		                UserTrusteeOrgId     = Record.FieldOrDefault(e, "userTrusteeOrgId", null),
+		                PropertyChangeCount  = if pc is list then List.Count(pc) else 0,
+		                ContextJson          = if ctx is record and Record.FieldCount(ctx) > 0 then Text.FromBinary(Json.FromValue(ctx)) else null,
+		                PropertyChanges      = if pc is list then pc else null
+		            ]
+		    ),
+		    columnNames = {
+		        "AuditId", "EventDateTimeUtc", "ServiceName", "Action", "EntityType", "EntityId", "EntityName",
+		        "Status", "Level", "Application", "UserId", "UserName", "ClientId", "ClientName",
+		        "RemoteIp", "RemoteIpAll", "RemoteIpCount", "MessageTemplate", "Message",
+		        "TransactionId", "InitiatingActionId", "TransactionInitiator", "UserHomeOrgId", "UserTrusteeOrgId",
+		        "PropertyChangeCount", "ContextJson", "PropertyChanges"
+		    },
+		    expanded = Table.ExpandRecordColumn(flattened, "Row", columnNames, columnNames),
+		    noEvent  = Table.RemoveColumns(expanded, {"Event"}),
+		    // ---- 3. Types -----------------------------------------------------------
+		    // eventDate arrives as ISO-8601 with a Z suffix, e.g. 2026-10-12T09:15:33.141Z
+		    // Convert to a plain UTC datetime (incremental refresh needs type datetime).
+		    utc = Table.TransformColumns(noEvent, {
+		        {"EventDateTimeUtc", each if _ = null then null
+		                                  else DateTimeZone.RemoveZone(DateTimeZone.ToUtc(DateTimeZone.FromText(_))), type datetime}
+		    }),
+		    typed = Table.TransformColumnTypes(utc, {
+		        {"AuditId", type text}, {"ServiceName", type text}, {"Action", type text}, {"EntityType", type text},
+		        {"EntityId", type text}, {"EntityName", type text}, {"Status", type text}, {"Level", type text},
+		        {"Application", type text}, {"UserId", type text}, {"UserName", type text},
+		        {"ClientId", type text}, {"ClientName", type text}, {"RemoteIp", type text}, {"RemoteIpAll", type text},
+		        {"RemoteIpCount", Int64.Type}, {"MessageTemplate", type text}, {"Message", type text},
+		        {"TransactionId", type text}, {"InitiatingActionId", type text}, {"TransactionInitiator", type logical},
+		        {"UserHomeOrgId", type text}, {"UserTrusteeOrgId", type text}, {"PropertyChangeCount", Int64.Type},
+		        {"ContextJson", type text}
+		    })
+		in
+		    typed
+	lineageTag: f5a61431-760b-59a4-aa85-0bcb6db19447
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+expression AuditEventsRaw =
+		// =====================================================================
+		//  AuditEventsRaw      (staging query  ->  right-click > UNTICK "Enable load")
+		//
+		//  Lists the daily files, keeps only the ones inside the refresh window,
+		//  parses them with fnParseAuditFile and de-duplicates on AuditId.
+		//  Both AuditEvents and AuditPropertyChanges reference this query.
+		// =====================================================================
+		let
+		    // ---- 1. List the files. Keep ONE of the three connectors. -----------------
+		    // Local / network folder (default, use this with files you download or upload yourself)
+		    Files = Folder.Files(AuditSourcePath),
+		    // Azure Blob Storage   : Files = AzureStorage.Blobs(AuditSourcePath),
+		    // ADLS Gen2            : Files = AzureStorage.DataLake(AuditSourcePath),
+		    JsonFiles = Table.SelectRows(Files, each Text.Lower([Extension]) = ".json"),
+		    // ---- 2. Business date from the file name ---------------------------------
+		    // Contract with the pipeline:  <anything>_YYYY-MM-DD.json
+		    // (a virtual folder prefix such as 2026/10/ in the blob name is fine)
+		    WithFileDate = Table.AddColumn(JsonFiles, "FileDate",
+		        each try Date.FromText(Text.End(Text.BeforeDelimiter([Name], ".", {0, RelativePosition.FromEnd}), 10))
+		             otherwise null,
+		        type nullable date),
+		    ValidFiles = Table.SelectRows(WithFileDate, each [FileDate] <> null),
+		    // ---- 3. File-level pre-filter for incremental refresh --------------------
+		    // One day of slack on each side so a file that straddles midnight (or a
+		    // pipeline that runs in local time) is never missed. Rows are filtered
+		    // precisely in step 5.
+		    FilesInRange = Table.SelectRows(ValidFiles,
+		        each [FileDate] >= Date.AddDays(Date.From(RangeStart), -1)
+		         and [FileDate] <  Date.AddDays(Date.From(RangeEnd),   1)),
+		    // ---- 4. Parse every file, tagging rows with their source file ------------
+		    Parsed = Table.AddColumn(FilesInRange, "Events",
+		        (file) =>
+		            let
+		                t  = fnParseAuditFile(file[Content]),
+		                t1 = Table.AddColumn(t,  "SourceFile",         each file[Name],          type text),
+		                t2 = Table.AddColumn(t1, "SourceFileModified", each file[Date modified], type datetime)
+		            in
+		                t2),
+		    // An empty, correctly-typed table is always unioned in first so that an
+		    // incremental-refresh partition with no files (e.g. months before the
+		    // pipeline existed) still yields the full column set instead of an error.
+		    EmptyEvents =
+		        Table.AddColumn(
+		            Table.AddColumn(fnParseAuditFile(Text.ToBinary("[]")), "SourceFile", each null, type text),
+		            "SourceFileModified", each null, type datetime),
+		    Combined = Table.Combine({EmptyEvents} & Parsed[Events]),
+		    // ---- 5. Row-level incremental-refresh filter (RangeStart <= t < RangeEnd) --
+		    InRange = Table.SelectRows(Combined,
+		        each [EventDateTimeUtc] <> null
+		         and [EventDateTimeUtc] >= RangeStart
+		         and [EventDateTimeUtc] <  RangeEnd),
+		    // ---- 6. De-duplicate (pipeline re-runs / overlapping query intervals) ----
+		    Deduped = Table.Distinct(InRange, {"AuditId"})
+		in
+		    Deduped
+	lineageTag: bc1248d6-c1c2-57e3-b121-ab9e266d4e24
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
