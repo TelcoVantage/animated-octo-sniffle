@@ -1,0 +1,27 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["SharePointSiteUrl", "SharePointFolder", "RangeStart", "RangeEnd", "LocalUtcOffsetHours", "BusinessHoursStart", "BusinessHoursEnd", "fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table AuditEvents
+ref table AuditPropertyChanges
+ref table DimDate
+ref table DimUser
+ref table DimClient
+ref table DimService
+ref table DimAction
+ref table DimEntityType
+ref table ServiceMap
+ref table ActionRiskMap
+ref table _Measures
+
+ref cultureInfo en-US

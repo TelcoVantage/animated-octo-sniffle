@@ -1,0 +1,96 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "explorer_pivotTable_7",
+  "position": {
+    "x": 740,
+    "y": 8,
+    "z": 7,
+    "height": 252,
+    "width": 530,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimService"
+                    }
+                  },
+                  "Property": "Service"
+                }
+              },
+              "queryRef": "DimService.Service",
+              "nativeQueryRef": "Service"
+            }
+          ]
+        },
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimAction"
+                    }
+                  },
+                  "Property": "ActionCategory"
+                }
+              },
+              "queryRef": "DimAction.ActionCategory",
+              "nativeQueryRef": "ActionCategory"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Audit Events"
+                }
+              },
+              "queryRef": "_Measures.Audit Events",
+              "nativeQueryRef": "Audit Events"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Service x action category'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

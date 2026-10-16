@@ -6,15 +6,17 @@ out of scope here; this folder assumes it lands **one JSON file per day** and
 builds the report on top of that.
 
 > **Fastest path: download the ready-made template.**
-> `template/GenesysAudit-template.zip` is a complete Power BI Project (model +
-> six report pages + sample data). Unzip, drop your JSON files in
-> `C:\GenesysAudit`, double-click `GenesysAudit.pbip`, refresh. See
-> [`template/README.md`](template/README.md). The sections below describe what
-> is inside it and how to rebuild it by hand.
+> `template/GenesysAudit-template-local.zip` (files in a local folder) and
+> `template/GenesysAudit-template-sharepoint.zip` (files in a SharePoint
+> library, for production) are complete Power BI Projects: model + six report
+> pages + sample data. Unzip, land your JSON files, double-click
+> `GenesysAudit.pbip`, refresh. See [`template/README.md`](template/README.md).
+> The two audit endpoints are documented in [`docs/audit-api.md`](docs/audit-api.md).
 
 ```
 powerbi/
 ├── README.md                      <- this guide (API primer, landing contract, model, build steps)
+├── docs/audit-api.md              <- POST /audits/query (async) and /audits/query/realtime, from the swagger
 ├── docs/report-design.md          <- page-by-page visual design, slicers, drill-through, formatting
 ├── power-query/                   <- paste into Power Query Advanced Editor, one query per file
 │   ├── 00_Parameters.pq           <- AuditSourcePath, RangeStart, RangeEnd, LocalUtcOffsetHours, ...
@@ -28,7 +30,7 @@ powerbi/
 │   ├── 03_Dimensions.dax          <- DimUser, DimClient, DimService, DimAction, DimEntityType
 │   └── 04_Measures.dax            <- ~60 measures with format strings
 ├── theme/genesys-audit-theme.json <- report theme (View > Themes > Browse for themes)
-├── template/                      <- generated Power BI Project (.pbip) + GenesysAudit-template.zip
+├── template/                      <- generated Power BI Projects: local/ + sharepoint/ and their zips
 ├── tools/build_pbip.py            <- regenerates template/ from the .pq/.dax files, validates the report JSON
 ├── sample-data/                   <- 14 days of realistic sample files to build against
 └── tools/generate_sample_audit.py <- regenerates the sample data (any day count / layout)
@@ -38,27 +40,20 @@ powerbi/
 
 ## 1. The Audit API in two minutes (what the pipeline hands you)
 
-The audit query is asynchronous. The pipeline does, per UTC day:
+Full detail, taken from the public swagger: [`docs/audit-api.md`](docs/audit-api.md).
+The short version:
 
-1. `POST /api/v2/audits/query` with
-   ```json
-   {
-     "interval": "2026-10-12T00:00:00.000Z/2026-10-13T00:00:00.000Z",
-     "sort": [ { "name": "Timestamp", "sortOrder": "ascending" } ]
-   }
-   ```
-   Leave `serviceName` out to get every service in one query. `filters[]`
-   (`UserId`, `Action`, `EntityType`, `EntityId`, `ClientId`, `RemoteIp`, ...)
-   are for ad-hoc investigations, not for the daily dump.
-2. Poll `GET /api/v2/audits/query/{transactionId}` until `state` is `Succeeded`.
-3. Page through `GET /api/v2/audits/query/{transactionId}/results?pageSize=500&expand=user&cursor=...`
-   until no `cursor` is returned.
-   `expand=user` is what populates `user.name`; without it you only get ids.
-4. Write the concatenated `entities[]` to `genesys-audit_YYYY-MM-DD.json`.
-
-Useful side endpoints: `GET /api/v2/audits/query/servicemapping` (the list of
-services and entity types that can appear, keep `ServiceMap` in sync with it) and
-`POST /api/v2/audits/query/realtime` for small synchronous look-ups.
+* `POST /api/v2/audits/query` is **asynchronous**: create the query for one UTC
+  day, poll `GET /api/v2/audits/query/{id}` until `Succeeded`, then page
+  `GET /api/v2/audits/query/{id}/results?pageSize=500&expand=user&cursor=...`
+  until no cursor comes back. Big result sets can redirect to a presigned
+  download URL (`allowRedirect=true`). Use it for the daily full-day file.
+* `POST /api/v2/audits/query/realtime?expand=user` is **synchronous** and
+  page-numbered (`pageNumber`/`pageSize`, response has `total`/`pageCount`), but
+  covers only about 14 days for the services it indexes. Use it for intraday
+  top-ups and investigations.
+* Both return the same `AuditLogMessage` objects; write their `entities` to
+  `genesys-audit_YYYY-MM-DD.json`.
 
 ### One `AuditLogMessage` and where each field lands
 
@@ -66,22 +61,24 @@ services and entity types that can appear, keep `ServiceMap` in sync with it) an
 |---|---|---|
 | `id` | `AuditEvents[AuditId]` | de-dupe key; relationship to `AuditPropertyChanges` |
 | `eventDate` | `EventDateTimeUtc`, `EventDateUtc`, `EventHourUtc`, `*Local` | UTC in the API; local = UTC + `LocalUtcOffsetHours` |
-| `serviceName` | `ServiceName` → `DimService` | friendly name + category via `ServiceMap` |
-| `action` | `Action` → `DimAction` | risk level + category via `ActionRiskMap` |
-| `entityType` | `EntityType` → `DimEntityType` | |
+| `serviceName` | `ServiceName` -> `DimService` | friendly name + category via `ServiceMap` |
+| `action` | `Action` -> `DimAction` | risk level + category via `ActionRiskMap` |
+| `entityType` | `EntityType` -> `DimEntityType` | |
 | `entity.id / entity.name` | `EntityId`, `EntityName`, `EntityDisplay` | name is often missing for conversations/recordings |
-| `status` | `Status`, `IsFailure` | `Success` / `Failure` |
-| `level` | `Level` | `USER` / `SYSTEM` |
+| `status` | `Status`, `IsFailure` | `SUCCESS` / `FAILURE` / `WARNING` |
+| `level` | `Level` | `USER` / `SYSTEM` / `GENESYS_INTERNAL` |
 | `application` | `Application` | Web UI, Public API, mobile, ... |
-| `user.id / user.name` | `UserId`, `UserName`, `UserKey` → `DimUser` | null for OAuth-client and system actions; `UserKey` = `SYSTEM` then |
-| `client.id / client.name` | `ClientId`, `ClientName`, `ClientKey` → `DimClient` | OAuth client (integration / script) that made the call |
+| `user.id / user.name` | `UserId`, `UserName`, `UserKey` -> `DimUser` | null for OAuth-client and system actions; `UserKey` = `SYSTEM` then. Name needs `expand=user` |
+| `client.id` | `ClientId`, `ClientKey` -> `DimClient` | OAuth client that made the call. The API carries no client name; `ClientName` is kept for optional enrichment |
 | `remoteIp[]` | `RemoteIp` (first), `RemoteIpAll`, `RemoteIpCount` | |
-| `message.messageWithParams` | `Message` | human readable, has real names |
-| `message.message` | `MessageTemplate` | the template, good for grouping |
-| `initiatingAction.transactionId` | `TransactionId` | groups events caused by one user action |
+| `message.localizableMessageCode` | `MessageCode` | stable key, good for grouping |
+| `message.message` | `Message` | resolved, human readable |
+| `message.messageWithParams` | `MessageTemplate` | the template with `{placeholders}` |
+| `initiatingAction.transactionId / actionContext` | `TransactionId`, `InitiatingActionContext` | groups events caused by one user action |
 | `transactionInitiator` | `TransactionInitiator` | true on the originating event |
-| `userHomeOrgId / userTrusteeOrgId` | same | differ for partner (trustee) users → `DimUser[IsExternalUser]` |
-| `propertyChanges[]` | `AuditPropertyChanges` rows | `property`, `oldValues[]`, `newValues[]` joined with `; ` |
+| `userHomeOrgId` | `UserHomeOrgId` | differs from your org for partner (trustee) users -> `DimUser[IsExternalUser]` |
+| `propertyChanges[]` | `AuditPropertyChanges` rows, `ChangeSource = Property` | `property`, `oldValues[]`, `newValues[]` joined with `; ` |
+| `entityChanges[]` | `AuditPropertyChanges` rows, `ChangeSource = Entity` | `entityId/Name/Type`, `oldValues[]`, `newValues[]` |
 | `context{}` | `ContextJson` | free-form map, kept as JSON text |
 | derived | `ActorType`, `ActorName`, `IsOffHours`, `HasPropertyChanges` | see `03_AuditEvents.pq` |
 
@@ -94,7 +91,7 @@ field in the API never fails a refresh.
 
 | Rule | Value |
 |---|---|
-| Location | one container/folder, parameter `AuditSourcePath` |
+| Location | one folder: local (`AuditSourcePath`) or a SharePoint library folder (`SharePointSiteUrl` + `SharePointFolder`); Azure Blob/ADLS one-liners are in `02_AuditEventsRaw.pq` |
 | File name | `<anything>_YYYY-MM-DD.json`, date = the UTC day queried (virtual sub-folders are fine) |
 | Content | a JSON array of `AuditLogMessage`, **or** the raw results object `{ "entities": [...] }`, **or** newline-delimited JSON |
 | Re-runs | overwrite the day's file; the model also de-duplicates on `id` |
@@ -198,6 +195,12 @@ Cross-filter direction: single, from the "one" side, everywhere.
   local columns used only for business-hours logic. Power Query has no time-zone
   database, so DST is not applied. If that matters, add a DST rule to the
   `AddLocalDT` step or let the pipeline add a `localEventDate` field.
+* **Trustee (partner) users.** The API has no "is external" flag. `DimUser`
+  takes the `userHomeOrgId` that appears on most events as your own org and
+  flags users whose home org differs.
+* **OAuth client names.** `client` is an id-only reference in the API. If you
+  want names on the Users & Actors page, land a `clients.json` from
+  `GET /api/v2/oauth/clients` and merge it into `DimClient` on `ClientId`.
 * **`SYSTEM` / `NONE` keys.** Null user and client ids are replaced with sentinel
   keys so the dimensions have an explicit "System / no user" member and visuals
   never show a `(Blank)` row.

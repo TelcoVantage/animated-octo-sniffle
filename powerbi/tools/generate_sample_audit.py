@@ -207,13 +207,17 @@ def self_uri(service: str, etype: str, eid: str) -> str:
     return base + eid
 
 
+USERS_CACHE = []
+
+
 class World:
     """Stable ids/names across days so dimensions look real."""
 
     def __init__(self, seed: int):
         self.rng = random.Random(seed)
         r = self.rng
-        self.users = []
+        self.users = USERS_CACHE
+        self.users.clear()
         for name, role, org, bh in USERS:
             self.users.append({
                 "id": det_uuid(r), "name": name, "role": role, "org": org, "business_hours": bh,
@@ -241,7 +245,8 @@ def build_event(w: World, day: date, actor: dict, actor_kind: str, service: str,
                 action: str, when: datetime, *, force_status=None, context=None) -> dict:
     r = w.rng
     eid, ename = w.entity(etype)
-    status = force_status or ("Failure" if r.random() < 0.04 else "Success")
+    roll = r.random()
+    status = force_status or ("FAILURE" if roll < 0.04 else "WARNING" if roll < 0.05 else "SUCCESS")
     verb = {"Create": "created", "Update": "updated", "Delete": "deleted", "View": "viewed", "Download": "downloaded",
             "Publish": "published", "Checkin": "checked in", "Checkout": "checked out", "Assign": "assigned",
             "Unassign": "unassigned", "Deactivate": "deactivated", "Enable": "enabled", "Disable": "disabled",
@@ -252,14 +257,15 @@ def build_event(w: World, day: date, actor: dict, actor_kind: str, service: str,
     ev = {
         "id": det_uuid(r),
         "userHomeOrgId": actor["org"] if actor_kind == "user" else HOME_ORG,
-        "userTrusteeOrgId": HOME_ORG,
         "remoteIp": [r.choice(actor["ips"])] if actor_kind == "user" else [actor["ip"]],
         "serviceName": service,
         "level": "USER",
         "eventDate": when.strftime("%Y-%m-%dT%H:%M:%S.") + f"{r.randint(0, 999):03d}Z",
+        # MessageInfo per swagger: message = resolved text, messageWithParams = template
         "message": {
-            "message": "{user} " + verb + " " + etype + " {entityName}",
-            "messageWithParams": f"{actor_name} {verb} {etype} {target}",
+            "localizableMessageCode": f"{service.upper()}_{etype.upper()}_{action.upper()}",
+            "message": f"{actor_name} {verb} {etype} {target}",
+            "messageWithParams": "{user} " + verb + " " + etype + " {entityName}",
             "messageParams": {"user": actor_name, "entityName": target},
         },
         "action": action,
@@ -267,31 +273,31 @@ def build_event(w: World, day: date, actor: dict, actor_kind: str, service: str,
         "entityType": etype,
         "status": status,
         "application": "Public API" if actor_kind == "client" else r.choice(APPLICATIONS),
-        "initiatingAction": {"id": det_uuid(r), "transactionId": tx},
+        "initiatingAction": {"transactionId": tx, "actionContext": action},
         "transactionInitiator": True,
         "propertyChanges": [],
+        "entityChanges": [],
         "context": context or {},
     }
     if actor_kind == "user":
+        # DomainEntityRef - name is present only when the query used expand=user
         ev["user"] = {"id": actor["id"], "name": actor["name"], "selfUri": f"/api/v2/users/{actor['id']}"}
-        if actor["role"] == "partner":
-            ev["userTrusteeOrgId"] = HOME_ORG
     else:
-        ev["client"] = {"id": actor["id"], "name": actor["name"], "selfUri": f"/api/v2/oauth/clients/{actor['id']}"}
+        # AddressableEntityRef - the API never returns the client name
+        ev["client"] = {"id": actor["id"], "selfUri": f"/api/v2/oauth/clients/{actor['id']}"}
 
     changes = PROPERTY_CHANGES.get((service, etype, action))
-    if changes and status == "Success":
+    if changes and status == "SUCCESS":
         for prop, old, new in r.sample(changes, k=min(len(changes), r.choice([1, 1, 2]))):
-            ev["propertyChanges"].append({
-                "property": prop,
-                "entity": {"id": eid, "name": ename, "selfUri": self_uri(service, etype, eid)},
-                "oldValues": old,
-                "newValues": new,
-            })
-    if action == "Delete" and status == "Success":
-        ev["propertyChanges"].append({
-            "property": f"{etype}.State", "entity": {"id": eid, "name": ename}, "oldValues": ["active"], "newValues": ["deleted"],
-        })
+            ev["propertyChanges"].append({"property": prop, "oldValues": old, "newValues": new})
+    if action == "Delete" and status == "SUCCESS":
+        ev["propertyChanges"].append({"property": f"{etype}.State", "oldValues": ["active"], "newValues": ["deleted"]})
+    # role (un)assignment is reported as a change to the affected user entity
+    if etype == "Role" and action in ("Assign", "Unassign") and status == "SUCCESS":
+        tu = r.choice([u for u in USERS_CACHE if u["role"] != "partner"])
+        old, new = (["Agent"], ["Agent", ename]) if action == "Assign" else (["Agent", ename], ["Agent"])
+        ev["entityChanges"].append({"entityId": tu["id"], "entityName": tu["name"], "entityType": "User",
+                                    "oldValues": old, "newValues": new})
     return ev
 
 
@@ -307,21 +313,22 @@ def system_event(w: World, when: datetime) -> dict:
     return {
         "id": det_uuid(r),
         "userHomeOrgId": HOME_ORG,
-        "userTrusteeOrgId": HOME_ORG,
         "remoteIp": [],
         "serviceName": service,
         "level": "SYSTEM",
         "eventDate": when.strftime("%Y-%m-%dT%H:%M:%S.") + f"{r.randint(0, 999):03d}Z",
-        "message": {"message": tmpl, "messageWithParams": tmpl.replace("{entityName}", ename or eid),
+        "message": {"localizableMessageCode": f"{service.upper()}_{etype.upper()}_SYSTEM",
+                    "message": tmpl.replace("{entityName}", ename or eid), "messageWithParams": tmpl,
                     "messageParams": {"entityName": ename or eid}},
         "action": action,
         "entity": {"id": eid, "name": ename, "selfUri": self_uri(service, etype, eid)},
         "entityType": etype,
-        "status": "Success",
+        "status": "SUCCESS",
         "application": "Platform",
-        "initiatingAction": {"id": det_uuid(r), "transactionId": det_uuid(r)},
+        "initiatingAction": {"transactionId": det_uuid(r), "actionContext": action},
         "transactionInitiator": False,
         "propertyChanges": [],
+        "entityChanges": [],
         "context": {},
     }
 
@@ -381,7 +388,7 @@ def generate_day(w: World, day: date, day_index: int, total_days: int) -> list:
         for i in range(160):
             when = ts(day, 11, (i * 13 // 60) % 60, i % 60)
             events.append(build_event(w, day, loader, "client", "Directory", "User", "Create", when,
-                                      force_status="Failure" if i % 17 == 0 else None))
+                                      force_status="FAILURE" if i % 17 == 0 else None))
     # 2) off-hours deletes by one admin on a weekend
     if weekend and day_index >= total_days - 9:
         admin = w.users[1]

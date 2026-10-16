@@ -4,7 +4,7 @@
 // =====================================================================
 let
     Source  = AuditEventsRaw,
-    NoLists = Table.RemoveColumns(Source, {"PropertyChanges"}),
+    NoLists = Table.RemoveColumns(Source, {"PropertyChanges", "EntityChanges"}),
 
     // Never let a null break a relationship to a dimension
     NoNullKeys = Table.ReplaceValue(NoLists, null, "(unknown)", Replacer.ReplaceValue,
@@ -48,9 +48,9 @@ let
                              else if [EntityId] <> null then [EntityId]
                              else "(none)", type text),
     AddHasChanges = Table.AddColumn(AddEntityDisplay, "HasPropertyChanges",
-                        each [PropertyChangeCount] > 0, type logical),
+                        each [PropertyChangeCount] > 0 or [EntityChangeCount] > 0, type logical),
     AddIsFailure  = Table.AddColumn(AddHasChanges, "IsFailure",
-                        each Text.Lower([Status]) = "failure", type logical),
+                        each [Status] = "FAILURE", type logical),
 
     // Column order that reads well in the Data view
     Reordered = Table.ReorderColumns(AddIsFailure, {
@@ -60,8 +60,8 @@ let
         "Status", "IsFailure", "Level", "Application",
         "ActorType", "ActorName", "UserKey", "UserId", "UserName", "ClientKey", "ClientId", "ClientName",
         "RemoteIp", "RemoteIpAll", "RemoteIpCount",
-        "Message", "MessageTemplate", "PropertyChangeCount", "HasPropertyChanges", "ContextJson",
-        "TransactionId", "InitiatingActionId", "TransactionInitiator", "UserHomeOrgId", "UserTrusteeOrgId",
+        "MessageCode", "Message", "MessageTemplate", "PropertyChangeCount", "EntityChangeCount", "HasPropertyChanges", "ContextJson",
+        "TransactionId", "InitiatingActionContext", "TransactionInitiator", "UserHomeOrgId",
         "SourceFile", "SourceFileModified"
     })
 in

@@ -1,0 +1,68 @@
+table ServiceMap
+	lineageTag: 3f873701-b25b-5bc8-aece-cc387c06bd01
+	isHidden
+
+	column ServiceName
+		dataType: string
+		lineageTag: 335d22c1-64a7-5ec4-a2f9-152f01fcdabe
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ServiceName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Service
+		dataType: string
+		lineageTag: 6fd2c8b5-f238-58bc-b95f-400cca09964c
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Service]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceCategory
+		dataType: string
+		lineageTag: 0df00895-3a05-52a7-9f10-ea6d0aa4c431
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ServiceCategory]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ServiceMap = calculated
+		mode: import
+		source =
+				DATATABLE (
+				    "ServiceName", STRING, "Service", STRING, "ServiceCategory", STRING,
+				    {
+				        { "AnalyticsReporting",      "Analytics & Reporting",     "Reporting" },
+				        { "Architect",               "Architect (Flows / IVR)",   "Configuration" },
+				        { "Authentication",          "Authentication",            "Security" },
+				        { "Authorization",           "Roles & Permissions",       "Security" },
+				        { "ContactCenter",           "Contact Center",            "Operations" },
+				        { "ContentManagement",       "Content Management",        "Operations" },
+				        { "Directory",               "Users & Directory",         "Identity" },
+				        { "ExternalContacts",        "External Contacts",         "Operations" },
+				        { "Groups",                  "Groups",                    "Identity" },
+				        { "Integrations",            "Integrations",              "Configuration" },
+				        { "Knowledge",               "Knowledge",                 "Operations" },
+				        { "LanguageUnderstanding",   "Language Understanding",    "Configuration" },
+				        { "OAuth",                   "OAuth Clients",             "Security" },
+				        { "OrganizationAuthorization", "Org Trust",               "Security" },
+				        { "Outbound",                "Outbound Dialing",          "Operations" },
+				        { "PeoplePermissions",       "Roles & Permissions",       "Security" },
+				        { "Presence",                "Presence",                  "Configuration" },
+				        { "Quality",                 "Quality Management",        "Operations" },
+				        { "ResponseManagement",      "Canned Responses",          "Configuration" },
+				        { "Routing",                 "Routing",                   "Configuration" },
+				        { "SpeechAndTextAnalytics",  "Speech & Text Analytics",   "Operations" },
+				        { "Telephony",               "Telephony",                 "Configuration" },
+				        { "WebDeployments",          "Web Deployments",           "Configuration" },
+				        { "WorkforceManagement",     "Workforce Management",      "Operations" }
+				    }
+				)
+
+	annotation PBI_ResultType = Table

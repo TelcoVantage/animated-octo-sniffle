@@ -19,6 +19,24 @@ meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
 
 
 // ---------------------------------------------------------------------
+//  SharePointSiteUrl   (Type: Text, Required)  -- "sharepoint" variant only
+//  The site, not the library: https://<tenant>.sharepoint.com/sites/<site>
+// ---------------------------------------------------------------------
+"https://<tenant>.sharepoint.com/sites/<site>"
+meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+
+
+// ---------------------------------------------------------------------
+//  SharePointFolder    (Type: Text, Required)  -- "sharepoint" variant only
+//  Library + folder path as shown in the browser, "/" separated.
+//  The default document library is called "Shared Documents" in the API
+//  even when the UI shows "Documents".
+// ---------------------------------------------------------------------
+"Shared Documents/GenesysAudit"
+meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+
+
+// ---------------------------------------------------------------------
 //  RangeStart   (Type: Date/Time, Required)  -- Incremental Refresh
 //  Desktop value only needs to cover a few days of sample data.
 // ---------------------------------------------------------------------

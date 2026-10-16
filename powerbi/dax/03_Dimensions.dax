@@ -26,38 +26,43 @@
 //  the key, which turns it into a plain, stand-alone column.
 // ---------------------------------------------------------------------
 DimUser =
+// Your own org id = the userHomeOrgId that appears on most events. A user whose
+// home org differs is a trustee (partner) user acting under an org trust.
+VAR _homeOrg =
+    MAXX (
+        TOPN ( 1,
+            ADDCOLUMNS ( VALUES ( AuditEvents[UserHomeOrgId] ), "@n", CALCULATE ( COUNTROWS ( AuditEvents ) ) ),
+            [@n], DESC ),
+        AuditEvents[UserHomeOrgId] )
 VAR _t =
     ADDCOLUMNS (
         SUMMARIZE ( AuditEvents, AuditEvents[UserKey] ),
-        "@UserId",          CALCULATE ( MAX ( AuditEvents[UserId] ) ),
-        "@UserName",        CALCULATE ( MAX ( AuditEvents[UserName] ) ),
-        "@UserHomeOrgId",   CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
-        "@UserTrusteeOrgId",CALCULATE ( MAX ( AuditEvents[UserTrusteeOrgId] ) ),
-        "@FirstSeen",       CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-        "@LastSeen",        CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-        "@LifetimeEvents",  CALCULATE ( COUNTROWS ( AuditEvents ) )
+        "@UserId",         CALCULATE ( MAX ( AuditEvents[UserId] ) ),
+        "@UserName",       CALCULATE ( MAX ( AuditEvents[UserName] ) ),
+        "@UserHomeOrgId",  CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
+        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
     )
 RETURN
     SELECTCOLUMNS (
         _t,
-        "UserKey",          AuditEvents[UserKey] & "",
-        "UserId",           [@UserId],
-        "UserName",         [@UserName],
-        "UserHomeOrgId",    [@UserHomeOrgId],
-        "UserTrusteeOrgId", [@UserTrusteeOrgId],
-        "First Seen",       [@FirstSeen],
-        "Last Seen",        [@LastSeen],
-        "Lifetime Events",  [@LifetimeEvents],
+        "UserKey",         AuditEvents[UserKey] & "",
+        "UserId",          [@UserId],
+        "UserName",        [@UserName],
+        "UserHomeOrgId",   [@UserHomeOrgId],
+        "First Seen",      [@FirstSeen],
+        "Last Seen",       [@LastSeen],
+        "Lifetime Events", [@LifetimeEvents],
         "User",
             SWITCH ( TRUE (),
                 AuditEvents[UserKey] = "SYSTEM", "System / no user",
                 NOT ISBLANK ( [@UserName] ) && [@UserName] <> "", [@UserName],
                 [@UserId] ),
-        // A trustee (partner) user acting on your org under an org trust has a
-        // home org that differs from the trustee org on the event.
         "IsExternalUser",
-            NOT ISBLANK ( [@UserHomeOrgId] ) && NOT ISBLANK ( [@UserTrusteeOrgId] )
-                && [@UserHomeOrgId] <> [@UserTrusteeOrgId]
+            AuditEvents[UserKey] <> "SYSTEM"
+                && NOT ISBLANK ( [@UserHomeOrgId] )
+                && [@UserHomeOrgId] <> _homeOrg
     )
 
 

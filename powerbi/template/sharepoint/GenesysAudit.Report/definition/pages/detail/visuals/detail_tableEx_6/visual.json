@@ -1,0 +1,302 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "detail_tableEx_6",
+  "position": {
+    "x": 200,
+    "y": 8,
+    "z": 6,
+    "height": 352,
+    "width": 1070,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EventDateTimeUtc"
+                }
+              },
+              "queryRef": "AuditEvents.EventDateTimeUtc",
+              "nativeQueryRef": "EventDateTimeUtc"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "AuditId"
+                }
+              },
+              "queryRef": "AuditEvents.AuditId",
+              "nativeQueryRef": "AuditId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ActorName"
+                }
+              },
+              "queryRef": "AuditEvents.ActorName",
+              "nativeQueryRef": "ActorName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ClientName"
+                }
+              },
+              "queryRef": "AuditEvents.ClientName",
+              "nativeQueryRef": "ClientName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Application"
+                }
+              },
+              "queryRef": "AuditEvents.Application",
+              "nativeQueryRef": "Application"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ServiceName"
+                }
+              },
+              "queryRef": "AuditEvents.ServiceName",
+              "nativeQueryRef": "ServiceName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Action"
+                }
+              },
+              "queryRef": "AuditEvents.Action",
+              "nativeQueryRef": "Action"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityType"
+                }
+              },
+              "queryRef": "AuditEvents.EntityType",
+              "nativeQueryRef": "EntityType"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityDisplay"
+                }
+              },
+              "queryRef": "AuditEvents.EntityDisplay",
+              "nativeQueryRef": "EntityDisplay"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityId"
+                }
+              },
+              "queryRef": "AuditEvents.EntityId",
+              "nativeQueryRef": "EntityId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Status"
+                }
+              },
+              "queryRef": "AuditEvents.Status",
+              "nativeQueryRef": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Level"
+                }
+              },
+              "queryRef": "AuditEvents.Level",
+              "nativeQueryRef": "Level"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "RemoteIpAll"
+                }
+              },
+              "queryRef": "AuditEvents.RemoteIpAll",
+              "nativeQueryRef": "RemoteIpAll"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "TransactionId"
+                }
+              },
+              "queryRef": "AuditEvents.TransactionId",
+              "nativeQueryRef": "TransactionId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "MessageCode"
+                }
+              },
+              "queryRef": "AuditEvents.MessageCode",
+              "nativeQueryRef": "MessageCode"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Message"
+                }
+              },
+              "queryRef": "AuditEvents.Message",
+              "nativeQueryRef": "Message"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ContextJson"
+                }
+              },
+              "queryRef": "AuditEvents.ContextJson",
+              "nativeQueryRef": "ContextJson"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AuditEvents"
+                  }
+                },
+                "Property": "EventDateTimeUtc"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Events (full detail)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

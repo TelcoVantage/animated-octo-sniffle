@@ -42,7 +42,7 @@ Purpose: free exploration and the daily review of a service or a user.
 | Heatmap | Matrix | Rows `DimDate[Day Name]` (sorted Mon–Sun), columns `AuditEvents[EventHourLocal]` (0–23), values `[Events (Local Date)]`. Background colour scale white → `#2F6FED`. Cells with business hours outlined (use a shape overlay or a second rule on `AuditEvents[IsOffHours]`) |
 | Service × action | Matrix | Rows `DimService[Service]`, columns `DimAction[ActionCategory]`, values `[Audit Events]`, subtotals on, background scale |
 | Entity types | Bar | `DimEntityType[EntityType]` × `[Audit Events]`, legend `DimService[Service]`, top 15 |
-| Event list | Table | `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `RemoteIp`, `Message`. Conditional formatting: `Status` = Failure → red font; `Action` background fx `[Risk Colour]`. Sorted by time desc. Row count shown via `[Audit Events]` in the title |
+| Event list | Table | `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `RemoteIp`, `Message`. Conditional formatting: `Status` = FAILURE → red font; `Action` background fx `[Risk Colour]`. Sorted by time desc. Row count shown via `[Audit Events]` in the title |
 | Share | Card | `[Top Actor Share %]` with label "share of top actor" (concentration indicator) |
 
 Table has **Export data** enabled; it is the visual analysts will copy from.
@@ -97,7 +97,7 @@ Keep **Cross-report** off, **Keep all filters** on.
 |---|---|---|
 | Header | Cards | `[Audit Events]`, `[Property Changes]`, `[First Event (UTC)]`, `[Last Event (UTC)]` |
 | Events | Table | `EventDateTimeUtc`, `EventDateTimeLocal`, `AuditId`, `ActorName`, `ActorType`, `ClientName`, `Application`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `EntityId`, `Status`, `Level`, `RemoteIpAll`, `TransactionId`, `TransactionInitiator`, `Message` |
-| Property changes | Table | `AuditPropertyChanges[EventDateTimeUtc]`, `AuditId`, `ChangeEntityName`, `PropertyShort`, `ChangeType`, `OldValues`, `NewValues`, `Property`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
+| Property changes | Table | `AuditPropertyChanges[EventDateTimeUtc]`, `AuditId`, `ChangeSource`, `PropertyShort`, `ChangeEntityName`, `ChangeType`, `OldValues`, `NewValues`, `Property`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
 | Context | Table | `AuditId`, `ContextJson`, `MessageTemplate` (word wrap) |
 | Same transaction | Table | visual filter `TransactionId` = selected (via drill-through), shows every event caused by the same user action |
 

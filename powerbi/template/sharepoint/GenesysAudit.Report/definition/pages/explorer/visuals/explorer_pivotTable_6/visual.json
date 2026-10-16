@@ -1,0 +1,96 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "explorer_pivotTable_6",
+  "position": {
+    "x": 200,
+    "y": 8,
+    "z": 6,
+    "height": 252,
+    "width": 530,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimDate"
+                    }
+                  },
+                  "Property": "Day Name"
+                }
+              },
+              "queryRef": "DimDate.Day Name",
+              "nativeQueryRef": "Day Name"
+            }
+          ]
+        },
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EventHourLocal"
+                }
+              },
+              "queryRef": "AuditEvents.EventHourLocal",
+              "nativeQueryRef": "EventHourLocal"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Events (Local Date)"
+                }
+              },
+              "queryRef": "_Measures.Events (Local Date)",
+              "nativeQueryRef": "Events (Local Date)"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Activity heatmap (local weekday x hour)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

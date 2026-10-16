@@ -1,41 +1,57 @@
 // =====================================================================
-//  AuditPropertyChanges   (FACT table, one row per changed property)
-//  Explodes AuditLogMessage.propertyChanges[]:
-//     { property, entity{id,name}, oldValues[], newValues[] }
+//  AuditPropertyChanges   (FACT table, one row per change)
+//  Explodes two arrays of AuditLogMessage into one "what changed" table:
+//     propertyChanges[] : { property, oldValues[], newValues[] }        -> ChangeSource = "Property"
+//     entityChanges[]   : { entityId, entityName, entityType,
+//                           oldValues[], newValues[] }                  -> ChangeSource = "Entity"
 //  Related to AuditEvents on AuditId (many-to-one).
 // =====================================================================
 let
-    Source     = AuditEventsRaw,
-    Selected   = Table.SelectColumns(Source, {"AuditId", "EventDateTimeUtc", "PropertyChanges"}),
-    HasChanges = Table.SelectRows(Selected, each [PropertyChanges] is list and List.Count([PropertyChanges]) > 0),
-    Exploded   = Table.ExpandListColumn(HasChanges, "PropertyChanges"),
+    Source   = AuditEventsRaw,
+    Selected = Table.SelectColumns(Source, {"AuditId", "EventDateTimeUtc", "PropertyChanges", "EntityChanges"}),
 
-    Flattened = Table.AddColumn(Exploded, "Change", each
+    WithChanges = Table.AddColumn(Selected, "Changes", each
         let
-            c    = [PropertyChanges],
-            ent  = if c is record then Record.FieldOrDefault(c, "entity", null)    else null,
-            olds = if c is record then Record.FieldOrDefault(c, "oldValues", null) else null,
-            news = if c is record then Record.FieldOrDefault(c, "newValues", null) else null,
+            pc = if [PropertyChanges] is list then [PropertyChanges] else {},
+            ec = if [EntityChanges]   is list then [EntityChanges]   else {},
             // values are usually strings, but be safe for nested objects
             toText = (v) =>
                 if v is list then
                     Text.Combine(List.Transform(v, (x) => if x is text then x else Text.FromBinary(Json.FromValue(x))), "; ")
                 else if v = null then null
-                else Text.From(v)
+                else Text.From(v),
+            field = (r, name) => if r is record then Record.FieldOrDefault(r, name, null) else null,
+            fromProperties = List.Transform(pc, (c) => [
+                ChangeSource     = "Property",
+                Property         = field(c, "property"),
+                ChangeEntityId   = null,
+                ChangeEntityName = null,
+                ChangeEntityType = null,
+                OldValues        = toText(field(c, "oldValues")),
+                NewValues        = toText(field(c, "newValues")),
+                OldValueCount    = if field(c, "oldValues") is list then List.Count(field(c, "oldValues")) else 0,
+                NewValueCount    = if field(c, "newValues") is list then List.Count(field(c, "newValues")) else 0
+            ]),
+            fromEntities = List.Transform(ec, (c) => [
+                ChangeSource     = "Entity",
+                Property         = field(c, "entityType"),
+                ChangeEntityId   = field(c, "entityId"),
+                ChangeEntityName = field(c, "entityName"),
+                ChangeEntityType = field(c, "entityType"),
+                OldValues        = toText(field(c, "oldValues")),
+                NewValues        = toText(field(c, "newValues")),
+                OldValueCount    = if field(c, "oldValues") is list then List.Count(field(c, "oldValues")) else 0,
+                NewValueCount    = if field(c, "newValues") is list then List.Count(field(c, "newValues")) else 0
+            ])
         in
-            [
-                Property         = if c is record then Record.FieldOrDefault(c, "property", null) else null,
-                ChangeEntityId   = if ent is record then Record.FieldOrDefault(ent, "id", null)   else null,
-                ChangeEntityName = if ent is record then Record.FieldOrDefault(ent, "name", null) else null,
-                OldValues        = toText(olds),
-                NewValues        = toText(news),
-                OldValueCount    = if olds is list then List.Count(olds) else 0,
-                NewValueCount    = if news is list then List.Count(news) else 0
-            ]
-    ),
-    changeCols = {"Property", "ChangeEntityId", "ChangeEntityName", "OldValues", "NewValues", "OldValueCount", "NewValueCount"},
-    Expanded   = Table.ExpandRecordColumn(Flattened, "Change", changeCols, changeCols),
-    Cleaned    = Table.RemoveColumns(Expanded, {"PropertyChanges"}),
+            List.Combine({fromProperties, fromEntities})),
+
+    Exploded  = Table.ExpandListColumn(WithChanges, "Changes"),
+    NonEmpty  = Table.SelectRows(Exploded, each [Changes] <> null),
+    changeCols = {"ChangeSource", "Property", "ChangeEntityId", "ChangeEntityName", "ChangeEntityType",
+                  "OldValues", "NewValues", "OldValueCount", "NewValueCount"},
+    Expanded  = Table.ExpandRecordColumn(NonEmpty, "Changes", changeCols, changeCols),
+    Cleaned   = Table.RemoveColumns(Expanded, {"PropertyChanges", "EntityChanges"}),
 
     AddChangeType = Table.AddColumn(Cleaned, "ChangeType",
         each if ([OldValues] = null or [OldValues] = "") and ([NewValues] <> null and [NewValues] <> "") then "Added"
@@ -50,7 +66,8 @@ let
 
     Typed = Table.TransformColumnTypes(AddPropertyShort, {
         {"AuditId", type text}, {"EventDateTimeUtc", type datetime},
-        {"Property", type text}, {"ChangeEntityId", type text}, {"ChangeEntityName", type text},
+        {"ChangeSource", type text}, {"Property", type text},
+        {"ChangeEntityId", type text}, {"ChangeEntityName", type text}, {"ChangeEntityType", type text},
         {"OldValues", type text}, {"NewValues", type text},
         {"OldValueCount", Int64.Type}, {"NewValueCount", Int64.Type}
     }),
