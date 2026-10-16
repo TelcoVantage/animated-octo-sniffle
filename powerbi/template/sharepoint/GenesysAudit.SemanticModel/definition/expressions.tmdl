@@ -224,7 +224,9 @@ expression AuditEventsRaw =
 		            let
 		                t  = fnParseAuditFile(file[Content]),
 		                t1 = Table.AddColumn(t,  "SourceFile",         each file[Name],          type text),
-		                t2 = Table.AddColumn(t1, "SourceFileModified", each file[Date modified], type datetime)
+		                // Folder.Files gives "Date modified" as datetime, SharePoint as
+		                // datetimezone; DateTime.From makes both load into a datetime column.
+		                t2 = Table.AddColumn(t1, "SourceFileModified", each DateTime.From(file[Date modified]), type datetime)
 		            in
 		                t2),
 		    // An empty, correctly-typed table is always unioned in first so that an

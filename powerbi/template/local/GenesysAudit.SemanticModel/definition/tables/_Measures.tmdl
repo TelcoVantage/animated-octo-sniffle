@@ -148,7 +148,7 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: 3b4b238c-29d4-5836-ab03-38a4639bef6c
 
-	measure 'High-Risk Events' = CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" )
+	measure 'High-Risk Events' = COALESCE ( CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: bf3173bd-c486-5188-8ea2-7af7cce0a28c
@@ -158,7 +158,7 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: 72228202-77f5-54fb-9caa-9a93dca44111
 
-	measure 'Failed Events' = CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () )
+	measure 'Failed Events' = COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: 3bddfa89-6cd6-56d0-a708-553e883fec69
@@ -168,7 +168,7 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: cc7ca2e8-32d5-58ad-8bf1-8b1ccf8a22e4
 
-	measure 'Off-Hours Events' = CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () )
+	measure 'Off-Hours Events' = COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: d0ae8c81-e25d-51c0-a795-ac07a3c4b2eb
@@ -178,12 +178,12 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: 8d21ca77-a61b-5ad9-912c-26abbff43a66
 
-	measure 'Off-Hours High-Risk Events' = CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" )
+	measure 'Off-Hours High-Risk Events' = COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: 72279955-719a-5b48-9f73-262e7c7a32a3
 
-	measure 'OAuth Client Events' = CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" )
+	measure 'OAuth Client Events' = COALESCE ( CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: 5d3d3695-f66e-525d-b390-8b05ac0e2de2
@@ -198,12 +198,12 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: ee9ff851-a134-5aea-979a-1292bb2a6637
 
-	measure 'External User Events' = CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () )
+	measure 'External User Events' = COALESCE ( CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: 263daa84-b0f8-5484-af18-adabaeb8aa12
 
-	measure 'Security Service Events' = CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" )
+	measure 'Security Service Events' = COALESCE ( CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: 18121616-fd72-5c1e-b7e8-3be0de2c4268
@@ -213,7 +213,7 @@ table _Measures
 		displayFolder: Risk & security
 		lineageTag: fa8d2eb6-2239-50ec-a3bd-b42df7590d8e
 
-	measure 'Users With High-Risk Actions' = CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" )
+	measure 'Users With High-Risk Actions' = COALESCE ( CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" ), 0 )
 		formatString: #,0
 		displayFolder: Risk & security
 		lineageTag: e863faf1-bb78-5dcb-8a40-cf641392e905
@@ -247,11 +247,14 @@ table _Measures
 		lineageTag: d28d2e22-176e-53ee-a637-b5dd4795aa02
 
 	measure 'Users With Many IPs' =
-			COUNTROWS (
-			    FILTER (
-			        VALUES ( AuditEvents[UserKey] ),
-			        AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
-			    )
+			COALESCE (
+			    COUNTROWS (
+			        FILTER (
+			            VALUES ( AuditEvents[UserKey] ),
+			            AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
+			        )
+			    ),
+			    0
 			)
 		formatString: #,0
 		displayFolder: Risk & security
