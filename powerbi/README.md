@@ -31,6 +31,7 @@ powerbi/
 │   └── 04_Measures.dax            <- ~60 measures with format strings
 ├── theme/genesys-audit-theme.json <- report theme (View > Themes > Browse for themes)
 ├── template/                      <- generated Power BI Projects: local/ + sharepoint/ and their zips
+├── pipeline/Get-GenesysAuditLogs.ps1 <- CLM-safe PowerShell 5.1 puller for both audit endpoints
 ├── tools/build_pbip.py            <- regenerates template/ from the .pq/.dax files, validates the report JSON
 ├── sample-data/                   <- 14 days of realistic sample files to build against
 └── tools/generate_sample_audit.py <- regenerates the sample data (any day count / layout)
