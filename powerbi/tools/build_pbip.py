@@ -10,9 +10,12 @@ emits a complete PBIP project under ../template:
     GenesysAudit.Report/          (PBIR: pages + visuals, validated against the
                                    published Fabric JSON schemas in ./schemas)
 
-and zips the lot into ../template/GenesysAudit-template.zip.
+in two variants that differ only in the file connector and its parameters:
 
-    python build_pbip.py            # build + validate + zip
+    ../template/local/      Folder.Files(AuditSourcePath)                -> GenesysAudit-template-local.zip
+    ../template/sharepoint/ SharePoint.Contents(SharePointSiteUrl, ...)  -> GenesysAudit-template-sharepoint.zip
+
+    python build_pbip.py            # build + validate + zip both variants
     python build_pbip.py --no-zip
 
 Re-run it whenever a .pq or .dax file changes; the template is generated, never
@@ -210,15 +213,57 @@ def expression_tmdl(name: str, expr: str, result_type: str) -> str:
 # =============================================================================
 #  Model definition
 # =============================================================================
-PARAMETERS = [
+COMMON_PARAMETERS = [
     # name, M expression, result type
-    ("AuditSourcePath", r'"C:\GenesysAudit" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]', "Text"),
     ("RangeStart", '#datetime(2026, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
     ("RangeEnd", '#datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
     ("LocalUtcOffsetHours", '0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
     ("BusinessHoursStart", '8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
     ("BusinessHoursEnd", '18 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
 ]
+VARIANTS = {
+    "local": {
+        "parameters": [
+            ("AuditSourcePath", r'"C:\GenesysAudit" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]', "Text"),
+        ],
+        "active_block": "LOCAL",
+    },
+    "sharepoint": {
+        "parameters": [
+            ("SharePointSiteUrl", '"https://<tenant>.sharepoint.com/sites/<site>" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]', "Text"),
+            ("SharePointFolder", '"Shared Documents/GenesysAudit" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]', "Text"),
+        ],
+        "active_block": "SHAREPOINT",
+    },
+}
+
+
+def staging_query(active_block: str) -> str:
+    """02_AuditEventsRaw.pq with exactly one `>>> SOURCE:<NAME>` block active.
+
+    Lines inside the active block lose a leading `// `; lines inside every
+    other block gain one. Marker lines themselves are kept as comments.
+    """
+    out, block = [], None
+    for line in read_pq("02_AuditEventsRaw.pq").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("// >>> SOURCE:"):
+            block = stripped[len("// >>> SOURCE:"):].split()[0]
+        elif stripped.startswith("// <<< SOURCE:"):
+            block = None
+        elif block is not None:
+            indent = line[: len(line) - len(line.lstrip())]
+            rest = line.lstrip()
+            if block == active_block:
+                if rest.startswith("// "):
+                    rest = rest[3:]
+                elif rest == "//":
+                    rest = ""
+            elif not rest.startswith("//"):
+                rest = "// " + rest
+            line = indent + rest
+        out.append(line)
+    return "\n".join(out) + "\n"
 
 AUDIT_EVENTS_COLUMNS = [
     col("AuditId", STR), col("EventDateTimeUtc", DT, fmt="General Date"), col("EventDateUtc", DT, date=True),
@@ -230,14 +275,15 @@ AUDIT_EVENTS_COLUMNS = [
     col("UserKey", STR, hidden=True), col("UserId", STR), col("UserName", STR),
     col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
     col("RemoteIp", STR), col("RemoteIpAll", STR), col("RemoteIpCount", INT),
-    col("Message", STR), col("MessageTemplate", STR), col("PropertyChangeCount", INT), col("HasPropertyChanges", BOOL),
-    col("ContextJson", STR), col("TransactionId", STR), col("InitiatingActionId", STR), col("TransactionInitiator", BOOL),
-    col("UserHomeOrgId", STR), col("UserTrusteeOrgId", STR), col("SourceFile", STR),
+    col("MessageCode", STR), col("Message", STR), col("MessageTemplate", STR),
+    col("PropertyChangeCount", INT), col("EntityChangeCount", INT), col("HasPropertyChanges", BOOL),
+    col("ContextJson", STR), col("TransactionId", STR), col("InitiatingActionContext", STR), col("TransactionInitiator", BOOL),
+    col("UserHomeOrgId", STR), col("SourceFile", STR),
     col("SourceFileModified", DT, fmt="General Date"),
 ]
 PROPERTY_CHANGE_COLUMNS = [
-    col("AuditId", STR), col("EventDateTimeUtc", DT, fmt="General Date"), col("Property", STR),
-    col("ChangeEntityId", STR), col("ChangeEntityName", STR), col("OldValues", STR), col("NewValues", STR),
+    col("AuditId", STR), col("EventDateTimeUtc", DT, fmt="General Date"), col("ChangeSource", STR), col("Property", STR),
+    col("ChangeEntityId", STR), col("ChangeEntityName", STR), col("ChangeEntityType", STR), col("OldValues", STR), col("NewValues", STR),
     col("OldValueCount", INT), col("NewValueCount", INT), col("ChangeType", STR), col("PropertyShort", STR),
     col("PropertyChangeKey", INT, hidden=True),
 ]
@@ -253,7 +299,7 @@ CALC_TABLE_COLUMNS = {
     "ServiceMap": [col("ServiceName", STR), col("Service", STR), col("ServiceCategory", STR)],
     "ActionRiskMap": [col("Action", STR), col("RiskLevel", STR), col("ActionCategory", STR), col("RiskSort", INT)],
     "DimUser": [col("UserKey", STR, hidden=True), col("UserId", STR), col("UserName", STR), col("UserHomeOrgId", STR),
-                col("UserTrusteeOrgId", STR), col("First Seen", DT, date=True), col("Last Seen", DT, date=True),
+                col("First Seen", DT, date=True), col("Last Seen", DT, date=True),
                 col("Lifetime Events", INT), col("User", STR), col("IsExternalUser", BOOL)],
     "DimClient": [col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
                   col("First Seen", DT, date=True), col("Last Seen", DT, date=True), col("Lifetime Events", INT),
@@ -276,7 +322,7 @@ RELATIONSHIPS = [
 ]
 
 
-def build_semantic_model(sm: Path):
+def build_semantic_model(sm: Path, variant: dict):
     d = sm / "definition"
     (d / "tables").mkdir(parents=True, exist_ok=True)
     (d / "cultures").mkdir(parents=True, exist_ok=True)
@@ -305,9 +351,10 @@ def build_semantic_model(sm: Path):
         (d / "tables" / f"{t}.tmdl").write_text(text, encoding="utf-8")
 
     # --- shared expressions (parameters, function, staging query) ---------------
-    ex = [expression_tmdl(n, e, rt) for n, e, rt in PARAMETERS]
+    parameters = variant["parameters"] + COMMON_PARAMETERS
+    ex = [expression_tmdl(n, e, rt) for n, e, rt in parameters]
     ex.append(expression_tmdl("fnParseAuditFile", read_pq("01_fnParseAuditFile.pq"), "Function"))
-    ex.append(expression_tmdl("AuditEventsRaw", read_pq("02_AuditEventsRaw.pq"), "Table"))
+    ex.append(expression_tmdl("AuditEventsRaw", staging_query(variant["active_block"]), "Table"))
     (d / "expressions.tmdl").write_text("\n".join(ex), encoding="utf-8")
 
     # --- relationships --------------------------------------------------------
@@ -323,7 +370,7 @@ def build_semantic_model(sm: Path):
     (d / "relationships.tmdl").write_text("\n".join(rel), encoding="utf-8")
 
     # --- model / database / culture --------------------------------------------
-    query_order = [n for n, _, _ in PARAMETERS] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
+    query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
     table_order = ["AuditEvents", "AuditPropertyChanges", "DimDate", "DimUser", "DimClient", "DimService", "DimAction",
                    "DimEntityType", "ServiceMap", "ActionRiskMap", "_Measures"]
     model = [
@@ -426,6 +473,18 @@ class Page:
         self.add("textbox", x, y, w, h, objects={"general": [{"properties": {"paragraphs": [
             {"textRuns": [{"value": text, "textStyle": {"fontSize": "16pt", "fontWeight": "bold"}}]}]}}]})
 
+    def text(self, x, y, w, h, blocks, name=None):
+        """Text box. blocks = list of (text, style) where style is 'title', 'heading' or 'body'."""
+        styles = {
+            "title":   {"fontSize": "18pt", "fontWeight": "bold"},
+            "heading": {"fontSize": "12pt", "fontWeight": "bold", "color": "#2F6FED"},
+            "body":    {"fontSize": "10pt"},
+            "muted":   {"fontSize": "9pt", "color": "#5F6B7A"},
+        }
+        paragraphs = [{"textRuns": [{"value": t, "textStyle": styles[st]}]} for t, st in blocks]
+        self.add("textbox", x, y, w, h, name=name,
+                 objects={"general": [{"properties": {"paragraphs": paragraphs}}]})
+
     def cards(self, measures, y=55, x0=200, w=172, h=90, gap=8):
         for i, (m, title) in enumerate(measures):
             self.add("card", x0 + i * (w + gap), y, w, h, roles={"Values": [M(m)]}, title=title)
@@ -449,8 +508,63 @@ class Page:
             y += h + 8
 
 
+GUIDE_PANELS = [
+    ("1  Overview",
+     "The daily glance. Six cards (events, active users, high-risk, failed, off-hours, data freshness), "
+     "events per day to spot spikes, and bars by service, action and user. Click any bar to filter the page."),
+    ("2  Activity Explorer",
+     "Find a pattern. Weekday x hour heatmap in local time, service x action-category matrix, and the full "
+     "event list for the current selection. This is the table to export from."),
+    ("3  Users & Actors",
+     "Review people and integrations. Users ranked by a risk score with counts, distinct IPs and first/last seen; "
+     "daily activity per user; OAuth clients (integrations and scripts) with their volumes."),
+    ("4  Security Watch",
+     "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with "
+     "high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is "
+     "pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal."),
+    ("5  Event Detail",
+     "The full record of each event: ids, client, application, level, IPs, transaction, message code and context. "
+     "Below it every property or entity change with old and new values and the change type."),
+    ("6  Data Health",
+     "Checks the feed, not the activity. Freshness, files loaded with their event counts, days without data, "
+     "and the services and actions that are not yet in the mapping tables."),
+]
+
+
+def build_guide_page():
+    p = Page("guide", "Start Here")
+    p.text(20, 12, 1240, 44, [("Genesys Cloud audit log report - how to use it", "title")])
+    p.text(20, 58, 1240, 92, [
+        ("What this report is", "heading"),
+        ("Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. "
+         "A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a "
+         "star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, "
+         "service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the "
+         "LocalUtcOffsetHours parameter.", "body"),
+    ])
+    # six panels in two columns
+    col_w, col_h, gap = 612, 118, 12
+    for i, (title, body) in enumerate(GUIDE_PANELS):
+        x = 20 + (i % 2) * (col_w + 16)
+        y = 162 + (i // 2) * (col_h + gap)
+        p.text(x, y, col_w, col_h, [(title, "heading"), (body, "body")], name=f"guide_panel_{i}")
+    p.text(20, 552, 1240, 156, [
+        ("Slicers, risk levels and freshness", "heading"),
+        ("The slicer rail on the left of each page (Date, Service, Risk level, Actor type, User, Status) is synced, so a "
+         "selection follows you between pages. Risk level is an attribute of the action, looked up in the ActionRiskMap "
+         "table: High = destructive or privilege-changing actions (Delete, Purge, Deactivate, Revoke, Reset ...), "
+         "Medium = configuration changes and data access (Create, Update, Assign, Download, Export ...), Low = read-only "
+         "and session actions (View, Login, Logout ...). Actions not in the map are rated Medium and listed on the Data "
+         "Health page so they can be added. Actor type is User for interactive actions, OAuth Client for integrations "
+         "and scripts, System for platform actions. Data freshness is Fresh within 30 hours of the last event, "
+         "Late within 54 hours, otherwise Stale.", "body"),
+        ("Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.", "muted"),
+    ])
+    return p
+
+
 def build_pages():
-    pages = []
+    pages = [build_guide_page()]
 
     # ---------------------------------------------------------------- Overview
     p = Page("overview", "Overview")
@@ -527,17 +641,26 @@ def build_pages():
     # ------------------------------------------------------------ Event Detail
     p = Page("detail", "Event Detail")
     p.slicer_rail()
+    # Who / what first, identifiers last. AuditId is the Genesys record id
+    # (quote it in tickets, feed it to /audits/query/realtime/related).
     p.add("tableEx", 200, 8, 1070, 352, roles={"Values": [
-        C("AuditEvents", "EventDateTimeUtc"), C("AuditEvents", "AuditId"), C("AuditEvents", "ActorName"), C("AuditEvents", "ClientName"),
-        C("AuditEvents", "Application"), C("AuditEvents", "ServiceName"), C("AuditEvents", "Action"), C("AuditEvents", "EntityType"),
-        C("AuditEvents", "EntityDisplay"), C("AuditEvents", "EntityId"), C("AuditEvents", "Status"), C("AuditEvents", "Level"),
-        C("AuditEvents", "RemoteIpAll"), C("AuditEvents", "TransactionId"), C("AuditEvents", "Message"), C("AuditEvents", "ContextJson")]},
-        title="Events (full detail)", sort=C("AuditEvents", "EventDateTimeUtc"))
+        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "ActorType"),
+        C("DimService", "Service"), C("AuditEvents", "Action"), C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
+        C("AuditEvents", "Status"), C("AuditEvents", "Message"), C("AuditEvents", "Application"), C("AuditEvents", "RemoteIpAll"),
+        C("AuditEvents", "Level"), C("AuditEvents", "MessageCode"), C("AuditEvents", "UserId"), C("AuditEvents", "ClientId"),
+        C("AuditEvents", "EntityId"), C("AuditEvents", "TransactionId"), C("AuditEvents", "AuditId"),
+        C("AuditEvents", "EventDateTimeUtc"), C("AuditEvents", "ContextJson")]},
+        title="Events - who did what (identifiers at the right)", sort=C("AuditEvents", "EventDateTimeLocal"))
+    # Each change row carries the actor, action and entity of its event through
+    # the AuditEvents -> AuditPropertyChanges relationship.
     p.add("tableEx", 200, 370, 1070, 342, roles={"Values": [
-        C("AuditPropertyChanges", "EventDateTimeUtc"), C("AuditPropertyChanges", "AuditId"), C("AuditPropertyChanges", "ChangeEntityName"),
-        C("AuditPropertyChanges", "PropertyShort"), C("AuditPropertyChanges", "ChangeType"), C("AuditPropertyChanges", "OldValues"),
-        C("AuditPropertyChanges", "NewValues"), C("AuditPropertyChanges", "Property")]},
-        title="Property changes (old -> new)", sort=C("AuditPropertyChanges", "EventDateTimeUtc"))
+        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "Action"),
+        C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
+        C("AuditPropertyChanges", "PropertyShort"), C("AuditPropertyChanges", "ChangeType"),
+        C("AuditPropertyChanges", "OldValues"), C("AuditPropertyChanges", "NewValues"),
+        C("AuditPropertyChanges", "ChangeSource"), C("AuditPropertyChanges", "ChangeEntityName"),
+        C("AuditPropertyChanges", "Property"), C("AuditPropertyChanges", "AuditId")]},
+        title="What changed - old value to new value, by person", sort=C("AuditEvents", "EventDateTimeLocal"))
     pages.append(p)
 
     # ------------------------------------------------------------- Data Health
@@ -637,7 +760,7 @@ def validate(paths_by_schema):
             doc = json.loads(f.read_text(encoding="utf-8"))
             for e in validator.iter_errors(doc):
                 errors += 1
-                print(f"SCHEMA ERROR {f.relative_to(OUT)}: {'/'.join(str(x) for x in e.absolute_path)}: {e.message[:200]}")
+                print(f"SCHEMA ERROR {f.relative_to(ROOT)}: {'/'.join(str(x) for x in e.absolute_path)}: {e.message[:200]}")
     return errors
 
 
@@ -646,27 +769,25 @@ def write_json(path: Path, obj):
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--no-zip", action="store_true")
-    args = ap.parse_args()
+def build_variant(name: str, variant: dict, zip_it: bool) -> int:
+    out = OUT / name
+    sm = out / f"{NAME}.SemanticModel"
+    rp = out / f"{NAME}.Report"
+    if out.exists():
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
 
-    sm = OUT / f"{NAME}.SemanticModel"
-    rp = OUT / f"{NAME}.Report"
-    for folder in (sm, rp):
-        if folder.exists():
-            shutil.rmtree(folder)
-
-    n_tables, n_measures = build_semantic_model(sm)
+    n_tables, n_measures = build_semantic_model(sm, variant)
     n_visuals = build_report(rp, build_pages())
-    write_json(OUT / f"{NAME}.pbip", {
+    write_json(out / f"{NAME}.pbip", {
         "$schema": S_PBIP, "version": "1.0",
         "artifacts": [{"report": {"path": f"{NAME}.Report"}}],
         "settings": {"enableAutoRecovery": True},
     })
+    shutil.copy(OUT / "README.md", out / "README.md")
 
     errors = validate({
-        S_PBIP: [OUT / f"{NAME}.pbip"],
+        S_PBIP: [out / f"{NAME}.pbip"],
         S_PBIR: [rp / "definition.pbir"],
         S_PBISM: [sm / "definition.pbism"],
         S_PLATFORM: [rp / ".platform", sm / ".platform"],
@@ -676,24 +797,32 @@ def main():
         S_PAGE: list((rp / "definition" / "pages").glob("*/page.json")),
         S_VISUAL: list((rp / "definition" / "pages").glob("*/visuals/*/visual.json")),
     })
-    print(f"semantic model: {n_tables} tables, {n_measures} measures; report: {n_visuals} visuals; schema errors: {errors}")
+    print(f"[{name}] semantic model: {n_tables} tables, {n_measures} measures; report: {n_visuals} visuals; schema errors: {errors}")
     if errors:
-        sys.exit(1)
+        return errors
 
-    if not args.no_zip:
-        zpath = OUT / f"{NAME}-template.zip"
+    if zip_it:
+        zpath = OUT / f"{NAME}-template-{name}.zip"
         with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-            for base in (OUT / f"{NAME}.pbip", sm, rp):
-                if base.is_file():
-                    z.write(base, base.name)
-                else:
-                    for f in sorted(base.rglob("*")):
-                        if f.is_file():
-                            z.write(f, f.relative_to(OUT))
+            for f in sorted(out.rglob("*")):
+                if f.is_file():
+                    z.write(f, f.relative_to(out))
             for f in sorted((ROOT / "sample-data").glob("*.json")):
                 z.write(f, Path("sample-data") / f.name)
-            z.write(OUT / "README.md", "README.md")
-        print(f"zip: {zpath.relative_to(ROOT)} ({zpath.stat().st_size // 1024} KB)")
+            z.write(ROOT / "docs" / "audit-api.md", "docs/audit-api.md")
+        print(f"[{name}] zip: {zpath.relative_to(ROOT)} ({zpath.stat().st_size // 1024} KB)")
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--no-zip", action="store_true")
+    ap.add_argument("--variant", choices=list(VARIANTS), help="build only this variant")
+    args = ap.parse_args()
+    names = [args.variant] if args.variant else list(VARIANTS)
+    errors = sum(build_variant(n, VARIANTS[n], not args.no_zip) for n in names)
+    if errors:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

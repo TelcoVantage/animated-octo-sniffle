@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "security_card_8",
+  "position": {
+    "x": 560,
+    "y": 8,
+    "z": 8,
+    "height": 90,
+    "width": 172,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "card",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Users With Many IPs"
+                }
+              },
+              "queryRef": "_Measures.Users With Many IPs",
+              "nativeQueryRef": "Users With Many IPs"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Users from many IPs'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

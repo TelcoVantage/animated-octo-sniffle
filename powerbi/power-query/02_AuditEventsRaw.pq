@@ -6,13 +6,31 @@
 //  Both AuditEvents and AuditPropertyChanges reference this query.
 // =====================================================================
 let
-    // ---- 1. List the files. Keep ONE of the three connectors. -----------------
-    // Local / network folder (default, use this with files you download or upload yourself)
+    // ---- 1. List the files -------------------------------------------------
+    // Exactly ONE of the two blocks below must be active. tools/build_pbip.py
+    // flips them to produce the "local" and "sharepoint" template variants;
+    // by hand: comment one block out and uncomment the other.
+    //
+    // >>> SOURCE:LOCAL   (Desktop development: a local or network folder)
     Files = Folder.Files(AuditSourcePath),
-    // Azure Blob Storage   : Files = AzureStorage.Blobs(AuditSourcePath),
-    // ADLS Gen2            : Files = AzureStorage.DataLake(AuditSourcePath),
+    // <<< SOURCE:LOCAL
+    //
+    // >>> SOURCE:SHAREPOINT   (production: a SharePoint document library folder)
+    // // SharePoint.Contents navigates the library segment by segment, e.g.
+    // // SharePointFolder = "Shared Documents/GenesysAudit". Files must sit directly
+    // // in that folder (no year/month sub-folders).
+    // Site  = SharePoint.Contents(SharePointSiteUrl, [ApiVersion = 15]),
+    // Files = List.Accumulate(
+    //             List.Select(Text.Split(SharePointFolder, "/"), each _ <> ""),
+    //             Site,
+    //             (folder, part) => folder{[Name = part]}[Content]),
+    // <<< SOURCE:SHAREPOINT
+    //
+    // Azure alternatives (same column shape, swap into the active block):
+    //   Files = AzureStorage.Blobs(AuditSourcePath)
+    //   Files = AzureStorage.DataLake(AuditSourcePath)
 
-    JsonFiles = Table.SelectRows(Files, each Text.Lower([Extension]) = ".json"),
+    JsonFiles = Table.SelectRows(Files, each [Extension] <> null and Text.Lower([Extension]) = ".json"),
 
     // ---- 2. Business date from the file name ---------------------------------
     // Contract with the pipeline:  <anything>_YYYY-MM-DD.json
@@ -37,7 +55,9 @@ let
             let
                 t  = fnParseAuditFile(file[Content]),
                 t1 = Table.AddColumn(t,  "SourceFile",         each file[Name],          type text),
-                t2 = Table.AddColumn(t1, "SourceFileModified", each file[Date modified], type datetime)
+                // Folder.Files gives "Date modified" as datetime, SharePoint as
+                // datetimezone; DateTime.From makes both load into a datetime column.
+                t2 = Table.AddColumn(t1, "SourceFileModified", each DateTime.From(file[Date modified]), type datetime)
             in
                 t2),
     // An empty, correctly-typed table is always unioned in first so that an

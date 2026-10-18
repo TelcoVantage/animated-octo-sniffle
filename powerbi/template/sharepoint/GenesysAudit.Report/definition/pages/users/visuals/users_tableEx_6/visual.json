@@ -1,0 +1,232 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "users_tableEx_6",
+  "position": {
+    "x": 200,
+    "y": 8,
+    "z": 6,
+    "height": 332,
+    "width": 1070,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimUser"
+                    }
+                  },
+                  "Property": "User"
+                }
+              },
+              "queryRef": "DimUser.User",
+              "nativeQueryRef": "User"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "User Rank"
+                }
+              },
+              "queryRef": "_Measures.User Rank",
+              "nativeQueryRef": "User Rank"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Audit Events"
+                }
+              },
+              "queryRef": "_Measures.Audit Events",
+              "nativeQueryRef": "Audit Events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "High-Risk Events"
+                }
+              },
+              "queryRef": "_Measures.High-Risk Events",
+              "nativeQueryRef": "High-Risk Events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Delete Events"
+                }
+              },
+              "queryRef": "_Measures.Delete Events",
+              "nativeQueryRef": "Delete Events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Off-Hours Events"
+                }
+              },
+              "queryRef": "_Measures.Off-Hours Events",
+              "nativeQueryRef": "Off-Hours Events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Failed Events"
+                }
+              },
+              "queryRef": "_Measures.Failed Events",
+              "nativeQueryRef": "Failed Events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Distinct Source IPs"
+                }
+              },
+              "queryRef": "_Measures.Distinct Source IPs",
+              "nativeQueryRef": "Distinct Source IPs"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Risk Score"
+                }
+              },
+              "queryRef": "_Measures.Risk Score",
+              "nativeQueryRef": "Risk Score"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimUser"
+                    }
+                  },
+                  "Property": "First Seen"
+                }
+              },
+              "queryRef": "DimUser.First Seen",
+              "nativeQueryRef": "First Seen"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimUser"
+                    }
+                  },
+                  "Property": "Last Seen"
+                }
+              },
+              "queryRef": "DimUser.Last Seen",
+              "nativeQueryRef": "Last Seen"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimUser"
+                    }
+                  },
+                  "Property": "IsExternalUser"
+                }
+              },
+              "queryRef": "DimUser.IsExternalUser",
+              "nativeQueryRef": "IsExternalUser"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Risk Score"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Users'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

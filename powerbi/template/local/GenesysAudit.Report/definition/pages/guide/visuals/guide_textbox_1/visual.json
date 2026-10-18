@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "guide_textbox_1",
+  "position": {
+    "x": 20,
+    "y": 58,
+    "z": 1,
+    "height": 92,
+    "width": 1240,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "textbox",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "What this report is",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "fontWeight": "bold",
+                      "color": "#2F6FED"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the LocalUtcOffsetHours parameter.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

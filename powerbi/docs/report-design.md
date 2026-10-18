@@ -13,6 +13,14 @@ Risk colours used everywhere: High `#D64545`, Medium `#E8A33D`, Low `#4C9A6A`, n
 
 ---
 
+## Page 0 – Start Here
+
+A text-only landing page: what the report is, one panel per page (what it shows,
+how to read it), and how slicers, risk levels, actor types and data freshness work.
+Generated from `GUIDE_PANELS` in `tools/build_pbip.py`; edit the text there.
+
+---
+
 ## Page 1 – Overview
 
 Purpose: "what happened in the period, is anything unusual".
@@ -42,7 +50,7 @@ Purpose: free exploration and the daily review of a service or a user.
 | Heatmap | Matrix | Rows `DimDate[Day Name]` (sorted Mon–Sun), columns `AuditEvents[EventHourLocal]` (0–23), values `[Events (Local Date)]`. Background colour scale white → `#2F6FED`. Cells with business hours outlined (use a shape overlay or a second rule on `AuditEvents[IsOffHours]`) |
 | Service × action | Matrix | Rows `DimService[Service]`, columns `DimAction[ActionCategory]`, values `[Audit Events]`, subtotals on, background scale |
 | Entity types | Bar | `DimEntityType[EntityType]` × `[Audit Events]`, legend `DimService[Service]`, top 15 |
-| Event list | Table | `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `RemoteIp`, `Message`. Conditional formatting: `Status` = Failure → red font; `Action` background fx `[Risk Colour]`. Sorted by time desc. Row count shown via `[Audit Events]` in the title |
+| Event list | Table | `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `RemoteIp`, `Message`. Conditional formatting: `Status` = FAILURE → red font; `Action` background fx `[Risk Colour]`. Sorted by time desc. Row count shown via `[Audit Events]` in the title |
 | Share | Card | `[Top Actor Share %]` with label "share of top actor" (concentration indicator) |
 
 Table has **Export data** enabled; it is the visual analysts will copy from.
@@ -96,8 +104,8 @@ Keep **Cross-report** off, **Keep all filters** on.
 | Area | Visual | Fields / settings |
 |---|---|---|
 | Header | Cards | `[Audit Events]`, `[Property Changes]`, `[First Event (UTC)]`, `[Last Event (UTC)]` |
-| Events | Table | `EventDateTimeUtc`, `EventDateTimeLocal`, `AuditId`, `ActorName`, `ActorType`, `ClientName`, `Application`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `EntityId`, `Status`, `Level`, `RemoteIpAll`, `TransactionId`, `TransactionInitiator`, `Message` |
-| Property changes | Table | `AuditPropertyChanges[EventDateTimeUtc]`, `AuditId`, `ChangeEntityName`, `PropertyShort`, `ChangeType`, `OldValues`, `NewValues`, `Property`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
+| Events | Table | who/what first: `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `Message`, `Application`, `RemoteIpAll`, `Level`, `MessageCode`; identifiers last: `UserId`, `ClientId`, `EntityId`, `TransactionId`, `AuditId`, `EventDateTimeUtc`, `ContextJson` |
+| Property changes | Table | from the related event: `EventDateTimeLocal`, `ActorName`, `Action`, `EntityType`, `EntityDisplay`; then `PropertyShort`, `ChangeType`, `OldValues`, `NewValues`, `ChangeSource`, `ChangeEntityName`, `Property`, `AuditId`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
 | Context | Table | `AuditId`, `ContextJson`, `MessageTemplate` (word wrap) |
 | Same transaction | Table | visual filter `TransactionId` = selected (via drill-through), shows every event caused by the same user action |
 

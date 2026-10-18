@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "GenesysAudit"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "b34d598c-1f4c-579e-b963-78a92185b9dd"
+  }
+}

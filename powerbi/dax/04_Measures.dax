@@ -108,28 +108,28 @@ Delete Events =                                  // #,0
 CALCULATE ( [Audit Events], DimAction[Action] = "Delete" )
 
 High-Risk Events =                               // #,0
-CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" )
+COALESCE ( CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" ), 0 )
 
 High-Risk % =                                    // 0.0%
 DIVIDE ( [High-Risk Events], [Audit Events] )
 
 Failed Events =                                  // #,0
-CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () )
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () ), 0 )
 
 Failure Rate =                                   // 0.0%
 DIVIDE ( [Failed Events], [Audit Events] )
 
 Off-Hours Events =                               // #,0
-CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () )
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () ), 0 )
 
 Off-Hours % =                                    // 0.0%
 DIVIDE ( [Off-Hours Events], [Audit Events] )
 
 Off-Hours High-Risk Events =                     // #,0   (the ones worth a human look)
-CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" )
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" ), 0 )
 
 OAuth Client Events =                            // #,0
-CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" )
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" ), 0 )
 
 System Events =                                  // #,0
 CALCULATE ( [Audit Events], AuditEvents[ActorType] = "System" )
@@ -138,16 +138,16 @@ User Events =                                    // #,0
 CALCULATE ( [Audit Events], AuditEvents[ActorType] = "User" )
 
 External User Events =                           // #,0   (trustee / partner users)
-CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () )
+COALESCE ( CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () ), 0 )
 
 Security Service Events =                        // #,0
-CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" )
+COALESCE ( CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" ), 0 )
 
 Users With Deletes =                             // #,0
 CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[Action] = "Delete" )
 
 Users With High-Risk Actions =                   // #,0
-CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" )
+COALESCE ( CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" ), 0 )
 
 // Users whose FIRST ever audit event falls inside the selected period.
 // Meaningful only when a date range is selected (slicer / page filter).
@@ -175,11 +175,14 @@ RETURN
 
 // Users seen from more than N distinct IPs in the period (default 3).
 Users With Many IPs =                            // #,0
-COUNTROWS (
-    FILTER (
-        VALUES ( AuditEvents[UserKey] ),
-        AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
-    )
+COALESCE (
+    COUNTROWS (
+        FILTER (
+            VALUES ( AuditEvents[UserKey] ),
+            AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
+        )
+    ),
+    0
 )
 
 // Simple 0-100 risk score for a row context (user / day / service).

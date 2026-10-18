@@ -5,10 +5,12 @@
 //  Input : the binary content of ONE daily file written by the pipeline.
 //  Output: one row per audit event (AuditLogMessage), flattened.
 //
-//  Accepts any of these file layouts, so the pipeline can choose:
+//  Field names follow the public swagger definition of AuditLogMessage
+//  (see docs/audit-api.md). Accepts any of these file layouts:
 //    a) a JSON array of AuditLogMessage objects                     [ {...}, {...} ]
-//    b) the raw results page from GET /api/v2/audits/query/{id}/results
-//       (an object with an "entities" array)                       { "entities": [ ... ] }
+//    b) a results page object with an "entities" array - both the async
+//       GET /audits/query/{id}/results and the sync POST /audits/query/realtime
+//       responses look like this                                  { "entities": [ ... ] }
 //    c) newline-delimited JSON, one AuditLogMessage per line
 //
 //  Every field is read with Record.FieldOrDefault, so a missing or null
@@ -42,52 +44,57 @@ let
     flattened = Table.AddColumn(asTable, "Row", each
         let
             e      = [Event],
-            user   = Record.FieldOrDefault(e, "user", null),
-            client = Record.FieldOrDefault(e, "client", null),
-            entity = Record.FieldOrDefault(e, "entity", null),
-            msg    = Record.FieldOrDefault(e, "message", null),
+            user   = Record.FieldOrDefault(e, "user", null),        // DomainEntityRef {id, name, selfUri} - name only with expand=user
+            client = Record.FieldOrDefault(e, "client", null),      // AddressableEntityRef {id, selfUri} - no name in the API
+            entity = Record.FieldOrDefault(e, "entity", null),      // DomainEntityRef
+            msg    = Record.FieldOrDefault(e, "message", null),     // MessageInfo
             init   = Record.FieldOrDefault(e, "initiatingAction", null),
             ips    = Record.FieldOrDefault(e, "remoteIp", null),
             pc     = Record.FieldOrDefault(e, "propertyChanges", null),
-            ctx    = Record.FieldOrDefault(e, "context", null)
+            ec     = Record.FieldOrDefault(e, "entityChanges", null),
+            ctx    = Record.FieldOrDefault(e, "context", null),
+            status = Record.FieldOrDefault(e, "status", null)
         in
             [
-                AuditId              = Record.FieldOrDefault(e, "id", null),
-                EventDateTimeUtc     = Record.FieldOrDefault(e, "eventDate", null),
-                ServiceName          = Record.FieldOrDefault(e, "serviceName", null),
-                Action               = Record.FieldOrDefault(e, "action", null),
-                EntityType           = Record.FieldOrDefault(e, "entityType", null),
-                EntityId             = if entity is record then Record.FieldOrDefault(entity, "id", null)   else null,
-                EntityName           = if entity is record then Record.FieldOrDefault(entity, "name", null) else null,
-                Status               = Record.FieldOrDefault(e, "status", null),
-                Level                = Record.FieldOrDefault(e, "level", null),
-                Application          = Record.FieldOrDefault(e, "application", null),
-                UserId               = if user is record   then Record.FieldOrDefault(user, "id", null)     else null,
-                UserName             = if user is record   then Record.FieldOrDefault(user, "name", null)   else null,
-                ClientId             = if client is record then Record.FieldOrDefault(client, "id", null)   else null,
-                ClientName           = if client is record then Record.FieldOrDefault(client, "name", null) else null,
-                RemoteIp             = if ips is list and List.Count(ips) > 0 then Text.From(ips{0}) else null,
-                RemoteIpAll          = if ips is list then Text.Combine(List.Transform(ips, each Text.From(_)), "; ") else null,
-                RemoteIpCount        = if ips is list then List.Count(ips) else 0,
-                MessageTemplate      = if msg is record then Record.FieldOrDefault(msg, "message", null) else null,
-                Message              = if msg is record then Record.FieldOrDefault(msg, "messageWithParams", null) else null,
-                TransactionId        = if init is record then Record.FieldOrDefault(init, "transactionId", null) else null,
-                InitiatingActionId   = if init is record then Record.FieldOrDefault(init, "id", null) else null,
-                TransactionInitiator = Record.FieldOrDefault(e, "transactionInitiator", null),
-                UserHomeOrgId        = Record.FieldOrDefault(e, "userHomeOrgId", null),
-                UserTrusteeOrgId     = Record.FieldOrDefault(e, "userTrusteeOrgId", null),
-                PropertyChangeCount  = if pc is list then List.Count(pc) else 0,
-                ContextJson          = if ctx is record and Record.FieldCount(ctx) > 0 then Text.FromBinary(Json.FromValue(ctx)) else null,
-                PropertyChanges      = if pc is list then pc else null
+                AuditId                  = Record.FieldOrDefault(e, "id", null),
+                EventDateTimeUtc         = Record.FieldOrDefault(e, "eventDate", null),
+                ServiceName              = Record.FieldOrDefault(e, "serviceName", null),
+                Action                   = Record.FieldOrDefault(e, "action", null),
+                EntityType               = Record.FieldOrDefault(e, "entityType", null),
+                EntityId                 = if entity is record then Record.FieldOrDefault(entity, "id", null)   else null,
+                EntityName               = if entity is record then Record.FieldOrDefault(entity, "name", null) else null,
+                // API values: SUCCESS / FAILURE / WARNING - normalise case so sample and real data agree
+                Status                   = if status is text then Text.Upper(status) else null,
+                Level                    = Record.FieldOrDefault(e, "level", null),           // USER / SYSTEM / GENESYS_INTERNAL
+                Application              = Record.FieldOrDefault(e, "application", null),
+                UserId                   = if user is record   then Record.FieldOrDefault(user, "id", null)     else null,
+                UserName                 = if user is record   then Record.FieldOrDefault(user, "name", null)   else null,
+                ClientId                 = if client is record then Record.FieldOrDefault(client, "id", null)   else null,
+                ClientName               = if client is record then Record.FieldOrDefault(client, "name", null) else null,
+                RemoteIp                 = if ips is list and List.Count(ips) > 0 then Text.From(ips{0}) else null,
+                RemoteIpAll              = if ips is list then Text.Combine(List.Transform(ips, each Text.From(_)), "; ") else null,
+                RemoteIpCount            = if ips is list then List.Count(ips) else 0,
+                MessageCode              = if msg is record then Record.FieldOrDefault(msg, "localizableMessageCode", null) else null,
+                Message                  = if msg is record then Record.FieldOrDefault(msg, "message", null) else null,
+                MessageTemplate          = if msg is record then Record.FieldOrDefault(msg, "messageWithParams", null) else null,
+                TransactionId            = if init is record then Record.FieldOrDefault(init, "transactionId", null) else null,
+                InitiatingActionContext  = if init is record then Record.FieldOrDefault(init, "actionContext", null) else null,
+                TransactionInitiator     = Record.FieldOrDefault(e, "transactionInitiator", null),
+                UserHomeOrgId            = Record.FieldOrDefault(e, "userHomeOrgId", null),
+                PropertyChangeCount      = if pc is list then List.Count(pc) else 0,
+                EntityChangeCount        = if ec is list then List.Count(ec) else 0,
+                ContextJson              = if ctx is record and Record.FieldCount(ctx) > 0 then Text.FromBinary(Json.FromValue(ctx)) else null,
+                PropertyChanges          = if pc is list then pc else null,
+                EntityChanges            = if ec is list then ec else null
             ]
     ),
 
     columnNames = {
         "AuditId", "EventDateTimeUtc", "ServiceName", "Action", "EntityType", "EntityId", "EntityName",
         "Status", "Level", "Application", "UserId", "UserName", "ClientId", "ClientName",
-        "RemoteIp", "RemoteIpAll", "RemoteIpCount", "MessageTemplate", "Message",
-        "TransactionId", "InitiatingActionId", "TransactionInitiator", "UserHomeOrgId", "UserTrusteeOrgId",
-        "PropertyChangeCount", "ContextJson", "PropertyChanges"
+        "RemoteIp", "RemoteIpAll", "RemoteIpCount", "MessageCode", "Message", "MessageTemplate",
+        "TransactionId", "InitiatingActionContext", "TransactionInitiator", "UserHomeOrgId",
+        "PropertyChangeCount", "EntityChangeCount", "ContextJson", "PropertyChanges", "EntityChanges"
     },
     expanded = Table.ExpandRecordColumn(flattened, "Row", columnNames, columnNames),
     noEvent  = Table.RemoveColumns(expanded, {"Event"}),
@@ -104,9 +111,9 @@ let
         {"EntityId", type text}, {"EntityName", type text}, {"Status", type text}, {"Level", type text},
         {"Application", type text}, {"UserId", type text}, {"UserName", type text},
         {"ClientId", type text}, {"ClientName", type text}, {"RemoteIp", type text}, {"RemoteIpAll", type text},
-        {"RemoteIpCount", Int64.Type}, {"MessageTemplate", type text}, {"Message", type text},
-        {"TransactionId", type text}, {"InitiatingActionId", type text}, {"TransactionInitiator", type logical},
-        {"UserHomeOrgId", type text}, {"UserTrusteeOrgId", type text}, {"PropertyChangeCount", Int64.Type},
+        {"RemoteIpCount", Int64.Type}, {"MessageCode", type text}, {"Message", type text}, {"MessageTemplate", type text},
+        {"TransactionId", type text}, {"InitiatingActionContext", type text}, {"TransactionInitiator", type logical},
+        {"UserHomeOrgId", type text}, {"PropertyChangeCount", Int64.Type}, {"EntityChangeCount", Int64.Type},
         {"ContextJson", type text}
     })
 in
