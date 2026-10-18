@@ -1,309 +1,71 @@
 // =====================================================================
-//  Measure library.
+//  Measures - only what the three report pages use.
 //  Create a blank table "_Measures" (Enter data, one dummy column, then
 //  hide the column) and add every measure to it so they sit together.
-//  Format strings are given as a comment after each measure name.
-//
-//  Recommended display folders:
-//    Counts | Time intelligence | Risk & security | Share & ranking | Data health | Titles
+//  Format strings are given as a comment after each measure name; the
+//  section headers are the display folders.
 // =====================================================================
 
 
-// ==================== Counts ==========================================
+// ==================== Audit viewer ====================================
 
 Audit Events =                                   // #,0
 COUNTROWS ( AuditEvents )
 
-Distinct Users =                                 // #,0
-DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] )
-
-Distinct Clients =                               // #,0
-DISTINCTCOUNTNOBLANK ( AuditEvents[ClientId] )
-
-Distinct Entities =                              // #,0
-DISTINCTCOUNTNOBLANK ( AuditEvents[EntityId] )
-
-Distinct Services =                              // #,0
-DISTINCTCOUNT ( AuditEvents[ServiceName] )
-
-Distinct Source IPs =                            // #,0
-DISTINCTCOUNTNOBLANK ( AuditEvents[RemoteIp] )
-
 Property Changes =                               // #,0
 COUNTROWS ( AuditPropertyChanges )
 
-Events With Changes =                            // #,0
-CALCULATE ( [Audit Events], AuditEvents[HasPropertyChanges] = TRUE () )
-
-Events per Active User =                         // #,0.0
-DIVIDE ( [Audit Events], [Distinct Users] )
-
-IPs per User =                                   // #,0.00
-DIVIDE ( [Distinct Source IPs], [Distinct Users] )
+Latest Event Loaded =                            // dd MMM yyyy HH:mm   (local time; tells you how fresh the data is)
+MAX ( AuditEvents[EventDateTimeLocal] )
 
 
-// ==================== Time intelligence ===============================
-//  All of these rely on DimDate being marked as the date table.
+// ==================== Agent presence ==================================
 
-Audit Events PD =                                // #,0   (previous day)
-CALCULATE ( [Audit Events], DATEADD ( DimDate[Date], -1, DAY ) )
+Presence Changes =                               // #,0
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsPresenceEvent] = TRUE () ), 0 )
 
-Audit Events vs PD % =                           // 0.0%;-0.0%;0.0%
-DIVIDE ( [Audit Events] - [Audit Events PD], [Audit Events PD] )
-
-Audit Events L7D =                               // #,0   (last 7 days ending on the max selected date)
-CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -7, DAY ) )
-
-Audit Events Prev L7D =                          // #,0
-CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ) - 7, -7, DAY ) )
-
-Audit Events L7D vs Prev % =                     // 0.0%;-0.0%;0.0%
-DIVIDE ( [Audit Events L7D] - [Audit Events Prev L7D], [Audit Events Prev L7D] )
-
-Audit Events L30D =                              // #,0
-CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -30, DAY ) )
-
-Daily Avg Events =                               // #,0.0   (average per calendar day with data span)
-VAR _first = MIN ( AuditEvents[EventDateUtc] )
-VAR _last  = MAX ( AuditEvents[EventDateUtc] )
-RETURN
-    AVERAGEX (
-        FILTER ( VALUES ( DimDate[Date] ), DimDate[Date] >= _first && DimDate[Date] <= _last ),
-        COALESCE ( [Audit Events], 0 )
-    )
-
-Peak Day Events =                                // #,0
-MAXX ( VALUES ( DimDate[Date] ), [Audit Events] )
-
-Peak Day =                                       // dd MMM yyyy
-VAR _t   = ADDCOLUMNS ( VALUES ( DimDate[Date] ), "@n", [Audit Events] )
-VAR _max = MAXX ( _t, [@n] )
-RETURN
-    MINX ( FILTER ( _t, [@n] = _max ), DimDate[Date] )
-
-// Z-score of the selected day against the 30 days before it. Use it as a
-// line on the daily chart or as a conditional-format rule (|z| >= 3 = red).
-Daily Events Z-Score =                           // 0.00
-VAR _day      = MAX ( DimDate[Date] )
-VAR _baseline =
-    CALCULATETABLE (
-        ADDCOLUMNS ( VALUES ( DimDate[Date] ), "@n", COALESCE ( [Audit Events], 0 ) ),
-        DATESINPERIOD ( DimDate[Date], _day - 1, -30, DAY )
-    )
-VAR _mean = AVERAGEX ( _baseline, [@n] )
-VAR _sd   = STDEVX.P ( _baseline, [@n] )
-RETURN
-    IF ( _sd > 0, DIVIDE ( COALESCE ( [Audit Events], 0 ) - _mean, _sd ) )
-
-Is Anomaly Day =                                 // 0   (1 = anomaly) for conditional formatting
-IF ( ABS ( [Daily Events Z-Score] ) >= 3, 1, 0 )
-
-Events (Local Date) =                            // #,0   use with DimDate when the visual should follow local time
-CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateLocal] ) )
-
-
-// ==================== Risk & security =================================
-
-Delete Events =                                  // #,0
-CALCULATE ( [Audit Events], DimAction[Action] = "Delete" )
-
-High-Risk Events =                               // #,0
-COALESCE ( CALCULATE ( [Audit Events], DimAction[RiskLevel] = "High" ), 0 )
-
-High-Risk % =                                    // 0.0%
-DIVIDE ( [High-Risk Events], [Audit Events] )
-
-Failed Events =                                  // #,0
-COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsFailure] = TRUE () ), 0 )
-
-Failure Rate =                                   // 0.0%
-DIVIDE ( [Failed Events], [Audit Events] )
-
-Off-Hours Events =                               // #,0
-COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE () ), 0 )
-
-Off-Hours % =                                    // 0.0%
-DIVIDE ( [Off-Hours Events], [Audit Events] )
-
-Off-Hours High-Risk Events =                     // #,0   (the ones worth a human look)
-COALESCE ( CALCULATE ( [Audit Events], AuditEvents[IsOffHours] = TRUE (), DimAction[RiskLevel] = "High" ), 0 )
-
-OAuth Client Events =                            // #,0
-COALESCE ( CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" ), 0 )
-
-System Events =                                  // #,0
-CALCULATE ( [Audit Events], AuditEvents[ActorType] = "System" )
-
-User Events =                                    // #,0
-CALCULATE ( [Audit Events], AuditEvents[ActorType] = "User" )
-
-External User Events =                           // #,0   (trustee / partner users)
-COALESCE ( CALCULATE ( [Audit Events], DimUser[IsExternalUser] = TRUE () ), 0 )
-
-Security Service Events =                        // #,0
-COALESCE ( CALCULATE ( [Audit Events], DimService[ServiceCategory] = "Security" ), 0 )
-
-Users With Deletes =                             // #,0
-CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[Action] = "Delete" )
-
-Users With High-Risk Actions =                   // #,0
-COALESCE ( CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[UserId] ), DimAction[RiskLevel] = "High" ), 0 )
-
-// Users whose FIRST ever audit event falls inside the selected period.
-// Meaningful only when a date range is selected (slicer / page filter).
-New Users (First Seen) =                         // #,0
-VAR _start = MIN ( DimDate[Date] )
-RETURN
-    COUNTROWS (
-        FILTER (
-            VALUES ( AuditEvents[UserKey] ),
-            AuditEvents[UserKey] <> "SYSTEM"
-                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
-        )
-    )
-
-New Source IPs (First Seen) =                    // #,0
-VAR _start = MIN ( DimDate[Date] )
-RETURN
-    COUNTROWS (
-        FILTER (
-            VALUES ( AuditEvents[RemoteIp] ),
-            NOT ISBLANK ( AuditEvents[RemoteIp] )
-                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
-        )
-    )
-
-// Users seen from more than N distinct IPs in the period (default 3).
-Users With Many IPs =                            // #,0
+Agents Affected =                                // #,0
 COALESCE (
-    COUNTROWS (
-        FILTER (
-            VALUES ( AuditEvents[UserKey] ),
-            AuditEvents[UserKey] <> "SYSTEM" && [Distinct Source IPs] > 3
-        )
+    CALCULATE ( DISTINCTCOUNTNOBLANK ( AuditEvents[EntityId] ), AuditEvents[IsPresenceEvent] = TRUE () ),
+    0
+)
+
+Changed By Someone Else =                        // #,0   (a supervisor, admin or integration changed the agent's status)
+COALESCE (
+    CALCULATE (
+        [Audit Events],
+        AuditEvents[IsPresenceEvent] = TRUE (),
+        AuditEvents[PresenceChangeSource] IN { "Another person", "Integration" }
     ),
     0
 )
 
-// Simple 0-100 risk score for a row context (user / day / service).
-// Weights are deliberately crude; tune them to your environment.
-Risk Score =                                     // 0
-VAR _n = [Audit Events]
-RETURN
-    IF (
-        _n > 0,
-        MIN ( 100,
-            ROUND (
-                40 * DIVIDE ( [High-Risk Events], _n )
-                + 25 * DIVIDE ( [Off-Hours Events], _n )
-                + 20 * DIVIDE ( [Failed Events], _n )
-                + 15 * DIVIDE ( [External User Events], _n ),
-                0 )
-        )
-    )
 
+// ==================== API usage =======================================
 
-// ==================== Share & ranking =================================
+API Requests =                                   // #,0
+SUM ( ApiUsage[Requests] )
 
-Events % of Total =                              // 0.0%
-DIVIDE ( [Audit Events], CALCULATE ( [Audit Events], ALLSELECTED () ) )
+Requests in Period =                             // #,0   (0 instead of blank, so idle clients still list)
+COALESCE ( [API Requests], 0 )
 
-Top Actor Share % =                              // 0.0%   (how concentrated the activity is)
-DIVIDE ( MAXX ( VALUES ( AuditEvents[UserKey] ), [Audit Events] ), [Audit Events] )
+API Errors =                                     // #,0   (4xx + 5xx; the 429s are part of the 4xx)
+SUM ( ApiUsage[Errors] )
 
-User Rank =                                      // 0   (table/matrix of DimUser[User])
-RANKX ( ALLSELECTED ( DimUser[User] ), [Audit Events],, DESC, DENSE )
+API Error % =                                    // 0.0%
+DIVIDE ( [API Errors], [API Requests] )
 
-Service Rank =                                   // 0
-RANKX ( ALLSELECTED ( DimService[Service] ), [Audit Events],, DESC, DENSE )
+Rate Limited (429) =                             // #,0
+SUM ( ApiUsage[Status429] )
 
-Top Action =                                     // text
-VAR _t = ADDCOLUMNS ( VALUES ( DimAction[Action] ), "@n", [Audit Events] )
-RETURN
-    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimAction[Action] )
+Server Errors (5xx) =                            // #,0
+SUM ( ApiUsage[Status5xx] )
 
-Top Service =                                    // text
-VAR _t = ADDCOLUMNS ( VALUES ( DimService[Service] ), "@n", [Audit Events] )
-RETURN
-    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimService[Service] )
+Active Clients =                                 // #,0   (clients that made at least one request)
+CALCULATE ( DISTINCTCOUNT ( ApiUsage[ClientKey] ), ApiUsage[Requests] > 0 )
 
-Top User =                                       // text
-VAR _t = ADDCOLUMNS ( VALUES ( DimUser[User] ), "@n", [Audit Events] )
-RETURN
-    MAXX ( TOPN ( 1, _t, [@n], DESC ), DimUser[User] )
+Last API Use =                                   // dd MMM yyyy
+MAX ( ApiUsage[Date] )
 
-
-// ==================== Data health =====================================
-
-First Event (UTC) =                              // dd MMM yyyy HH:mm
-MIN ( AuditEvents[EventDateTimeUtc] )
-
-First Event Date =                               // dd MMM yyyy   (per IP / user / file row in tables)
-MIN ( AuditEvents[EventDateUtc] )
-
-Last Event Date =                                // dd MMM yyyy
-MAX ( AuditEvents[EventDateUtc] )
-
-Last Event (UTC) =                               // dd MMM yyyy HH:mm
-MAX ( AuditEvents[EventDateTimeUtc] )
-
-Days of Data =                                   // #,0
-VAR _f = MIN ( AuditEvents[EventDateUtc] )
-VAR _l = MAX ( AuditEvents[EventDateUtc] )
-RETURN IF ( NOT ISBLANK ( _f ), DATEDIFF ( _f, _l, DAY ) + 1 )
-
-Days Without Data =                              // #,0   (gaps inside the loaded span = pipeline misses)
-VAR _f = MIN ( AuditEvents[EventDateUtc] )
-VAR _l = MAX ( AuditEvents[EventDateUtc] )
-RETURN
-    IF (
-        NOT ISBLANK ( _f ),
-        COUNTROWS ( FILTER ( DATESBETWEEN ( DimDate[Date], _f, _l ), ISBLANK ( [Audit Events] ) ) )
-    )
-
-Source Files Loaded =                            // #,0
-DISTINCTCOUNT ( AuditEvents[SourceFile] )
-
-Latest Source File =                             // text  (file names end in the date, so MAX = newest)
-MAX ( AuditEvents[SourceFile] )
-
-Last File Written =                              // dd MMM yyyy HH:mm
-MAX ( AuditEvents[SourceFileModified] )
-
-Data Age (hours) =                               // #,0
-DATEDIFF ( [Last Event (UTC)], UTCNOW (), HOUR )
-
-Data Freshness Status =                          // text, for a KPI card
-VAR _h = [Data Age (hours)]
-RETURN
-    SWITCH ( TRUE (),
-        ISBLANK ( _h ), "No data",
-        _h <= 30, "Fresh",
-        _h <= 54, "Late (1 day)",
-        "Stale" )
-
-Data Freshness Colour =                          // text, bind to card background via fx
-SWITCH ( [Data Freshness Status], "Fresh", "#4C9A6A", "Late (1 day)", "#E8A33D", "#D64545" )
-
-
-// ==================== Titles ==========================================
-
-Selected Period Title =                          // text, bind to visual titles via fx
-VAR _f = MIN ( DimDate[Date] )
-VAR _l = MAX ( DimDate[Date] )
-RETURN
-    IF ( _f = _l,
-        FORMAT ( _f, "ddd d MMM yyyy" ),
-        FORMAT ( _f, "d MMM yyyy" ) & " to " & FORMAT ( _l, "d MMM yyyy" ) )
-
-Overview Headline =                              // text
-FORMAT ( [Audit Events], "#,0" ) & " audit events by "
-    & FORMAT ( [Distinct Users], "#,0" ) & " users across "
-    & FORMAT ( [Distinct Services], "#,0" ) & " services"
-
-Risk Colour =                                    // text, bind to data colours / backgrounds via fx
-SWITCH ( SELECTEDVALUE ( DimAction[RiskLevel] ),
-    "High",   "#D64545",
-    "Medium", "#E8A33D",
-    "Low",    "#4C9A6A",
-    "#8A8F98" )
+Changes Made by Client =                         // #,0   (audit events the OAuth client caused)
+COALESCE ( CALCULATE ( [Audit Events], AuditEvents[ActorType] = "OAuth Client" ), 0 )

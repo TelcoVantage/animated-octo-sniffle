@@ -19,12 +19,19 @@ expression RangeEnd = #datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=tr
 
 	annotation PBI_ResultType = DateTime
 
-expression LocalUtcOffsetHours = 0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+expression LocalUtcOffsetHours = 10 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
 	lineageTag: 5023a8ee-32d7-50e1-aaf2-e0ae8cd0e8b8
 
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Number
+
+expression AustralianDaylightSaving = true meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: d414f189-7815-5fb0-a753-1257db2156f7
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
 
 expression BusinessHoursStart = 8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
 	lineageTag: 74f68303-4d91-5015-9b35-3a011603f007
@@ -163,16 +170,18 @@ expression fnParseAuditFile =
 
 	annotation PBI_ResultType = Function
 
-expression AuditEventsRaw =
+expression SourceFiles =
 		// =====================================================================
-		//  AuditEventsRaw      (staging query  ->  right-click > UNTICK "Enable load")
+		//  SourceFiles         (staging query  ->  right-click > UNTICK "Enable load")
 		//
-		//  Lists the daily files, keeps only the ones inside the refresh window,
-		//  parses them with fnParseAuditFile and de-duplicates on AuditId.
-		//  Both AuditEvents and AuditPropertyChanges reference this query.
+		//  Lists every .json file in the landing folder. The pipeline writes three
+		//  kinds of file there and each has its own query:
+		//     genesys-audit_YYYY-MM-DD.json      -> AuditEventsRaw
+		//     genesys-apiusage_YYYY-MM-DD.json   -> ApiUsage
+		//     genesys-oauthclients.json          -> OAuthClients
+		//  The connector (local folder or SharePoint) is chosen here only.
 		// =====================================================================
 		let
-		    // ---- 1. List the files -------------------------------------------------
 		    // Exactly ONE of the two blocks below must be active. tools/build_pbip.py
 		    // flips them to produce the "local" and "sharepoint" template variants;
 		    // by hand: comment one block out and uncomment the other.
@@ -196,10 +205,34 @@ expression AuditEventsRaw =
 		    //   Files = AzureStorage.Blobs(AuditSourcePath)
 		    //   Files = AzureStorage.DataLake(AuditSourcePath)
 		    JsonFiles = Table.SelectRows(Files, each [Extension] <> null and Text.Lower([Extension]) = ".json"),
+		    Kept      = Table.SelectColumns(JsonFiles, {"Content", "Name", "Date modified"})
+		in
+		    Kept
+	lineageTag: a01ac821-c7b4-5e61-8083-fbbd45897361
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression AuditEventsRaw =
+		// =====================================================================
+		//  AuditEventsRaw      (staging query  ->  right-click > UNTICK "Enable load")
+		//
+		//  Takes the daily audit files, keeps only the ones inside the refresh window,
+		//  parses them with fnParseAuditFile and de-duplicates on AuditId.
+		//  Both AuditEvents and AuditPropertyChanges reference this query.
+		// =====================================================================
+		let
+		    // ---- 1. The audit files ----------------------------------------------------
+		    // SourceFiles lists the landing folder (the connector is set there). The API
+		    // usage and OAuth client files in the same folder have their own queries.
+		    AuditFiles = Table.SelectRows(SourceFiles, each
+		                     not Text.StartsWith(Text.Lower([Name]), "genesys-apiusage")
+		                 and not Text.StartsWith(Text.Lower([Name]), "genesys-oauthclients")),
 		    // ---- 2. Business date from the file name ---------------------------------
 		    // Contract with the pipeline:  <anything>_YYYY-MM-DD.json
 		    // (a virtual folder prefix such as 2026/10/ in the blob name is fine)
-		    WithFileDate = Table.AddColumn(JsonFiles, "FileDate",
+		    WithFileDate = Table.AddColumn(AuditFiles, "FileDate",
 		        each try Date.FromText(Text.End(Text.BeforeDelimiter([Name], ".", {0, RelativePosition.FromEnd}), 10))
 		             otherwise null,
 		        type nullable date),
@@ -244,3 +277,65 @@ expression AuditEventsRaw =
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
+
+expression fnParseApiUsageFile =
+		// =====================================================================
+		//  fnParseApiUsageFile
+		//  Blank Query > Advanced Editor > paste > rename query to fnParseApiUsageFile
+		//
+		//  Input : one genesys-apiusage_YYYY-MM-DD.json written by the pipeline.
+		//  Output: one row per day x OAuth client x URL template x HTTP method.
+		//
+		//  Reads the rows of GET /api/v2/usage/aggregates/query/jobs/{jobId}
+		//    { date, httpMethod, templateUri, requestCount, status200, status300,
+		//      status400, status429, status500, oauthClient { id, name } }
+		//  and also the older /api/v2/usage/query result rows
+		//    { date, clientId, clientName, templateUri, httpMethod, requests, status200 ... }
+		//  as a JSON array, an { "entities": [...] } / { "results": [...] } object,
+		//  or newline-delimited JSON. status429 is a subset of status400.
+		// =====================================================================
+		(content as binary) as table =>
+		let
+		    parsed = try Json.Document(content) otherwise null,
+		    rows =
+		        if parsed = null then
+		            let
+		                lines    = Lines.FromBinary(content, null, null, 65001),
+		                nonEmpty = List.Select(lines, each Text.Trim(_) <> "")
+		            in
+		                List.Transform(nonEmpty, each try Json.Document(_) otherwise null)
+		        else if parsed is list then parsed
+		        else if parsed is record and Record.HasFields(parsed, "entities") and parsed[entities] is list then parsed[entities]
+		        else if parsed is record and Record.HasFields(parsed, "results") and parsed[results] is list then parsed[results]
+		        else {},
+		    field  = (r, name) => if r is record then Record.FieldOrDefault(r, name, null) else null,
+		    count  = (v) => if v = null then 0 else Int64.From(v),
+		    toDate = (v) => if v = null then null else try Date.FromText(Text.Start(Text.From(v), 10)) otherwise null,
+		    records = List.Transform(List.Select(rows, each _ is record), (r) =>
+		        let client = field(r, "oauthClient") in
+		        [
+		            Date        = toDate(field(r, "date")),
+		            ClientId    = if client is record then field(client, "id")   else field(r, "clientId"),
+		            ClientName  = if client is record then field(client, "name") else field(r, "clientName"),
+		            TemplateUri = field(r, "templateUri"),
+		            HttpMethod  = field(r, "httpMethod"),
+		            Requests    = count(if field(r, "requestCount") <> null then field(r, "requestCount") else field(r, "requests")),
+		            Status2xx   = count(field(r, "status200")),
+		            Status3xx   = count(field(r, "status300")),
+		            Status4xx   = count(field(r, "status400")),
+		            Status429   = count(field(r, "status429")),
+		            Status5xx   = count(field(r, "status500"))
+		        ]),
+		    typed = Table.FromRecords(records, type table [
+		        Date = nullable date, ClientId = nullable text, ClientName = nullable text,
+		        TemplateUri = nullable text, HttpMethod = nullable text,
+		        Requests = Int64.Type, Status2xx = Int64.Type, Status3xx = Int64.Type,
+		        Status4xx = Int64.Type, Status429 = Int64.Type, Status5xx = Int64.Type
+		    ])
+		in
+		    typed
+	lineageTag: 70c81254-f8a7-565d-8377-23b21b6c82d5
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function

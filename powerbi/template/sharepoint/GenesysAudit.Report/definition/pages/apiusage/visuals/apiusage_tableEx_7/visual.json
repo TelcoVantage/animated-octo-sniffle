@@ -1,0 +1,290 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "apiusage_tableEx_7",
+  "position": {
+    "x": 10,
+    "y": 86,
+    "z": 7,
+    "height": 300,
+    "width": 760,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimClient"
+                    }
+                  },
+                  "Property": "Client"
+                }
+              },
+              "queryRef": "DimClient.Client",
+              "nativeQueryRef": "Client",
+              "displayName": "Client"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimClient"
+                    }
+                  },
+                  "Property": "ClientId"
+                }
+              },
+              "queryRef": "DimClient.ClientId",
+              "nativeQueryRef": "ClientId",
+              "displayName": "Client id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimClient"
+                    }
+                  },
+                  "Property": "Grant Type"
+                }
+              },
+              "queryRef": "DimClient.Grant Type",
+              "nativeQueryRef": "Grant Type",
+              "displayName": "Grant type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimClient"
+                    }
+                  },
+                  "Property": "State"
+                }
+              },
+              "queryRef": "DimClient.State",
+              "nativeQueryRef": "State",
+              "displayName": "State"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Requests in Period"
+                }
+              },
+              "queryRef": "_Measures.Requests in Period",
+              "nativeQueryRef": "Requests in Period",
+              "displayName": "Requests"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "API Errors"
+                }
+              },
+              "queryRef": "_Measures.API Errors",
+              "nativeQueryRef": "API Errors",
+              "displayName": "Errors"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Rate Limited (429)"
+                }
+              },
+              "queryRef": "_Measures.Rate Limited (429)",
+              "nativeQueryRef": "Rate Limited (429)",
+              "displayName": "429s"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "API Error %"
+                }
+              },
+              "queryRef": "_Measures.API Error %",
+              "nativeQueryRef": "API Error %",
+              "displayName": "Error %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Changes Made by Client"
+                }
+              },
+              "queryRef": "_Measures.Changes Made by Client",
+              "nativeQueryRef": "Changes Made by Client",
+              "displayName": "Audit changes"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Last API Use"
+                }
+              },
+              "queryRef": "_Measures.Last API Use",
+              "nativeQueryRef": "Last API Use",
+              "displayName": "Last used"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimClient"
+                    }
+                  },
+                  "Property": "Created"
+                }
+              },
+              "queryRef": "DimClient.Created",
+              "nativeQueryRef": "Created",
+              "displayName": "Created"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Requests in Period"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OAuth clients - click one to filter the page'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "flt_has_client",
+        "type": "Categorical",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimClient"
+              }
+            },
+            "Property": "ClientKey"
+          }
+        },
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "t",
+              "Entity": "DimClient",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Not": {
+                  "Expression": {
+                    "In": {
+                      "Expressions": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "t"
+                              }
+                            },
+                            "Property": "ClientKey"
+                          }
+                        }
+                      ],
+                      "Values": [
+                        [
+                          {
+                            "Literal": {
+                              "Value": "'NONE'"
+                            }
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

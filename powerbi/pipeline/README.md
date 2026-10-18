@@ -18,10 +18,24 @@ Both endpoints return the same `AuditLogMessage` objects, written as a JSON
 array with `expand=user` so user names are present. Add `-AlsoCsv` for a flat
 CSV next to each JSON file.
 
+`Daily` and `Backfill` also write, for the report's *API Usage & Clients* page:
+
+| File | Endpoint | Content |
+|---|---|---|
+| `genesys-apiusage_<day>.json` | `POST /api/v2/usage/aggregates/query/jobs` (async: create, poll, follow `nextUri`) | requests and 2xx / 3xx / 4xx / 429 / 5xx per OAuth client, URL template and HTTP method for that UTC day |
+| `genesys-oauthclients.json` | `GET /api/v2/oauth/clients` | id, name, grant type, state, created / modified. **The client secrets the API returns are never written.** |
+
+If either call fails, for example because a permission is missing, the run logs
+a warning and still exits `0`. The warning shows on the Azure Pipelines summary,
+and the audit file still gets uploaded. Use `-SkipApiUsage` to turn this off.
+
 ## Prerequisites
 
 * An OAuth client with the **client credentials** grant and a role that holds
-  `audits:audit:view` (Admin > Integrations > OAuth).
+  (Admin > Integrations > OAuth):
+  * `audits:audit:view` (the audit log)
+  * `usage:organization:view` (API usage)
+  * `oauth:client:view` (client names)
 * The region domain: Sydney `mypurecloud.com.au`, US East `mypurecloud.com`,
   Dublin `mypurecloud.ie`, Frankfurt `mypurecloud.de`, London `euw2.pure.cloud`.
 * Outbound HTTPS to `login.<region>` and `api.<region>`.

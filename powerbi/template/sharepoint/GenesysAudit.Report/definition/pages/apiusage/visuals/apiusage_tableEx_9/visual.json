@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "apiusage_tableEx_9",
+  "position": {
+    "x": 10,
+    "y": 394,
+    "z": 9,
+    "height": 318,
+    "width": 620,
+    "tabOrder": 9
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ApiUsage"
+                    }
+                  },
+                  "Property": "Endpoint"
+                }
+              },
+              "queryRef": "ApiUsage.Endpoint",
+              "nativeQueryRef": "Endpoint",
+              "displayName": "Endpoint (method + URL)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "API Requests"
+                }
+              },
+              "queryRef": "_Measures.API Requests",
+              "nativeQueryRef": "API Requests",
+              "displayName": "Requests"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "API Errors"
+                }
+              },
+              "queryRef": "_Measures.API Errors",
+              "nativeQueryRef": "API Errors",
+              "displayName": "Errors"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Rate Limited (429)"
+                }
+              },
+              "queryRef": "_Measures.Rate Limited (429)",
+              "nativeQueryRef": "Rate Limited (429)",
+              "displayName": "429s"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Server Errors (5xx)"
+                }
+              },
+              "queryRef": "_Measures.Server Errors (5xx)",
+              "nativeQueryRef": "Server Errors (5xx)",
+              "displayName": "5xx"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "API Requests"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Endpoints called'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

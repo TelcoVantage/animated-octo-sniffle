@@ -14,13 +14,25 @@
       Daily     POST /api/v2/audits/query (asynchronous) for ONE full UTC day,
                 default = yesterday. Poll the status, page the results with the
                 cursor, write genesys-audit_<day>.json. Use this for the scheduled run.
+                Also writes the API usage for that day and the OAuth client list
+                (see below) unless -SkipApiUsage is given.
       Realtime  POST /api/v2/audits/query/realtime (synchronous) for today so
                 far (00:00Z to now). Writes genesys-audit_<today>.json; tomorrow's
                 Daily run overwrites it with the complete day. Genesys only
                 indexes ~14 days for the realtime endpoint.
       Backfill  Daily, looped over an inclusive date range.
 
-    Exit code 0 on success, 1 on any failure (so the pipeline step fails).
+    API usage (Daily and Backfill, for the Power BI "API usage" page):
+      genesys-apiusage_<day>.json   POST /api/v2/usage/aggregates/query/jobs, one UTC day,
+                                    requests and 2xx/3xx/4xx/429/5xx per OAuth client,
+                                    URL template and HTTP method. Needs usage:organization:view.
+      genesys-oauthclients.json     GET /api/v2/oauth/clients: id, name, grant type, state,
+                                    created/modified. Needs oauth:client:view. The client
+                                    secret the API returns is never written.
+    A failure here is logged as a warning (an Azure Pipelines warning, too) and does
+    NOT fail the run, so the audit file is still uploaded.
+
+    Exit code 0 on success, 1 on any audit failure (so the pipeline step fails).
 
 .PARAMETER Region
     Genesys Cloud region domain, the part after "api." / "login.".
@@ -29,7 +41,8 @@
     Canada = cac1.pure.cloud, London = euw2.pure.cloud, Seoul = apne2.pure.cloud.
 
 .PARAMETER ClientId / ClientSecret
-    OAuth client (client-credentials grant) whose role has audits:audit:view.
+    OAuth client (client-credentials grant) whose role has audits:audit:view
+    (plus usage:organization:view and oauth:client:view for the API usage files).
     Falls back to the environment variables GENESYS_CLIENT_ID / GENESYS_CLIENT_SECRET
     (map your Azure Pipelines secret variables onto those).
 
@@ -72,13 +85,17 @@ param(
     [int]$StatusTimeoutSeconds = 900,
 
     # Also write a flat CSV next to each JSON file
-    [switch]$AlsoCsv
+    [switch]$AlsoCsv,
+
+    # Do not pull API usage / the OAuth client list (Daily and Backfill)
+    [switch]$SkipApiUsage
 )
 
 $ErrorActionPreference = 'Stop'
 $script:ApiBase   = "https://api.$Region"
 $script:LoginBase = "https://login.$Region"
 $script:Token     = ''
+$script:Warnings  = 0
 
 # =============================================================================
 #  Helpers
@@ -307,30 +324,169 @@ function Get-AuditsRealtime {
 }
 
 # =============================================================================
+#  Endpoint 3: POST /api/v2/usage/aggregates/query/jobs  (API usage, asynchronous)
+# =============================================================================
+function Get-ApiUsageDay {
+    param([datetime]$Day)
+    # Start and end are both inclusive for this endpoint, hence 23:59:59.
+    $d = $Day.ToString('yyyy-MM-dd')
+    $request = @{
+        interval    = $d + 'T00:00:00/' + $d + 'T23:59:59'
+        granularity = 'Day'
+        groupBy     = @('OauthClientId', 'OauthClientName', 'TemplateUri', 'HttpMethod')
+        metrics     = @('Requests', 'Status200', 'Status300', 'Status400', 'Status429', 'Status500')
+    }
+    $job = Invoke-GenesysApi -Method 'Post' -Path '/api/v2/usage/aggregates/query/jobs' -Body $request
+    if ($null -eq $job -or -not $job.id) {
+        throw "POST /api/v2/usage/aggregates/query/jobs returned no id: $($job | ConvertTo-Json -Compress -Depth 5)"
+    }
+    $jobId = [string]$job.id
+    Write-Log "API usage job created: $jobId for $d"
+
+    # Poll until Succeeded. The Succeeded response already carries the first page.
+    $path = "/api/v2/usage/aggregates/query/jobs/$jobId" + '?pageSize=1000'
+    $deadline = (Get-Date).AddSeconds($StatusTimeoutSeconds)
+    $resp = $null
+    while ($true) {
+        Start-Sleep -Seconds 2
+        $resp = Invoke-GenesysApi -Method 'Get' -Path $path
+        if ($null -eq $resp -or -not $resp.queryStatus) { throw "API usage job $jobId returned no queryStatus" }
+        $state = [string]$resp.queryStatus
+        if ($state -eq 'Succeeded') { break }
+        if ($state -eq 'Failed' -or $state -eq 'Cancelled') {
+            $reason = ''
+            if ($null -ne $resp.errorBody) { $reason = [string]$resp.errorBody.message }
+            throw "API usage job $jobId ended in state $state $reason"
+        }
+        if ((Get-Date) -gt $deadline) { throw "API usage job $jobId still '$state' after $StatusTimeoutSeconds s" }
+    }
+
+    # Page with nextUri (relative or absolute) until there is none
+    $pages = @()
+    $total = 0
+    $pageNo = 0
+    while ($true) {
+        $pageNo++
+        $entities = @()
+        if ($null -ne $resp.entities) { $entities = @($resp.entities) }
+        if ($entities.Count -gt 0) { $pages += , $entities }
+        $total += $entities.Count
+        $next = ''
+        if ($null -ne $resp.nextUri) { $next = [string]$resp.nextUri }
+        if (-not $next) { break }
+        $at = $next.IndexOf('/api/v2/')
+        if ($at -gt 0) { $next = $next.Substring($at) }
+        if ($pageNo -ge 1000) { throw 'API usage page loop guard tripped (1000 pages)' }
+        $resp = Invoke-GenesysApi -Method 'Get' -Path $next
+        if ($null -eq $resp) { throw "API usage page $($pageNo + 1) returned nothing" }
+    }
+    Write-Log "API usage for ${d}: $total rows in $pageNo page(s)"
+    return , $pages
+}
+
+# ISO-8601 text for a date field whether the JSON reader kept it as text
+# (Windows PowerShell 5.1) or turned it into a DateTime (PowerShell 7).
+function ConvertTo-IsoText {
+    param($Value)
+    if ($null -eq $Value) { return '' }
+    if ($Value -is [datetime]) { return $Value.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'") }
+    return [string]$Value
+}
+
+# GET /api/v2/oauth/clients. The response includes each client's SECRET, so only
+# an explicit list of harmless fields is kept; the secret never reaches disk.
+function Get-OAuthClientList {
+    $resp = Invoke-GenesysApi -Method 'Get' -Path '/api/v2/oauth/clients'
+    $rows = @()
+    $entities = @()
+    if ($null -ne $resp -and $null -ne $resp.entities) { $entities = @($resp.entities) }
+    foreach ($c in $entities) {
+        if ($null -eq $c) { continue }
+        $createdBy = ''
+        $modifiedBy = ''
+        $roleCount = 0
+        if ($null -ne $c.createdBy) { $createdBy = [string]$c.createdBy.id }
+        if ($null -ne $c.modifiedBy) { $modifiedBy = [string]$c.modifiedBy.id }
+        if ($null -ne $c.roleDivisions) { $roleCount = @($c.roleDivisions).Count }
+        $rows += New-Object PSObject -Property @{
+            id                  = [string]$c.id
+            name                = [string]$c.name
+            description         = [string]$c.description
+            authorizedGrantType = [string]$c.authorizedGrantType
+            state               = [string]$c.state
+            dateCreated         = ConvertTo-IsoText $c.dateCreated
+            dateModified        = ConvertTo-IsoText $c.dateModified
+            createdById         = $createdBy
+            modifiedById        = $modifiedBy
+            roleDivisionCount   = $roleCount
+            dateToDelete        = ConvertTo-IsoText $c.dateToDelete
+        }
+    }
+    return , $rows
+}
+
+# API usage for one day (+ the client list once per run). Never fails the run:
+# the audit file is the primary output and must still be uploaded.
+function Invoke-ApiUsagePull {
+    param([datetime]$Day, [bool]$IncludeClientList)
+    if ($SkipApiUsage) { return }
+    $dayText = $Day.ToString('yyyy-MM-dd')
+    try {
+        $usagePages = Get-ApiUsageDay -Day $Day
+        $null = Write-JsonArrayFile -Pages $usagePages -FileName ("genesys-apiusage_" + $dayText + ".json")
+    } catch {
+        Write-PullWarning ("API usage for $dayText not pulled: " + [string]$_.Exception.Message +
+            ' - the OAuth client needs usage:organization:view (or run with -SkipApiUsage).')
+    }
+    if (-not $IncludeClientList) { return }
+    try {
+        $clients = Get-OAuthClientList
+        $null = Write-JsonArrayFile -Pages (, $clients) -FileName 'genesys-oauthclients.json'
+    } catch {
+        Write-PullWarning ('OAuth client list not pulled: ' + [string]$_.Exception.Message +
+            ' - the OAuth client needs oauth:client:view. Client names still come from the API usage files.')
+    }
+}
+
+function Write-PullWarning {
+    param([string]$Message)
+    $script:Warnings++
+    Write-Log $Message 'WARN'
+    # Shows as a yellow warning on the Azure Pipelines run summary
+    Write-Host ('##vso[task.logissue type=warning]' + $Message)
+}
+
+# =============================================================================
 #  Output
 # =============================================================================
-function Write-AuditFile {
-    param($Pages, [string]$Day)   # $Pages = array of arrays of AuditLogMessage
-
+# Writes a JSON array from pages (array of arrays) of objects and returns the
+# element count. One ConvertTo-Json on a 50k-element array is very slow in 5.1;
+# per element it is fine. Elements are joined per page first so array growth
+# with += stays small (<= page size).
+function Write-JsonArrayFile {
+    param($Pages, [string]$FileName)
     if (-not (Test-Path -Path $OutputFolder)) { New-Item -ItemType Directory -Path $OutputFolder | Out-Null }
-    $jsonPath = Join-Path -Path $OutputFolder -ChildPath ("genesys-audit_" + $Day + ".json")
-
-    # Build a JSON array from per-event compressed JSON. One ConvertTo-Json on a
-    # 50k-element array is very slow in 5.1; per element it is fine. Events are
-    # joined per page first so array growth with += stays small (<= page size).
+    $jsonPath = Join-Path -Path $OutputFolder -ChildPath $FileName
     $pageParts = @()
     $count = 0
     foreach ($page in $Pages) {
-        $eventParts = @()
-        foreach ($ev in $page) {
-            $eventParts += ($ev | ConvertTo-Json -Depth 20 -Compress)
+        $parts = @()
+        foreach ($item in $page) {
+            $parts += ($item | ConvertTo-Json -Depth 20 -Compress)
             $count++
         }
-        if ($eventParts.Count -gt 0) { $pageParts += ($eventParts -join ',') }
+        if ($parts.Count -gt 0) { $pageParts += ($parts -join ',') }
     }
     $json = '[' + ($pageParts -join ',') + ']'
     Set-Content -Path $jsonPath -Value $json -Encoding UTF8 -NoNewline
-    Write-Log "Wrote $count events to $jsonPath"
+    Write-Log "Wrote $count records to $jsonPath"
+    return $count
+}
+
+function Write-AuditFile {
+    param($Pages, [string]$Day)   # $Pages = array of arrays of AuditLogMessage
+
+    $count = Write-JsonArrayFile -Pages $Pages -FileName ("genesys-audit_" + $Day + ".json")
 
     if ($AlsoCsv) {
         $rows = @()
@@ -401,6 +557,7 @@ try {
         $pages = Get-AuditsAsync -Interval (Get-DayInterval -Day $day)
         $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
         Write-Log "Daily done: $n events for $($day.ToString('yyyy-MM-dd'))"
+        Invoke-ApiUsagePull -Day $day -IncludeClientList $true
     }
     elseif ($Mode -eq 'Realtime') {
         $day = $nowUtc.Date
@@ -414,14 +571,18 @@ try {
         $day = (Get-Date -Date $From).Date
         $last = (Get-Date -Date $To).Date
         if ($day -gt $last) { throw '-From is after -To' }
+        $first = $true
         while ($day -le $last) {
             $pages = Get-AuditsAsync -Interval (Get-DayInterval -Day $day)
             $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
             Write-Log "Backfill: $n events for $($day.ToString('yyyy-MM-dd'))"
+            Invoke-ApiUsagePull -Day $day -IncludeClientList $first
+            $first = $false
             $day = $day.AddDays(1)
             Start-Sleep -Seconds 2
         }
     }
+    if ($script:Warnings -gt 0) { Write-Log "Finished with $($script:Warnings) warning(s) - see above" 'WARN' }
     exit 0
 }
 catch {

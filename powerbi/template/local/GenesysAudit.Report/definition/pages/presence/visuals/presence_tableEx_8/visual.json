@@ -1,0 +1,199 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "presence_tableEx_8",
+  "position": {
+    "x": 10,
+    "y": 314,
+    "z": 8,
+    "height": 398,
+    "width": 1260,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EventDateTimeLocal"
+                }
+              },
+              "queryRef": "AuditEvents.EventDateTimeLocal",
+              "nativeQueryRef": "EventDateTimeLocal",
+              "displayName": "Date / time"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityDisplay"
+                }
+              },
+              "queryRef": "AuditEvents.EntityDisplay",
+              "nativeQueryRef": "EntityDisplay",
+              "displayName": "Agent"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "PresenceFrom"
+                }
+              },
+              "queryRef": "AuditEvents.PresenceFrom",
+              "nativeQueryRef": "PresenceFrom",
+              "displayName": "From"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "PresenceTo"
+                }
+              },
+              "queryRef": "AuditEvents.PresenceTo",
+              "nativeQueryRef": "PresenceTo",
+              "displayName": "To"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ActorName"
+                }
+              },
+              "queryRef": "AuditEvents.ActorName",
+              "nativeQueryRef": "ActorName",
+              "displayName": "Changed by"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "PresenceChangeSource"
+                }
+              },
+              "queryRef": "AuditEvents.PresenceChangeSource",
+              "nativeQueryRef": "PresenceChangeSource",
+              "displayName": "Who changed it"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Application"
+                }
+              },
+              "queryRef": "AuditEvents.Application",
+              "nativeQueryRef": "Application",
+              "displayName": "Via"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Message"
+                }
+              },
+              "queryRef": "AuditEvents.Message",
+              "nativeQueryRef": "Message",
+              "displayName": "Details"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "AuditId"
+                }
+              },
+              "queryRef": "AuditEvents.AuditId",
+              "nativeQueryRef": "AuditId",
+              "displayName": "Audit id"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AuditEvents"
+                  }
+                },
+                "Property": "EventDateTimeLocal"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Presence changes - newest first'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

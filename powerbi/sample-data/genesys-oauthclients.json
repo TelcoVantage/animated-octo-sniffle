@@ -1,0 +1,80 @@
+[
+ {
+  "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+  "name": "Salesforce CTI Sync",
+  "description": "integration client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "active",
+  "dateCreated": "2024-01-10T00:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 1,
+  "dateToDelete": ""
+ },
+ {
+  "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+  "name": "Workforce Scheduler Bot",
+  "description": "integration client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "active",
+  "dateCreated": "2025-02-11T01:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 2,
+  "dateToDelete": ""
+ },
+ {
+  "id": "30dfed4d-d4b6-4afb-bba6-87657bf1f2e4",
+  "name": "Bulk User Loader",
+  "description": "script client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "active",
+  "dateCreated": "2024-03-12T02:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 3,
+  "dateToDelete": ""
+ },
+ {
+  "id": "173d79f8-8296-4103-9432-264b163ebec5",
+  "name": "Azure Audit Pipeline",
+  "description": "reporting client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "active",
+  "dateCreated": "2025-04-13T03:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 1,
+  "dateToDelete": ""
+ },
+ {
+  "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+  "name": "Power BI Analytics Export",
+  "description": "reporting client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "active",
+  "dateCreated": "2024-05-14T04:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 2,
+  "dateToDelete": ""
+ },
+ {
+  "id": "bf24b824-f410-4873-8616-4f4b4188e5e5",
+  "name": "Legacy IVR Reporting",
+  "description": "disabled client",
+  "authorizedGrantType": "CLIENT-CREDENTIALS",
+  "state": "disabled",
+  "dateCreated": "2025-06-15T05:30:00.000Z",
+  "dateModified": "2026-08-01T00:00:00.000Z",
+  "createdById": "0ce98e8d-ca00-4ab0-8205-cd156818f096",
+  "modifiedById": "87f637f7-c2b0-43c2-911d-625e8fd7fa69",
+  "roleDivisionCount": 3,
+  "dateToDelete": ""
+ }
+]
