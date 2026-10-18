@@ -473,6 +473,18 @@ class Page:
         self.add("textbox", x, y, w, h, objects={"general": [{"properties": {"paragraphs": [
             {"textRuns": [{"value": text, "textStyle": {"fontSize": "16pt", "fontWeight": "bold"}}]}]}}]})
 
+    def text(self, x, y, w, h, blocks, name=None):
+        """Text box. blocks = list of (text, style) where style is 'title', 'heading' or 'body'."""
+        styles = {
+            "title":   {"fontSize": "18pt", "fontWeight": "bold"},
+            "heading": {"fontSize": "12pt", "fontWeight": "bold", "color": "#2F6FED"},
+            "body":    {"fontSize": "10pt"},
+            "muted":   {"fontSize": "9pt", "color": "#5F6B7A"},
+        }
+        paragraphs = [{"textRuns": [{"value": t, "textStyle": styles[st]}]} for t, st in blocks]
+        self.add("textbox", x, y, w, h, name=name,
+                 objects={"general": [{"properties": {"paragraphs": paragraphs}}]})
+
     def cards(self, measures, y=55, x0=200, w=172, h=90, gap=8):
         for i, (m, title) in enumerate(measures):
             self.add("card", x0 + i * (w + gap), y, w, h, roles={"Values": [M(m)]}, title=title)
@@ -496,8 +508,63 @@ class Page:
             y += h + 8
 
 
+GUIDE_PANELS = [
+    ("1  Overview",
+     "The daily glance. Six cards (events, active users, high-risk, failed, off-hours, data freshness), "
+     "events per day to spot spikes, and bars by service, action and user. Click any bar to filter the page."),
+    ("2  Activity Explorer",
+     "Find a pattern. Weekday x hour heatmap in local time, service x action-category matrix, and the full "
+     "event list for the current selection. This is the table to export from."),
+    ("3  Users & Actors",
+     "Review people and integrations. Users ranked by a risk score with counts, distinct IPs and first/last seen; "
+     "daily activity per user; OAuth clients (integrations and scripts) with their volumes."),
+    ("4  Security Watch",
+     "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with "
+     "high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is "
+     "pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal."),
+    ("5  Event Detail",
+     "The full record of each event: ids, client, application, level, IPs, transaction, message code and context. "
+     "Below it every property or entity change with old and new values and the change type."),
+    ("6  Data Health",
+     "Checks the feed, not the activity. Freshness, files loaded with their event counts, days without data, "
+     "and the services and actions that are not yet in the mapping tables."),
+]
+
+
+def build_guide_page():
+    p = Page("guide", "Start Here")
+    p.text(20, 12, 1240, 44, [("Genesys Cloud audit log report - how to use it", "title")])
+    p.text(20, 58, 1240, 92, [
+        ("What this report is", "heading"),
+        ("Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. "
+         "A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a "
+         "star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, "
+         "service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the "
+         "LocalUtcOffsetHours parameter.", "body"),
+    ])
+    # six panels in two columns
+    col_w, col_h, gap = 612, 118, 12
+    for i, (title, body) in enumerate(GUIDE_PANELS):
+        x = 20 + (i % 2) * (col_w + 16)
+        y = 162 + (i // 2) * (col_h + gap)
+        p.text(x, y, col_w, col_h, [(title, "heading"), (body, "body")], name=f"guide_panel_{i}")
+    p.text(20, 552, 1240, 156, [
+        ("Slicers, risk levels and freshness", "heading"),
+        ("The slicer rail on the left of each page (Date, Service, Risk level, Actor type, User, Status) is synced, so a "
+         "selection follows you between pages. Risk level is an attribute of the action, looked up in the ActionRiskMap "
+         "table: High = destructive or privilege-changing actions (Delete, Purge, Deactivate, Revoke, Reset ...), "
+         "Medium = configuration changes and data access (Create, Update, Assign, Download, Export ...), Low = read-only "
+         "and session actions (View, Login, Logout ...). Actions not in the map are rated Medium and listed on the Data "
+         "Health page so they can be added. Actor type is User for interactive actions, OAuth Client for integrations "
+         "and scripts, System for platform actions. Data freshness is Fresh within 30 hours of the last event, "
+         "Late within 54 hours, otherwise Stale.", "body"),
+        ("Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.", "muted"),
+    ])
+    return p
+
+
 def build_pages():
-    pages = []
+    pages = [build_guide_page()]
 
     # ---------------------------------------------------------------- Overview
     p = Page("overview", "Overview")

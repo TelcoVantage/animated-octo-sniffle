@@ -13,6 +13,14 @@ Risk colours used everywhere: High `#D64545`, Medium `#E8A33D`, Low `#4C9A6A`, n
 
 ---
 
+## Page 0 – Start Here
+
+A text-only landing page: what the report is, one panel per page (what it shows,
+how to read it), and how slicers, risk levels, actor types and data freshness work.
+Generated from `GUIDE_PANELS` in `tools/build_pbip.py`; edit the text there.
+
+---
+
 ## Page 1 – Overview
 
 Purpose: "what happened in the period, is anything unusual".
