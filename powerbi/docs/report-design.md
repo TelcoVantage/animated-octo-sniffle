@@ -104,8 +104,8 @@ Keep **Cross-report** off, **Keep all filters** on.
 | Area | Visual | Fields / settings |
 |---|---|---|
 | Header | Cards | `[Audit Events]`, `[Property Changes]`, `[First Event (UTC)]`, `[Last Event (UTC)]` |
-| Events | Table | `EventDateTimeUtc`, `EventDateTimeLocal`, `AuditId`, `ActorName`, `ActorType`, `ClientName`, `Application`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `EntityId`, `Status`, `Level`, `RemoteIpAll`, `TransactionId`, `TransactionInitiator`, `Message` |
-| Property changes | Table | `AuditPropertyChanges[EventDateTimeUtc]`, `AuditId`, `ChangeSource`, `PropertyShort`, `ChangeEntityName`, `ChangeType`, `OldValues`, `NewValues`, `Property`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
+| Events | Table | who/what first: `EventDateTimeLocal`, `ActorName`, `ActorType`, `Service`, `Action`, `EntityType`, `EntityDisplay`, `Status`, `Message`, `Application`, `RemoteIpAll`, `Level`, `MessageCode`; identifiers last: `UserId`, `ClientId`, `EntityId`, `TransactionId`, `AuditId`, `EventDateTimeUtc`, `ContextJson` |
+| Property changes | Table | from the related event: `EventDateTimeLocal`, `ActorName`, `Action`, `EntityType`, `EntityDisplay`; then `PropertyShort`, `ChangeType`, `OldValues`, `NewValues`, `ChangeSource`, `ChangeEntityName`, `Property`, `AuditId`. `ChangeType` colours: Added green, Removed red, Modified amber. Word wrap on values |
 | Context | Table | `AuditId`, `ContextJson`, `MessageTemplate` (word wrap) |
 | Same transaction | Table | visual filter `TransactionId` = selected (via drill-through), shows every event caused by the same user action |
 

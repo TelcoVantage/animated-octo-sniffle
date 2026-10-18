@@ -641,17 +641,26 @@ def build_pages():
     # ------------------------------------------------------------ Event Detail
     p = Page("detail", "Event Detail")
     p.slicer_rail()
+    # Who / what first, identifiers last. AuditId is the Genesys record id
+    # (quote it in tickets, feed it to /audits/query/realtime/related).
     p.add("tableEx", 200, 8, 1070, 352, roles={"Values": [
-        C("AuditEvents", "EventDateTimeUtc"), C("AuditEvents", "AuditId"), C("AuditEvents", "ActorName"), C("AuditEvents", "ClientName"),
-        C("AuditEvents", "Application"), C("AuditEvents", "ServiceName"), C("AuditEvents", "Action"), C("AuditEvents", "EntityType"),
-        C("AuditEvents", "EntityDisplay"), C("AuditEvents", "EntityId"), C("AuditEvents", "Status"), C("AuditEvents", "Level"),
-        C("AuditEvents", "RemoteIpAll"), C("AuditEvents", "TransactionId"), C("AuditEvents", "MessageCode"), C("AuditEvents", "Message"), C("AuditEvents", "ContextJson")]},
-        title="Events (full detail)", sort=C("AuditEvents", "EventDateTimeUtc"))
+        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "ActorType"),
+        C("DimService", "Service"), C("AuditEvents", "Action"), C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
+        C("AuditEvents", "Status"), C("AuditEvents", "Message"), C("AuditEvents", "Application"), C("AuditEvents", "RemoteIpAll"),
+        C("AuditEvents", "Level"), C("AuditEvents", "MessageCode"), C("AuditEvents", "UserId"), C("AuditEvents", "ClientId"),
+        C("AuditEvents", "EntityId"), C("AuditEvents", "TransactionId"), C("AuditEvents", "AuditId"),
+        C("AuditEvents", "EventDateTimeUtc"), C("AuditEvents", "ContextJson")]},
+        title="Events - who did what (identifiers at the right)", sort=C("AuditEvents", "EventDateTimeLocal"))
+    # Each change row carries the actor, action and entity of its event through
+    # the AuditEvents -> AuditPropertyChanges relationship.
     p.add("tableEx", 200, 370, 1070, 342, roles={"Values": [
-        C("AuditPropertyChanges", "EventDateTimeUtc"), C("AuditPropertyChanges", "AuditId"), C("AuditPropertyChanges", "ChangeSource"),
-        C("AuditPropertyChanges", "PropertyShort"), C("AuditPropertyChanges", "ChangeEntityName"), C("AuditPropertyChanges", "ChangeType"), C("AuditPropertyChanges", "OldValues"),
-        C("AuditPropertyChanges", "NewValues"), C("AuditPropertyChanges", "Property")]},
-        title="Property changes (old -> new)", sort=C("AuditPropertyChanges", "EventDateTimeUtc"))
+        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "Action"),
+        C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
+        C("AuditPropertyChanges", "PropertyShort"), C("AuditPropertyChanges", "ChangeType"),
+        C("AuditPropertyChanges", "OldValues"), C("AuditPropertyChanges", "NewValues"),
+        C("AuditPropertyChanges", "ChangeSource"), C("AuditPropertyChanges", "ChangeEntityName"),
+        C("AuditPropertyChanges", "Property"), C("AuditPropertyChanges", "AuditId")]},
+        title="What changed - old value to new value, by person", sort=C("AuditEvents", "EventDateTimeLocal"))
     pages.append(p)
 
     # ------------------------------------------------------------- Data Health

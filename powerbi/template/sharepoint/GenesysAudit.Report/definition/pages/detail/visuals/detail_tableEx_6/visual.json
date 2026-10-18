@@ -24,25 +24,11 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "EventDateTimeUtc"
+                  "Property": "EventDateTimeLocal"
                 }
               },
-              "queryRef": "AuditEvents.EventDateTimeUtc",
-              "nativeQueryRef": "EventDateTimeUtc"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditEvents"
-                    }
-                  },
-                  "Property": "AuditId"
-                }
-              },
-              "queryRef": "AuditEvents.AuditId",
-              "nativeQueryRef": "AuditId"
+              "queryRef": "AuditEvents.EventDateTimeLocal",
+              "nativeQueryRef": "EventDateTimeLocal"
             },
             {
               "field": {
@@ -66,39 +52,25 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "ClientName"
+                  "Property": "ActorType"
                 }
               },
-              "queryRef": "AuditEvents.ClientName",
-              "nativeQueryRef": "ClientName"
+              "queryRef": "AuditEvents.ActorType",
+              "nativeQueryRef": "ActorType"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "AuditEvents"
+                      "Entity": "DimService"
                     }
                   },
-                  "Property": "Application"
+                  "Property": "Service"
                 }
               },
-              "queryRef": "AuditEvents.Application",
-              "nativeQueryRef": "Application"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditEvents"
-                    }
-                  },
-                  "Property": "ServiceName"
-                }
-              },
-              "queryRef": "AuditEvents.ServiceName",
-              "nativeQueryRef": "ServiceName"
+              "queryRef": "DimService.Service",
+              "nativeQueryRef": "Service"
             },
             {
               "field": {
@@ -150,20 +122,6 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "EntityId"
-                }
-              },
-              "queryRef": "AuditEvents.EntityId",
-              "nativeQueryRef": "EntityId"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditEvents"
-                    }
-                  },
                   "Property": "Status"
                 }
               },
@@ -178,11 +136,25 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "Level"
+                  "Property": "Message"
                 }
               },
-              "queryRef": "AuditEvents.Level",
-              "nativeQueryRef": "Level"
+              "queryRef": "AuditEvents.Message",
+              "nativeQueryRef": "Message"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Application"
+                }
+              },
+              "queryRef": "AuditEvents.Application",
+              "nativeQueryRef": "Application"
             },
             {
               "field": {
@@ -206,11 +178,11 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "TransactionId"
+                  "Property": "Level"
                 }
               },
-              "queryRef": "AuditEvents.TransactionId",
-              "nativeQueryRef": "TransactionId"
+              "queryRef": "AuditEvents.Level",
+              "nativeQueryRef": "Level"
             },
             {
               "field": {
@@ -234,11 +206,81 @@
                       "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "Message"
+                  "Property": "UserId"
                 }
               },
-              "queryRef": "AuditEvents.Message",
-              "nativeQueryRef": "Message"
+              "queryRef": "AuditEvents.UserId",
+              "nativeQueryRef": "UserId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ClientId"
+                }
+              },
+              "queryRef": "AuditEvents.ClientId",
+              "nativeQueryRef": "ClientId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityId"
+                }
+              },
+              "queryRef": "AuditEvents.EntityId",
+              "nativeQueryRef": "EntityId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "TransactionId"
+                }
+              },
+              "queryRef": "AuditEvents.TransactionId",
+              "nativeQueryRef": "TransactionId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "AuditId"
+                }
+              },
+              "queryRef": "AuditEvents.AuditId",
+              "nativeQueryRef": "AuditId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EventDateTimeUtc"
+                }
+              },
+              "queryRef": "AuditEvents.EventDateTimeUtc",
+              "nativeQueryRef": "EventDateTimeUtc"
             },
             {
               "field": {
@@ -267,7 +309,7 @@
                     "Entity": "AuditEvents"
                   }
                 },
-                "Property": "EventDateTimeUtc"
+                "Property": "EventDateTimeLocal"
               }
             },
             "direction": "Descending"
@@ -290,7 +332,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Events (full detail)'"
+                  "Value": "'Events - who did what (identifiers at the right)'"
                 }
               }
             }

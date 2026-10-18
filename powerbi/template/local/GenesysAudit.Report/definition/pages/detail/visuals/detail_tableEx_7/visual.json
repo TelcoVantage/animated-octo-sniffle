@@ -21,42 +21,70 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "AuditPropertyChanges"
+                      "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "EventDateTimeUtc"
+                  "Property": "EventDateTimeLocal"
                 }
               },
-              "queryRef": "AuditPropertyChanges.EventDateTimeUtc",
-              "nativeQueryRef": "EventDateTimeUtc"
+              "queryRef": "AuditEvents.EventDateTimeLocal",
+              "nativeQueryRef": "EventDateTimeLocal"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "AuditPropertyChanges"
+                      "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "AuditId"
+                  "Property": "ActorName"
                 }
               },
-              "queryRef": "AuditPropertyChanges.AuditId",
-              "nativeQueryRef": "AuditId"
+              "queryRef": "AuditEvents.ActorName",
+              "nativeQueryRef": "ActorName"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "AuditPropertyChanges"
+                      "Entity": "AuditEvents"
                     }
                   },
-                  "Property": "ChangeSource"
+                  "Property": "Action"
                 }
               },
-              "queryRef": "AuditPropertyChanges.ChangeSource",
-              "nativeQueryRef": "ChangeSource"
+              "queryRef": "AuditEvents.Action",
+              "nativeQueryRef": "Action"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityType"
+                }
+              },
+              "queryRef": "AuditEvents.EntityType",
+              "nativeQueryRef": "EntityType"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityDisplay"
+                }
+              },
+              "queryRef": "AuditEvents.EntityDisplay",
+              "nativeQueryRef": "EntityDisplay"
             },
             {
               "field": {
@@ -71,20 +99,6 @@
               },
               "queryRef": "AuditPropertyChanges.PropertyShort",
               "nativeQueryRef": "PropertyShort"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditPropertyChanges"
-                    }
-                  },
-                  "Property": "ChangeEntityName"
-                }
-              },
-              "queryRef": "AuditPropertyChanges.ChangeEntityName",
-              "nativeQueryRef": "ChangeEntityName"
             },
             {
               "field": {
@@ -136,11 +150,53 @@
                       "Entity": "AuditPropertyChanges"
                     }
                   },
+                  "Property": "ChangeSource"
+                }
+              },
+              "queryRef": "AuditPropertyChanges.ChangeSource",
+              "nativeQueryRef": "ChangeSource"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditPropertyChanges"
+                    }
+                  },
+                  "Property": "ChangeEntityName"
+                }
+              },
+              "queryRef": "AuditPropertyChanges.ChangeEntityName",
+              "nativeQueryRef": "ChangeEntityName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditPropertyChanges"
+                    }
+                  },
                   "Property": "Property"
                 }
               },
               "queryRef": "AuditPropertyChanges.Property",
               "nativeQueryRef": "Property"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditPropertyChanges"
+                    }
+                  },
+                  "Property": "AuditId"
+                }
+              },
+              "queryRef": "AuditPropertyChanges.AuditId",
+              "nativeQueryRef": "AuditId"
             }
           ]
         }
@@ -152,10 +208,10 @@
               "Column": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "AuditPropertyChanges"
+                    "Entity": "AuditEvents"
                   }
                 },
-                "Property": "EventDateTimeUtc"
+                "Property": "EventDateTimeLocal"
               }
             },
             "direction": "Descending"
@@ -178,7 +234,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Property changes (old -> new)'"
+                  "Value": "'What changed - old value to new value, by person'"
                 }
               }
             }
