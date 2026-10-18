@@ -1,0 +1,126 @@
+table OAuthClients
+	lineageTag: 3f1c8818-b026-54ff-a424-1ef169416b6a
+	isHidden
+
+	column ClientId
+		dataType: string
+		lineageTag: e6b9bd05-7835-57d0-aab3-241fd566fc87
+		summarizeBy: none
+		sourceColumn: ClientId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientName
+		dataType: string
+		lineageTag: 40134c79-22e4-5748-bb38-a055171d7004
+		summarizeBy: none
+		sourceColumn: ClientName
+
+		annotation SummarizationSetBy = Automatic
+
+	column GrantType
+		dataType: string
+		lineageTag: df4743df-4f95-52e5-adc6-3810f5e0b733
+		summarizeBy: none
+		sourceColumn: GrantType
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: b807068b-507b-5e80-8814-56bc14f6c39c
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Description
+		dataType: string
+		lineageTag: 857bc456-cdec-587b-aada-2bcd99271397
+		summarizeBy: none
+		sourceColumn: Description
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateCreated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1c9c0475-a49f-5c7e-8278-873bebb76552
+		summarizeBy: none
+		sourceColumn: DateCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateModified
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c04b3b0c-7b79-5a0c-a9fc-29672c6d2742
+		summarizeBy: none
+		sourceColumn: DateModified
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedById
+		dataType: string
+		lineageTag: 257b434a-8883-5127-954b-c38b1bb717a1
+		summarizeBy: none
+		sourceColumn: CreatedById
+
+		annotation SummarizationSetBy = Automatic
+
+	column RoleDivisionCount
+		dataType: int64
+		formatString: 0
+		lineageTag: c84547d3-ac92-5f52-8dca-a4346e7a260e
+		summarizeBy: none
+		sourceColumn: RoleDivisionCount
+
+		annotation SummarizationSetBy = Automatic
+
+	partition OAuthClients = m
+		mode: import
+		source =
+				// =====================================================================
+				//  OAuthClients        (lookup table, one row per OAuth client - hidden)
+				//
+				//  Reads genesys-oauthclients.json (GET /api/v2/oauth/clients, written by the
+				//  pipeline without the client secrets). Gives the audit events and the API
+				//  usage their client names, grant types and states.
+				//  No file yet -> an empty table, never an error.
+				// =====================================================================
+				let
+				    Files   = Table.SelectRows(SourceFiles, each Text.StartsWith(Text.Lower([Name]), "genesys-oauthclients")),
+				    Latest  = Table.FirstN(Table.Sort(Files, {{"Date modified", Order.Descending}}), 1),
+				    parse   = (content as binary) as list =>
+				        let p = try Json.Document(content) otherwise null
+				        in  if p is list then p
+				            else if p is record and Record.HasFields(p, "entities") and p[entities] is list then p[entities]
+				            else {},
+				    Records = if Table.RowCount(Latest) = 0 then {} else parse(Latest{0}[Content]),
+				    field   = (r, name) => let v = Record.FieldOrDefault(r, name, null) in if v = "" then null else v,
+				    toDateTime = (v) => if v = null then null
+				                        else try DateTimeZone.RemoveZone(DateTimeZone.ToUtc(DateTimeZone.FromText(Text.From(v)))) otherwise null,
+				    Rows = List.Transform(List.Select(Records, each _ is record), (r) => [
+				        ClientId          = field(r, "id"),
+				        ClientName        = field(r, "name"),
+				        GrantType         = field(r, "authorizedGrantType"),
+				        State             = field(r, "state"),
+				        Description       = field(r, "description"),
+				        DateCreated       = toDateTime(field(r, "dateCreated")),
+				        DateModified      = toDateTime(field(r, "dateModified")),
+				        CreatedById       = field(r, "createdById"),
+				        RoleDivisionCount = let n = field(r, "roleDivisionCount") in if n = null then null else Int64.From(n)
+				    ]),
+				    Typed = Table.FromRecords(Rows, type table [
+				        ClientId = nullable text, ClientName = nullable text, GrantType = nullable text, State = nullable text,
+				        Description = nullable text, DateCreated = nullable datetime, DateModified = nullable datetime,
+				        CreatedById = nullable text, RoleDivisionCount = nullable Int64.Type
+				    ]),
+				    NonEmpty = Table.SelectRows(Typed, each [ClientId] <> null),
+				    Deduped  = Table.Distinct(NonEmpty, {"ClientId"})
+				in
+				    Deduped
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

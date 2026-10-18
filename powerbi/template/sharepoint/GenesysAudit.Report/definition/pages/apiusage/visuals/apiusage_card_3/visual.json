@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "apiusage_card_3",
+  "position": {
+    "x": 686,
+    "y": 8,
+    "z": 3,
+    "height": 70,
+    "width": 142,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "card",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "API Errors"
+                }
+              },
+              "queryRef": "_Measures.API Errors",
+              "nativeQueryRef": "API Errors"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Errors (4xx + 5xx)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

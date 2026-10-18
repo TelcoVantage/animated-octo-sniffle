@@ -1,13 +1,22 @@
+relationship 77f0245c-1391-5a7e-84b8-4c5b47a59b2c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: AuditEvents.EventDateLocal
+	toColumn: DimDate.Date
+
 relationship 56cdb126-4f8e-5620-be81-a23ba06207c0
+	isActive: false
 	joinOnDateBehavior: datePartOnly
 	fromColumn: AuditEvents.EventDateUtc
 	toColumn: DimDate.Date
 
-relationship 77f0245c-1391-5a7e-84b8-4c5b47a59b2c
-	isActive: false
+relationship 73cf89cc-7c96-5c11-8259-bfcd19fd9fbd
 	joinOnDateBehavior: datePartOnly
-	fromColumn: AuditEvents.EventDateLocal
+	fromColumn: ApiUsage.Date
 	toColumn: DimDate.Date
+
+relationship cc7c0056-0969-53cf-a159-8ed2a3605fb9
+	fromColumn: ApiUsage.ClientKey
+	toColumn: DimClient.ClientKey
 
 relationship de3f1191-6394-5c3a-97df-a62658bdf15f
 	fromColumn: AuditEvents.UserKey

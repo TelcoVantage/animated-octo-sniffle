@@ -1,0 +1,159 @@
+table ApiUsage
+	lineageTag: e2ad525b-12bb-58a9-a0e5-cea577fbd471
+
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: da44c86b-796c-52da-a4e7-e08c998e1296
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ClientId
+		dataType: string
+		lineageTag: b1815038-1206-5091-99a8-207a0b256277
+		summarizeBy: none
+		sourceColumn: ClientId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientName
+		dataType: string
+		lineageTag: 04d476cc-1587-506e-8573-9a40d0ab104a
+		summarizeBy: none
+		sourceColumn: ClientName
+
+		annotation SummarizationSetBy = Automatic
+
+	column TemplateUri
+		dataType: string
+		lineageTag: 01d538a8-34fb-5e5e-a079-e8536f68a032
+		summarizeBy: none
+		sourceColumn: TemplateUri
+
+		annotation SummarizationSetBy = Automatic
+
+	column HttpMethod
+		dataType: string
+		lineageTag: fc6b34a1-4040-5ad4-a704-b3265325af7a
+		summarizeBy: none
+		sourceColumn: HttpMethod
+
+		annotation SummarizationSetBy = Automatic
+
+	column Requests
+		dataType: int64
+		formatString: #,0
+		lineageTag: af9a9d89-6f9b-5c4d-ba53-20c187becae3
+		summarizeBy: none
+		sourceColumn: Requests
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status2xx
+		dataType: int64
+		formatString: #,0
+		lineageTag: 6557b109-d33d-5adf-88c6-0bc9df262941
+		summarizeBy: none
+		sourceColumn: Status2xx
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status3xx
+		dataType: int64
+		formatString: #,0
+		lineageTag: d2ee37b7-fea8-5ed2-8b86-6bc2e1df8229
+		summarizeBy: none
+		sourceColumn: Status3xx
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status4xx
+		dataType: int64
+		formatString: #,0
+		lineageTag: cedd7fd5-253e-55ac-9243-18d2ba8fbee8
+		summarizeBy: none
+		sourceColumn: Status4xx
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status429
+		dataType: int64
+		formatString: #,0
+		lineageTag: 93747826-1902-5103-b0fd-4457bcdde015
+		summarizeBy: none
+		sourceColumn: Status429
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status5xx
+		dataType: int64
+		formatString: #,0
+		lineageTag: 273ff7f4-661e-55e3-9685-3735b99e07a5
+		summarizeBy: none
+		sourceColumn: Status5xx
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientKey
+		dataType: string
+		isHidden
+		lineageTag: cdec3d41-8f1a-5b85-9246-e543e96b1ff8
+		summarizeBy: none
+		sourceColumn: ClientKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Errors
+		dataType: int64
+		formatString: #,0
+		lineageTag: ad8b2819-2ca4-5959-9783-c0be0b5d03fd
+		summarizeBy: none
+		sourceColumn: Errors
+
+		annotation SummarizationSetBy = Automatic
+
+	column Endpoint
+		dataType: string
+		lineageTag: 527d1cea-8110-5de5-b8a7-47d1c3e03d94
+		summarizeBy: none
+		sourceColumn: Endpoint
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ApiUsage = m
+		mode: import
+		source =
+				// =====================================================================
+				//  ApiUsage            (FACT table, one row per UTC day x OAuth client x URL x method)
+				//
+				//  Every genesys-apiusage_YYYY-MM-DD.json in the landing folder. Genesys
+				//  aggregates API usage per UTC day and keeps it for a year; it covers calls
+				//  from integrations and scripts, not from the Genesys web/desktop apps.
+				//  No files yet -> an empty table, never an error.
+				// =====================================================================
+				let
+				    Files    = Table.SelectRows(SourceFiles, each Text.StartsWith(Text.Lower([Name]), "genesys-apiusage")),
+				    Parsed   = Table.AddColumn(Files, "Rows", each fnParseApiUsageFile([Content])),
+				    // An empty, typed table first so that no files still gives the full column set
+				    Empty    = fnParseApiUsageFile(Text.ToBinary("[]")),
+				    Combined = Table.Combine({Empty} & Parsed[Rows]),
+				    Dated    = Table.SelectRows(Combined, each [Date] <> null),
+				    // A day pulled twice under two file names must not count twice
+				    Deduped  = Table.Distinct(Dated, {"Date", "ClientId", "TemplateUri", "HttpMethod"}),
+				    AddClientKey = Table.AddColumn(Deduped, "ClientKey",
+				                       each if [ClientId] = null or [ClientId] = "" then "NONE" else [ClientId], type text),
+				    // 4xx already includes the 429s
+				    AddErrors    = Table.AddColumn(AddClientKey, "Errors", each [Status4xx] + [Status5xx], Int64.Type),
+				    AddEndpoint  = Table.AddColumn(AddErrors, "Endpoint",
+				                       each Text.Trim((if [HttpMethod] = null then "" else [HttpMethod]) & " /" &
+				                                      (if [TemplateUri] = null then "" else Text.TrimStart([TemplateUri], "/"))), type text)
+				in
+				    AddEndpoint
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

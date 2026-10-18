@@ -3,9 +3,16 @@
 Generate realistic sample Genesys Cloud audit files for building / testing
 the Power BI report before the real pipeline is live.
 
-Each output file mimics what the pipeline should land for one UTC day:
+Each audit file mimics what the pipeline should land for one UTC day:
 the AuditLogMessage objects returned by
     POST /api/v2/audits/query  ->  GET /api/v2/audits/query/{id}/results?expand=user
+plus, per day, genesys-apiusage_<day>.json (rows of
+    GET /api/v2/usage/aggregates/query/jobs/{jobId})
+and one genesys-oauthclients.json (GET /api/v2/oauth/clients without secrets).
+
+The Presence events are illustrative: Genesys documents no schema for them,
+so they use the generic AuditLogMessage shape (service "Presence", the agent
+as the entity, a property change with the old and new presence).
 
 Usage
 -----
@@ -15,8 +22,9 @@ Usage
 
 The data is deterministic for a given --seed and contains the patterns the
 report is designed to surface: a volume anomaly day, off-hours deletes,
-an OAuth client bulk-load, a trustee (partner) user, failures and
-property changes with old/new values.
+an OAuth client bulk-load, a trustee (partner) user, failures,
+property changes with old/new values, supervisors forcing agent presence
+changes, and API usage with 4xx / 429 / 5xx responses.
 """
 import argparse
 import json
@@ -51,6 +59,32 @@ CLIENTS = [
     ("Workforce Scheduler Bot",  "integration"),
     ("Bulk User Loader",         "script"),
     ("Azure Audit Pipeline",     "reporting"),
+    ("Power BI Analytics Export", "reporting"),     # API usage only, never changes anything
+    ("Legacy IVR Reporting",     "disabled"),       # in the client list only: no usage, no audit
+]
+
+AGENTS = ["Mia Chen", "Noah Williams", "Olivia Brown", "Priya Shah", "Quinn Taylor",
+          "Ruby Jones", "Sam Lee", "Tara Singh", "Umar Ali", "Zoe Clarke"]
+PRESENCES = ["Available", "On Queue", "Away", "Break", "Meal", "Meeting", "Training", "Busy", "Offline"]
+
+# (client index, method, templateUri, typical requests per weekday)
+API_CALLS = [
+    (0, "GET",   "api/v2/users/{userId}", 820),
+    (0, "POST",  "api/v2/conversations/calls", 130),
+    (0, "GET",   "api/v2/analytics/conversations/{conversationId}/details", 310),
+    (0, "PATCH", "api/v2/users/{userId}", 25),
+    (1, "PATCH", "api/v2/users/{userId}/presences/{sourceId}", 95),
+    (1, "GET",   "api/v2/workforcemanagement/managementunits/{managementUnitId}/agents/{agentId}", 240),
+    (1, "GET",   "api/v2/routing/queues/{queueId}/members", 180),
+    (3, "POST",  "api/v2/audits/query", 1),
+    (3, "GET",   "api/v2/audits/query/{transactionId}", 6),
+    (3, "GET",   "api/v2/audits/query/{transactionId}/results", 4),
+    (3, "POST",  "api/v2/usage/aggregates/query/jobs", 1),
+    (3, "GET",   "api/v2/usage/aggregates/query/jobs/{jobId}", 2),
+    (3, "GET",   "api/v2/oauth/clients", 1),
+    (4, "POST",  "api/v2/analytics/conversations/details/jobs", 24),
+    (4, "GET",   "api/v2/analytics/conversations/details/jobs/{jobId}/results", 410),
+    (4, "POST",  "api/v2/analytics/conversations/aggregates/query", 288),
 ]
 
 # serviceName -> list of (entityType, [actions], weight)
@@ -225,6 +259,7 @@ class World:
             })
         self.clients = [{"id": det_uuid(r), "name": n, "kind": k, "ip": f"20.{r.randint(10, 99)}.{r.randint(1, 254)}.{r.randint(1, 254)}"}
                         for n, k in CLIENTS]
+        self.agents = [{"id": det_uuid(r), "name": n} for n in AGENTS]
         self.entities = {}
         for etype, names in ENTITY_NAMES.items():
             if names:
@@ -304,7 +339,7 @@ def build_event(w: World, day: date, actor: dict, actor_kind: str, service: str,
 def system_event(w: World, when: datetime) -> dict:
     r = w.rng
     choices = [
-        ("Directory", "User", "Update", "User {entityName} presence source synchronised"),
+        ("Directory", "User", "Update", "User {entityName} profile synchronised"),
         ("Routing", "Queue", "Update", "Queue {entityName} membership recalculated"),
         ("Architect", "Flow", "Update", "Flow {entityName} dependency re-indexed"),
     ]
@@ -331,6 +366,96 @@ def system_event(w: World, when: datetime) -> dict:
         "entityChanges": [],
         "context": {},
     }
+
+
+def presence_event(w: World, when: datetime, agent: dict, who: str) -> dict:
+    """An agent's presence changed: by the agent, by a supervisor, or by the WFM integration."""
+    r = w.rng
+    old, new = r.sample(PRESENCES, 2)
+    if who == "self":
+        actor_name, actor = agent["name"], {"user": {"id": agent["id"], "name": agent["name"], "selfUri": f"/api/v2/users/{agent['id']}"}}
+        app, ip = "Genesys Cloud Desktop", [f"203.0.113.{r.randint(2, 250)}"]
+    elif who == "supervisor":
+        sup = r.choice([u for u in w.users if u["role"] == "supervisor"])
+        actor_name, actor = sup["name"], {"user": {"id": sup["id"], "name": sup["name"], "selfUri": f"/api/v2/users/{sup['id']}"}}
+        app, ip = "Genesys Cloud Web", [r.choice(sup["ips"])]
+    else:
+        c = w.clients[1]
+        actor_name, actor = c["name"], {"client": {"id": c["id"], "selfUri": f"/api/v2/oauth/clients/{c['id']}"}}
+        app, ip = "Public API", [c["ip"]]
+    ev = {
+        "id": det_uuid(r),
+        "userHomeOrgId": HOME_ORG,
+        "remoteIp": ip,
+        "serviceName": "Presence",
+        "level": "USER",
+        "eventDate": when.strftime("%Y-%m-%dT%H:%M:%S.") + f"{r.randint(0, 999):03d}Z",
+        "message": {
+            "localizableMessageCode": "PRESENCE_USERPRESENCE_UPDATE",
+            "message": f"{actor_name} changed the presence of {agent['name']} from {old} to {new}",
+            "messageWithParams": "{user} changed the presence of {entityName} from {oldValue} to {newValue}",
+            "messageParams": {"user": actor_name, "entityName": agent["name"], "oldValue": old, "newValue": new},
+        },
+        "action": "Update",
+        "entity": {"id": agent["id"], "name": agent["name"], "selfUri": f"/api/v2/users/{agent['id']}"},
+        "entityType": "UserPresence",
+        "status": "SUCCESS",
+        "application": app,
+        "initiatingAction": {"transactionId": det_uuid(r), "actionContext": "Update"},
+        "transactionInitiator": True,
+        "propertyChanges": [{"property": "UserPresence.PresenceDefinition", "oldValues": [old], "newValues": [new]}],
+        "entityChanges": [],
+        "context": {},
+    }
+    ev.update(actor)
+    return ev
+
+
+def api_usage_day(w: World, day: date, day_index: int, total_days: int) -> list:
+    """Rows as returned by GET /api/v2/usage/aggregates/query/jobs/{jobId} (Day granularity)."""
+    r = w.rng
+    weekend = day.weekday() >= 5
+    rows = []
+    calls = list(API_CALLS)
+    if day_index == total_days - 4:                       # the bulk user load
+        calls.append((2, "POST", "api/v2/users", 160))
+        calls.append((2, "GET", "api/v2/authorization/roles", 12))
+    for ci, method, uri, n in calls:
+        c = w.clients[ci]
+        if ci == 2:
+            requests = n
+        else:
+            requests = max(1, int(n * (0.25 if weekend and ci != 3 else 1.0) * r.uniform(0.8, 1.2)))
+        s429 = 0
+        if ci == 4 and day_index == total_days - 6 and "results" in uri:    # a throttled export
+            s429 = int(requests * 0.3)
+        elif r.random() < 0.15:
+            s429 = r.randint(1, 4)
+        s4 = s429 + (requests // 10 if ci == 2 else int(requests * r.uniform(0, 0.02)))
+        s5 = min(requests, r.randint(1, 3)) if r.random() < 0.08 else 0
+        s429 = min(s429, requests - s5)          # 429 is a subset of 4xx, 4xx + 5xx <= requests
+        s4 = min(max(s4, s429), requests - s5)
+        rows.append({
+            "date": day.isoformat(), "platform": "PublicApi", "httpMethod": method, "templateUri": uri,
+            "requestCount": requests, "status200": requests - s4 - s5, "status300": 0, "status400": s4,
+            "status429": s429, "status500": s5,
+            "oauthClient": {"id": c["id"], "name": c["name"], "selfUri": f"/api/v2/oauth/clients/{c['id']}"},
+        })
+    return rows
+
+
+def client_list(w: World) -> list:
+    """genesys-oauthclients.json as the pipeline writes it: no secrets."""
+    out = []
+    for i, c in enumerate(w.clients):
+        out.append({
+            "id": c["id"], "name": c["name"], "description": f"{c['kind']} client",
+            "authorizedGrantType": "CLIENT-CREDENTIALS", "state": "disabled" if c["kind"] == "disabled" else "active",
+            "dateCreated": f"202{4 + i % 2}-0{1 + i}-1{i}T0{i}:30:00.000Z", "dateModified": "2026-08-01T00:00:00.000Z",
+            "createdById": w.users[0]["id"], "modifiedById": w.users[1]["id"], "roleDivisionCount": 1 + i % 3,
+            "dateToDelete": "",
+        })
+    return out
 
 
 def ts(day: date, hour: int, minute: int, second: int) -> datetime:
@@ -376,6 +501,12 @@ def generate_day(w: World, day: date, day_index: int, total_days: int) -> list:
     pipe = w.clients[3]
     events.append(build_event(w, day, pipe, "client", "AnalyticsReporting", "Report", "Export", ts(day, 15, 5, r.randint(0, 59)),
                               context={"jobType": "auditExport"}))
+
+    # agent presence: mostly the agents themselves, supervisors forcing a change,
+    # and the WFM integration setting scheduled activities
+    for _ in range(r.randint(4, 8) if weekend else r.randint(14, 26)):
+        who = r.choices(["self", "supervisor", "integration"], weights=[0.55, 0.3, 0.15])[0]
+        events.append(presence_event(w, business_time(w, day, True), r.choice(w.agents), who))
 
     # platform events
     for _ in range(r.randint(2, 6)):
@@ -440,7 +571,10 @@ def main():
             else:
                 for e in events:
                     f.write(json.dumps(e) + "\n")
-        print(f"{path.name}: {len(events)} events")
+        usage = api_usage_day(w, day, i, args.days)
+        (out / f"genesys-apiusage_{day.isoformat()}.json").write_text(json.dumps(usage, indent=1), encoding="utf-8")
+        print(f"{path.name}: {len(events)} events, {len(usage)} API usage rows")
+    (out / "genesys-oauthclients.json").write_text(json.dumps(client_list(w), indent=1), encoding="utf-8")
     print(f"total {total} events in {args.days} files -> {out.resolve()}")
 
 

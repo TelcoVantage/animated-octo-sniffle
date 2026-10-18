@@ -32,6 +32,49 @@ table DimClient
 
 		annotation SummarizationSetBy = Automatic
 
+	column Client
+		dataType: string
+		lineageTag: cb023b1b-2350-5c3c-960a-aea59a15dfe3
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Client]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Grant Type'
+		dataType: string
+		lineageTag: 0e47e993-ad25-59ee-ab88-8ec541220b2a
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Grant Type]
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 5d5f71dd-0510-551f-a27d-5b0347793af6
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [State]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Created
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: dcc35dd0-84ae-51fe-a23e-3fa0c3c24f62
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Created]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
 	column 'First Seen'
 		dataType: dateTime
 		formatString: Short Date
@@ -69,42 +112,67 @@ table DimClient
 
 		annotation SummarizationSetBy = Automatic
 
-	column Client
-		dataType: string
-		lineageTag: cb023b1b-2350-5c3c-960a-aea59a15dfe3
+	column 'Lifetime Requests'
+		dataType: int64
+		formatString: #,0
+		lineageTag: e731cc67-347a-5746-b5a7-c7bef2772892
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: [Client]
+		sourceColumn: [Lifetime Requests]
 
 		annotation SummarizationSetBy = Automatic
 
 	partition DimClient = calculated
 		mode: import
 		source =
+				VAR _keys =
+				    DISTINCT (
+				        UNION (
+				            SELECTCOLUMNS ( AuditEvents, "ClientKey", AuditEvents[ClientKey] & "" ),
+				            SELECTCOLUMNS ( ApiUsage, "ClientKey", ApiUsage[ClientKey] & "" ),
+				            SELECTCOLUMNS ( OAuthClients, "ClientKey", OAuthClients[ClientId] & "" )
+				        )
+				    )
 				VAR _t =
 				    ADDCOLUMNS (
-				        SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
-				        "@ClientId",       CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
-				        "@ClientName",     CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
-				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
+				        _keys,
+				        "@Name",
+				            VAR k = [ClientKey]
+				            RETURN
+				                COALESCE (
+				                    LOOKUPVALUE ( OAuthClients[ClientName], OAuthClients[ClientId], k ),
+				                    CALCULATE ( MAX ( ApiUsage[ClientName] ), ApiUsage[ClientKey] = k ),
+				                    CALCULATE ( MAX ( AuditEvents[ClientName] ), AuditEvents[ClientKey] = k )
+				                ),
+				        "@GrantType",     VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[GrantType], OAuthClients[ClientId], k ),
+				        "@State",         VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[State], OAuthClients[ClientId], k ),
+				        "@Created",       VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[DateCreated], OAuthClients[ClientId], k ),
+				        "@AuditFirst",    VAR k = [ClientKey] RETURN CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), AuditEvents[ClientKey] = k ),
+				        "@AuditLast",     VAR k = [ClientKey] RETURN CALCULATE ( MAX ( AuditEvents[EventDateLocal] ), AuditEvents[ClientKey] = k ),
+				        "@UsageFirst",    VAR k = [ClientKey] RETURN CALCULATE ( MIN ( ApiUsage[Date] ), ApiUsage[ClientKey] = k ),
+				        "@UsageLast",     VAR k = [ClientKey] RETURN CALCULATE ( MAX ( ApiUsage[Date] ), ApiUsage[ClientKey] = k ),
+				        "@Events",        VAR k = [ClientKey] RETURN CALCULATE ( COUNTROWS ( AuditEvents ), AuditEvents[ClientKey] = k ),
+				        "@Requests",      VAR k = [ClientKey] RETURN CALCULATE ( SUM ( ApiUsage[Requests] ), ApiUsage[ClientKey] = k )
 				    )
 				RETURN
 				    SELECTCOLUMNS (
 				        _t,
-				        "ClientKey",       AuditEvents[ClientKey] & "",
-				        "ClientId",        [@ClientId],
-				        "ClientName",      [@ClientName],
-				        "First Seen",      [@FirstSeen],
-				        "Last Seen",       [@LastSeen],
-				        "Lifetime Events", [@LifetimeEvents],
+				        "ClientKey",         [ClientKey] & "",
+				        "ClientId",          IF ( [ClientKey] = "NONE", BLANK (), [ClientKey] ),
+				        "ClientName",        [@Name],
 				        "Client",
 				            SWITCH ( TRUE (),
-				                AuditEvents[ClientKey] = "NONE", "(no client)",
-				                NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
-				                [@ClientId] )
+				                [ClientKey] = "NONE", "(no client)",
+				                NOT ISBLANK ( [@Name] ) && [@Name] <> "", [@Name],
+				                [ClientKey] ),
+				        "Grant Type",        [@GrantType],
+				        "State",             [@State],
+				        "Created",           [@Created],
+				        "First Seen",        MINX ( { [@AuditFirst], [@UsageFirst] }, [Value] ),
+				        "Last Seen",         MAXX ( { [@AuditLast], [@UsageLast] }, [Value] ),
+				        "Lifetime Events",   [@Events],
+				        "Lifetime Requests", [@Requests]
 				    )
 
 	annotation PBI_ResultType = Table

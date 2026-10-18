@@ -53,16 +53,24 @@ meta [IsParameterQuery = true, Type = "DateTime", IsParameterQueryRequired = tru
 
 // ---------------------------------------------------------------------
 //  LocalUtcOffsetHours   (Type: Decimal Number, Required)
-//  Genesys audit timestamps are UTC. This fixed offset produces the
-//  "local" columns used for business-hours / off-hours logic.
-//  Example: Sydney standard time = 10, Sydney daylight time = 11,
-//           London = 0 / 1, New York = -5 / -4.
-//  NOTE: Power Query has no time-zone database, so DST is NOT handled.
-//        Pick the offset that matters most for the security review, or
-//        extend 03_AuditEvents.pq with a DST rule for your region.
+//  Genesys timestamps are UTC. This is your STANDARD-time offset; it
+//  produces the local date/time columns the report shows and filters on.
+//  Sydney / Melbourne / Brisbane / Hobart = 10, Adelaide / Darwin = 9.5,
+//  Perth = 8, Auckland = 12, London = 0, New York = -5.
 // ---------------------------------------------------------------------
-0
+10
 meta [IsParameterQuery = true, Type = "Number", IsParameterQueryRequired = true]
+
+
+// ---------------------------------------------------------------------
+//  AustralianDaylightSaving   (Type: True/False, Required)
+//  true  = add one hour from the first Sunday of October to the first
+//          Sunday of April (NSW, VIC, ACT, TAS, SA).
+//  false = use LocalUtcOffsetHours all year (QLD, NT, WA, or any
+//          non-Australian offset).
+// ---------------------------------------------------------------------
+true
+meta [IsParameterQuery = true, Type = "Logical", IsParameterQueryRequired = true]
 
 
 // ---------------------------------------------------------------------

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "apiusage_card_5",
+  "position": {
+    "x": 986,
+    "y": 8,
+    "z": 5,
+    "height": 70,
+    "width": 136,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "card",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Clients"
+                }
+              },
+              "queryRef": "_Measures.Active Clients",
+              "nativeQueryRef": "Active Clients"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Active clients'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

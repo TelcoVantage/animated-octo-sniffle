@@ -1,0 +1,274 @@
+[
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/users/{userId}",
+  "requestCount": 706,
+  "status200": 695,
+  "status300": 0,
+  "status400": 11,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "POST",
+  "templateUri": "api/v2/conversations/calls",
+  "requestCount": 135,
+  "status200": 134,
+  "status300": 0,
+  "status400": 1,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/analytics/conversations/{conversationId}/details",
+  "requestCount": 337,
+  "status200": 329,
+  "status300": 0,
+  "status400": 8,
+  "status429": 3,
+  "status500": 0,
+  "oauthClient": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "PATCH",
+  "templateUri": "api/v2/users/{userId}",
+  "requestCount": 27,
+  "status200": 24,
+  "status300": 0,
+  "status400": 3,
+  "status429": 3,
+  "status500": 0,
+  "oauthClient": {
+   "id": "878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63",
+   "name": "Salesforce CTI Sync",
+   "selfUri": "/api/v2/oauth/clients/878d5e1c-6e6f-4dcd-9cc2-42c61b3e1a63"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "PATCH",
+  "templateUri": "api/v2/users/{userId}/presences/{sourceId}",
+  "requestCount": 82,
+  "status200": 81,
+  "status300": 0,
+  "status400": 1,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/workforcemanagement/managementunits/{managementUnitId}/agents/{agentId}",
+  "requestCount": 275,
+  "status200": 275,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/routing/queues/{queueId}/members",
+  "requestCount": 210,
+  "status200": 209,
+  "status300": 0,
+  "status400": 1,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "e5a914db-de53-41fb-97f6-46052f5e7232",
+   "name": "Workforce Scheduler Bot",
+   "selfUri": "/api/v2/oauth/clients/e5a914db-de53-41fb-97f6-46052f5e7232"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "POST",
+  "templateUri": "api/v2/audits/query",
+  "requestCount": 1,
+  "status200": 1,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/audits/query/{transactionId}",
+  "requestCount": 5,
+  "status200": 4,
+  "status300": 0,
+  "status400": 1,
+  "status429": 1,
+  "status500": 0,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/audits/query/{transactionId}/results",
+  "requestCount": 4,
+  "status200": 4,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "POST",
+  "templateUri": "api/v2/usage/aggregates/query/jobs",
+  "requestCount": 1,
+  "status200": 0,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 1,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/usage/aggregates/query/jobs/{jobId}",
+  "requestCount": 1,
+  "status200": 1,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/oauth/clients",
+  "requestCount": 1,
+  "status200": 1,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "173d79f8-8296-4103-9432-264b163ebec5",
+   "name": "Azure Audit Pipeline",
+   "selfUri": "/api/v2/oauth/clients/173d79f8-8296-4103-9432-264b163ebec5"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "POST",
+  "templateUri": "api/v2/analytics/conversations/details/jobs",
+  "requestCount": 19,
+  "status200": 19,
+  "status300": 0,
+  "status400": 0,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Power BI Analytics Export",
+   "selfUri": "/api/v2/oauth/clients/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "GET",
+  "templateUri": "api/v2/analytics/conversations/details/jobs/{jobId}/results",
+  "requestCount": 429,
+  "status200": 423,
+  "status300": 0,
+  "status400": 6,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Power BI Analytics Export",
+   "selfUri": "/api/v2/oauth/clients/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  }
+ },
+ {
+  "date": "2026-10-05",
+  "platform": "PublicApi",
+  "httpMethod": "POST",
+  "templateUri": "api/v2/analytics/conversations/aggregates/query",
+  "requestCount": 275,
+  "status200": 274,
+  "status300": 0,
+  "status400": 1,
+  "status429": 0,
+  "status500": 0,
+  "oauthClient": {
+   "id": "2429f02a-3b14-4b50-bb30-468f2a1db1ee",
+   "name": "Power BI Analytics Export",
+   "selfUri": "/api/v2/oauth/clients/2429f02a-3b14-4b50-bb30-468f2a1db1ee"
+  }
+ }
+]

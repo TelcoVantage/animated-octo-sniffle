@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "apiusage_card_4",
+  "position": {
+    "x": 836,
+    "y": 8,
+    "z": 4,
+    "height": 70,
+    "width": 142,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "card",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Rate Limited (429)"
+                }
+              },
+              "queryRef": "_Measures.Rate Limited (429)",
+              "nativeQueryRef": "Rate Limited (429)"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rate limited (429)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

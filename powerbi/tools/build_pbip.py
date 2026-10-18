@@ -217,7 +217,8 @@ COMMON_PARAMETERS = [
     # name, M expression, result type
     ("RangeStart", '#datetime(2026, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
     ("RangeEnd", '#datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
-    ("LocalUtcOffsetHours", '0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
+    ("LocalUtcOffsetHours", '10 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
+    ("AustralianDaylightSaving", 'true meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=true]', "Logical"),
     ("BusinessHoursStart", '8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
     ("BusinessHoursEnd", '18 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
 ]
@@ -238,14 +239,14 @@ VARIANTS = {
 }
 
 
-def staging_query(active_block: str) -> str:
-    """02_AuditEventsRaw.pq with exactly one `>>> SOURCE:<NAME>` block active.
+def source_files_query(active_block: str) -> str:
+    """02_SourceFiles.pq with exactly one `>>> SOURCE:<NAME>` block active.
 
     Lines inside the active block lose a leading `// `; lines inside every
     other block gain one. Marker lines themselves are kept as comments.
     """
     out, block = [], None
-    for line in read_pq("02_AuditEventsRaw.pq").splitlines():
+    for line in read_pq("02_SourceFiles.pq").splitlines():
         stripped = line.strip()
         if stripped.startswith("// >>> SOURCE:"):
             block = stripped[len("// >>> SOURCE:"):].split()[0]
@@ -275,8 +276,9 @@ AUDIT_EVENTS_COLUMNS = [
     col("UserKey", STR, hidden=True), col("UserId", STR), col("UserName", STR),
     col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
     col("RemoteIp", STR), col("RemoteIpAll", STR), col("RemoteIpCount", INT),
-    col("MessageCode", STR), col("Message", STR), col("MessageTemplate", STR),
+    col("MessageCode", STR), col("Message", STR), col("MessageTemplate", STR), col("ChangeSummary", STR),
     col("PropertyChangeCount", INT), col("EntityChangeCount", INT), col("HasPropertyChanges", BOOL),
+    col("IsPresenceEvent", BOOL), col("PresenceFrom", STR), col("PresenceTo", STR), col("PresenceChangeSource", STR),
     col("ContextJson", STR), col("TransactionId", STR), col("InitiatingActionContext", STR), col("TransactionInitiator", BOOL),
     col("UserHomeOrgId", STR), col("SourceFile", STR),
     col("SourceFileModified", DT, fmt="General Date"),
@@ -286,6 +288,18 @@ PROPERTY_CHANGE_COLUMNS = [
     col("ChangeEntityId", STR), col("ChangeEntityName", STR), col("ChangeEntityType", STR), col("OldValues", STR), col("NewValues", STR),
     col("OldValueCount", INT), col("NewValueCount", INT), col("ChangeType", STR), col("PropertyShort", STR),
     col("PropertyChangeKey", INT, hidden=True),
+]
+API_USAGE_COLUMNS = [
+    col("Date", DT, date=True), col("ClientId", STR), col("ClientName", STR), col("TemplateUri", STR),
+    col("HttpMethod", STR), col("Requests", INT, fmt="#,0"), col("Status2xx", INT, fmt="#,0"),
+    col("Status3xx", INT, fmt="#,0"), col("Status4xx", INT, fmt="#,0"), col("Status429", INT, fmt="#,0"),
+    col("Status5xx", INT, fmt="#,0"), col("ClientKey", STR, hidden=True), col("Errors", INT, fmt="#,0"),
+    col("Endpoint", STR),
+]
+OAUTH_CLIENT_COLUMNS = [
+    col("ClientId", STR), col("ClientName", STR), col("GrantType", STR), col("State", STR), col("Description", STR),
+    col("DateCreated", DT, fmt="General Date"), col("DateModified", DT, fmt="General Date"), col("CreatedById", STR),
+    col("RoleDivisionCount", INT),
 ]
 DIM_DATE_COLUMNS = [
     col("Date", DT, date=True, key=True), col("Year", INT), col("Quarter", STR), col("Year-Quarter", STR),
@@ -301,9 +315,10 @@ CALC_TABLE_COLUMNS = {
     "DimUser": [col("UserKey", STR, hidden=True), col("UserId", STR), col("UserName", STR), col("UserHomeOrgId", STR),
                 col("First Seen", DT, date=True), col("Last Seen", DT, date=True),
                 col("Lifetime Events", INT), col("User", STR), col("IsExternalUser", BOOL)],
-    "DimClient": [col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
+    "DimClient": [col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR), col("Client", STR),
+                  col("Grant Type", STR), col("State", STR), col("Created", DT, date=True),
                   col("First Seen", DT, date=True), col("Last Seen", DT, date=True), col("Lifetime Events", INT),
-                  col("Client", STR)],
+                  col("Lifetime Requests", INT, fmt="#,0")],
     "DimService": [col("ServiceName", STR), col("Service", STR), col("ServiceCategory", STR)],
     "DimAction": [col("Action", STR), col("RiskLevel", STR, sort="RiskSort"), col("ActionCategory", STR),
                   col("RiskSort", INT, hidden=True)],
@@ -311,8 +326,12 @@ CALC_TABLE_COLUMNS = {
 }
 RELATIONSHIPS = [
     # from (many) , to (one), active, date
-    ("AuditEvents", "EventDateUtc", "DimDate", "Date", True, True),
-    ("AuditEvents", "EventDateLocal", "DimDate", "Date", False, True),
+    # The report filters on the local day (what the Genesys Audit Viewer shows);
+    # the UTC day stays available through USERELATIONSHIP.
+    ("AuditEvents", "EventDateLocal", "DimDate", "Date", True, True),
+    ("AuditEvents", "EventDateUtc", "DimDate", "Date", False, True),
+    ("ApiUsage", "Date", "DimDate", "Date", True, True),
+    ("ApiUsage", "ClientKey", "DimClient", "ClientKey", True, False),
     ("AuditEvents", "UserKey", "DimUser", "UserKey", True, False),
     ("AuditEvents", "ClientKey", "DimClient", "ClientKey", True, False),
     ("AuditEvents", "ServiceName", "DimService", "ServiceName", True, False),
@@ -340,8 +359,10 @@ def build_semantic_model(sm: Path, variant: dict):
 
     # --- tables ----------------------------------------------------------------
     files = {
-        "AuditEvents": table_tmdl("AuditEvents", AUDIT_EVENTS_COLUMNS, m=read_pq("03_AuditEvents.pq")),
-        "AuditPropertyChanges": table_tmdl("AuditPropertyChanges", PROPERTY_CHANGE_COLUMNS, m=read_pq("04_AuditPropertyChanges.pq")),
+        "AuditEvents": table_tmdl("AuditEvents", AUDIT_EVENTS_COLUMNS, m=read_pq("05_AuditEvents.pq")),
+        "AuditPropertyChanges": table_tmdl("AuditPropertyChanges", PROPERTY_CHANGE_COLUMNS, m=read_pq("06_AuditPropertyChanges.pq")),
+        "ApiUsage": table_tmdl("ApiUsage", API_USAGE_COLUMNS, m=read_pq("08_ApiUsage.pq")),
+        "OAuthClients": table_tmdl("OAuthClients", OAUTH_CLIENT_COLUMNS, m=read_pq("03_OAuthClients.pq"), hidden=True),
         "DimDate": table_tmdl("DimDate", DIM_DATE_COLUMNS, calc=dax_tables["DimDate"], date_table=True),
         "_Measures": table_tmdl("_Measures", [col("Value", STR, hidden=True)], calc='{ "measures" }', measures=measures),
     }
@@ -354,7 +375,9 @@ def build_semantic_model(sm: Path, variant: dict):
     parameters = variant["parameters"] + COMMON_PARAMETERS
     ex = [expression_tmdl(n, e, rt) for n, e, rt in parameters]
     ex.append(expression_tmdl("fnParseAuditFile", read_pq("01_fnParseAuditFile.pq"), "Function"))
-    ex.append(expression_tmdl("AuditEventsRaw", staging_query(variant["active_block"]), "Table"))
+    ex.append(expression_tmdl("SourceFiles", source_files_query(variant["active_block"]), "Table"))
+    ex.append(expression_tmdl("AuditEventsRaw", read_pq("04_AuditEventsRaw.pq"), "Table"))
+    ex.append(expression_tmdl("fnParseApiUsageFile", read_pq("07_fnParseApiUsageFile.pq"), "Function"))
     (d / "expressions.tmdl").write_text("\n".join(ex), encoding="utf-8")
 
     # --- relationships --------------------------------------------------------
@@ -370,9 +393,10 @@ def build_semantic_model(sm: Path, variant: dict):
     (d / "relationships.tmdl").write_text("\n".join(rel), encoding="utf-8")
 
     # --- model / database / culture --------------------------------------------
-    query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
-    table_order = ["AuditEvents", "AuditPropertyChanges", "DimDate", "DimUser", "DimClient", "DimService", "DimAction",
-                   "DimEntityType", "ServiceMap", "ActionRiskMap", "_Measures"]
+    query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "SourceFiles", "OAuthClients", "AuditEventsRaw",
+                                                  "AuditEvents", "AuditPropertyChanges", "fnParseApiUsageFile", "ApiUsage"]
+    table_order = ["AuditEvents", "AuditPropertyChanges", "ApiUsage", "DimDate", "DimUser", "DimClient", "DimService",
+                   "DimAction", "DimEntityType", "OAuthClients", "ServiceMap", "ActionRiskMap", "_Measures"]
     model = [
         "model Model",
         "\tculture: en-US",
@@ -417,30 +441,48 @@ def lit(value):
     return {"expr": {"Literal": {"Value": value}}}
 
 
+def named(field, display):
+    """A field shown under another name in one visual (e.g. ActorName -> "Changed by")."""
+    return dict(field, __display=display)
+
+
 def projection(field):
+    field = dict(field)
+    display = field.pop("__display", None)
     kind = "Column" if "Column" in field else "Measure"
     table = field[kind]["Expression"]["SourceRef"]["Entity"]
     prop = field[kind]["Property"]
-    return {"field": field, "queryRef": f"{table}.{prop}", "nativeQueryRef": prop}
+    p = {"field": field, "queryRef": f"{table}.{prop}", "nativeQueryRef": prop}
+    if display:
+        p["displayName"] = display
+    return p
 
 
-def categorical_filter(name, table, column, values):
-    return {
-        "name": name, "type": "Categorical", "field": C(table, column),
-        "filter": {
-            "Version": 2,
-            "From": [{"Name": "t", "Entity": table, "Type": 0}],
-            "Where": [{"Condition": {"In": {
-                "Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "t"}}, "Property": column}}],
-                "Values": [[{"Literal": {"Value": f"'{v}'"}}] for v in values],
-            }}}],
-        },
-    }
+def _where(table, column, values, negate=False):
+    cond = {"In": {
+        "Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "t"}}, "Property": column}}],
+        "Values": [[{"Literal": {"Value": v}}] for v in values],
+    }}
+    if negate:
+        cond = {"Not": {"Expression": cond}}
+    return {"Version": 2, "From": [{"Name": "t", "Entity": table, "Type": 0}], "Where": [{"Condition": cond}]}
+
+
+def categorical_filter(name, table, column, values, negate=False):
+    """Text values; negate=True keeps everything except them."""
+    return {"name": name, "type": "Categorical", "field": C(table, column),
+            "filter": _where(table, column, [f"'{v}'" for v in values], negate)}
+
+
+def boolean_filter(name, table, column, value=True):
+    return {"name": name, "type": "Categorical", "field": C(table, column),
+            "filter": _where(table, column, ["true" if value else "false"])}
 
 
 class Page:
-    def __init__(self, name, display, hidden=False):
+    def __init__(self, name, display, hidden=False, filters=None):
         self.name, self.display, self.hidden = name, display, hidden
+        self.filters = filters or []
         self.visuals = []
 
     def add(self, vtype, x, y, w, h, *, roles=None, title=None, sort=None, sort_dir="Descending",
@@ -469,15 +511,11 @@ class Page:
         return v
 
     # --- helpers for the recurring pieces -------------------------------------------
-    def heading(self, text, x=200, y=8, w=1070, h=38):
-        self.add("textbox", x, y, w, h, objects={"general": [{"properties": {"paragraphs": [
-            {"textRuns": [{"value": text, "textStyle": {"fontSize": "16pt", "fontWeight": "bold"}}]}]}}]})
-
     def text(self, x, y, w, h, blocks, name=None):
-        """Text box. blocks = list of (text, style) where style is 'title', 'heading' or 'body'."""
+        """Text box. blocks = list of (text, style) where style is 'title', 'heading', 'body' or 'muted'."""
         styles = {
             "title":   {"fontSize": "18pt", "fontWeight": "bold"},
-            "heading": {"fontSize": "12pt", "fontWeight": "bold", "color": "#2F6FED"},
+            "heading": {"fontSize": "11pt", "fontWeight": "bold", "color": "#2F6FED"},
             "body":    {"fontSize": "10pt"},
             "muted":   {"fontSize": "9pt", "color": "#5F6B7A"},
         }
@@ -485,202 +523,124 @@ class Page:
         self.add("textbox", x, y, w, h, name=name,
                  objects={"general": [{"properties": {"paragraphs": paragraphs}}]})
 
-    def cards(self, measures, y=55, x0=200, w=172, h=90, gap=8):
-        for i, (m, title) in enumerate(measures):
-            self.add("card", x0 + i * (w + gap), y, w, h, roles={"Values": [M(m)]}, title=title)
+    def card(self, measure, title, x, y=8, w=120, h=70):
+        self.add("card", x, y, w, h, roles={"Values": [M(measure)]}, title=title)
 
-    def slicer_rail(self):
-        rail = [
-            ("DimDate", "Date", 120, "Date"),
-            ("DimService", "Service", 170, "Service"),
-            ("DimAction", "RiskLevel", 95, "Risk level"),
-            ("AuditEvents", "ActorType", 95, "Actor type"),
-            ("DimUser", "User", 95, "User"),
-            ("AuditEvents", "Status", 75, "Status"),
-        ]
-        y = 8
-        for table, column, h, title in rail:
-            objects = None if column == "Date" else {"data": [{"properties": {"mode": lit("'Dropdown'")}}]}
-            if column == "Date":
-                objects = None
-            self.add("slicer", 10, y, 180, h, roles={"Values": [C(table, column)]}, title=title,
-                     objects=objects, sync=f"sync_{table}_{column}", name=f"{self.name}_slicer_{column}")
-            y += h + 8
+    def date_slicer(self, x=10, y=8, w=250, h=70):
+        # Between slider, synced across the pages so a date range follows you
+        self.add("slicer", x, y, w, h, roles={"Values": [C("DimDate", "Date")]}, title="Date (local)",
+                 sync="sync_date", name=f"{self.name}_slicer_Date")
+
+    def dropdown(self, table, column, title, x, y=8, w=170, h=70):
+        """Dropdown slicer with a search box, like the filters at the top of the Genesys Audit Viewer."""
+        self.add("slicer", x, y, w, h, roles={"Values": [C(table, column)]}, title=title,
+                 name=f"{self.name}_slicer_{column}",
+                 objects={"data": [{"properties": {"mode": lit("'Dropdown'")}}],
+                          "general": [{"properties": {"selfFilterEnabled": lit("true")}}]})
 
 
-GUIDE_PANELS = [
-    ("1  Overview",
-     "The daily glance. Six cards (events, active users, high-risk, failed, off-hours, data freshness), "
-     "events per day to spot spikes, and bars by service, action and user. Click any bar to filter the page."),
-    ("2  Activity Explorer",
-     "Find a pattern. Weekday x hour heatmap in local time, service x action-category matrix, and the full "
-     "event list for the current selection. This is the table to export from."),
-    ("3  Users & Actors",
-     "Review people and integrations. Users ranked by a risk score with counts, distinct IPs and first/last seen; "
-     "daily activity per user; OAuth clients (integrations and scripts) with their volumes."),
-    ("4  Security Watch",
-     "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with "
-     "high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is "
-     "pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal."),
-    ("5  Event Detail",
-     "The full record of each event: ids, client, application, level, IPs, transaction, message code and context. "
-     "Below it every property or entity change with old and new values and the change type."),
-    ("6  Data Health",
-     "Checks the feed, not the activity. Freshness, files loaded with their event counts, days without data, "
-     "and the services and actions that are not yet in the mapping tables."),
-]
-
-
-def build_guide_page():
-    p = Page("guide", "Start Here")
-    p.text(20, 12, 1240, 44, [("Genesys Cloud audit log report - how to use it", "title")])
-    p.text(20, 58, 1240, 92, [
-        ("What this report is", "heading"),
-        ("Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. "
-         "A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a "
-         "star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, "
-         "service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the "
-         "LocalUtcOffsetHours parameter.", "body"),
-    ])
-    # six panels in two columns
-    col_w, col_h, gap = 612, 118, 12
-    for i, (title, body) in enumerate(GUIDE_PANELS):
-        x = 20 + (i % 2) * (col_w + 16)
-        y = 162 + (i // 2) * (col_h + gap)
-        p.text(x, y, col_w, col_h, [(title, "heading"), (body, "body")], name=f"guide_panel_{i}")
-    p.text(20, 552, 1240, 156, [
-        ("Slicers, risk levels and freshness", "heading"),
-        ("The slicer rail on the left of each page (Date, Service, Risk level, Actor type, User, Status) is synced, so a "
-         "selection follows you between pages. Risk level is an attribute of the action, looked up in the ActionRiskMap "
-         "table: High = destructive or privilege-changing actions (Delete, Purge, Deactivate, Revoke, Reset ...), "
-         "Medium = configuration changes and data access (Create, Update, Assign, Download, Export ...), Low = read-only "
-         "and session actions (View, Login, Logout ...). Actions not in the map are rated Medium and listed on the Data "
-         "Health page so they can be added. Actor type is User for interactive actions, OAuth Client for integrations "
-         "and scripts, System for platform actions. Data freshness is Fresh within 30 hours of the last event, "
-         "Late within 54 hours, otherwise Stale.", "body"),
-        ("Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.", "muted"),
-    ])
-    return p
-
-
+# Times shown on every page are local: UTC + LocalUtcOffsetHours, plus Australian
+# daylight saving when AustralianDaylightSaving = true.
 def build_pages():
-    pages = [build_guide_page()]
+    pages = []
+    E = "AuditEvents"
 
-    # ---------------------------------------------------------------- Overview
-    p = Page("overview", "Overview")
-    p.slicer_rail()
-    p.heading("Genesys Cloud audit activity")
-    p.cards([("Audit Events", "Audit events"), ("Distinct Users", "Active users"), ("High-Risk Events", "High-risk events"),
-             ("Failed Events", "Failed events"), ("Off-Hours Events", "Off-hours events"), ("Data Freshness Status", "Data freshness")])
-    p.add("columnChart", 200, 155, 1070, 210, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")]},
-          title="Audit events by day", sort=C("DimDate", "Date"), sort_dir="Ascending")
-    p.add("barChart", 200, 375, 350, 335, roles={"Category": [C("DimService", "Service")], "Y": [M("Audit Events")],
-                                                   "Series": [C("DimAction", "RiskLevel")]},
-          title="Events by service and risk level", sort=M("Audit Events"))
-    p.add("barChart", 560, 375, 350, 335, roles={"Category": [C("DimAction", "Action")], "Y": [M("Audit Events")]},
-          title="Events by action", sort=M("Audit Events"))
-    p.add("barChart", 920, 375, 350, 335, roles={"Category": [C("DimUser", "User")], "Y": [M("Audit Events")]},
-          title="Most active users", sort=M("Audit Events"))
+    # ----------------------------------------------------------- 1 Audit Viewer
+    # Mirrors Genesys Cloud > Admin > Audit Viewer: filters across the top, one row
+    # per audit event with who / what / which entity, and the old -> new values of
+    # the selected event underneath.
+    p = Page("auditviewer", "Audit Viewer")
+    p.date_slicer()
+    p.dropdown("DimService", "Service", "Service", 268)
+    p.dropdown("DimEntityType", "EntityType", "Entity type", 446)
+    p.dropdown("DimAction", "Action", "Action", 624, w=140)
+    p.dropdown(E, "ActorName", "Changed by", 772, w=180)
+    p.dropdown(E, "EntityDisplay", "Entity", 960, w=180)
+    p.card("Audit Events", "Events", 1148, w=122)
+    p.add("tableEx", 10, 86, 1260, 410, roles={"Values": [
+        named(C(E, "EventDateTimeLocal"), "Date / time"), named(C(E, "ActorName"), "Changed by"),
+        named(C("DimService", "Service"), "Service"), named(C(E, "Action"), "Action"),
+        named(C(E, "EntityType"), "Entity type"), named(C(E, "EntityDisplay"), "Entity"),
+        named(C(E, "ChangeSummary"), "Changes (old → new)"), named(C(E, "Status"), "Status"),
+        named(C(E, "Application"), "Application"), named(C(E, "RemoteIp"), "IP address"),
+        named(C(E, "AuditId"), "Audit id")]},
+        title="Audit events - newest first", sort=C(E, "EventDateTimeLocal"))
+    P = "AuditPropertyChanges"
+    p.add("tableEx", 10, 504, 930, 208, roles={"Values": [
+        named(C(E, "EventDateTimeLocal"), "Date / time"), named(C(E, "EntityDisplay"), "Entity"),
+        named(C(P, "PropertyShort"), "Property"), named(C(P, "OldValues"), "Old value"),
+        named(C(P, "NewValues"), "New value"), named(C(P, "ChangeType"), "Change"),
+        named(C(P, "ChangeEntityName"), "Related entity"), named(C(P, "Property"), "Full property name")]},
+        title="What changed - click an event above", sort=C(E, "EventDateTimeLocal"))
+    p.text(948, 504, 322, 120, [
+        ("How to use this page", "heading"),
+        ("Pick filters at the top, as in Genesys > Admin > Audit Viewer. Click a row to see its old and new "
+         "values below (Ctrl+click for several). Click it again to clear.", "body"),
+    ], name="auditviewer_help")
+    p.card("Latest Event Loaded", "Latest event loaded", 948, y=632, w=322, h=80)
     pages.append(p)
 
-    # ------------------------------------------------------- Activity Explorer
-    p = Page("explorer", "Activity Explorer")
-    p.slicer_rail()
-    p.add("pivotTable", 200, 8, 530, 252, roles={"Rows": [C("DimDate", "Day Name")], "Columns": [C("AuditEvents", "EventHourLocal")],
-                                                 "Values": [M("Events (Local Date)")]},
-          title="Activity heatmap (local weekday x hour)")
-    p.add("pivotTable", 740, 8, 530, 252, roles={"Rows": [C("DimService", "Service")], "Columns": [C("DimAction", "ActionCategory")],
-                                                 "Values": [M("Audit Events")]},
-          title="Service x action category")
-    p.add("tableEx", 200, 270, 1070, 442, roles={"Values": [
-        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "ActorType"),
-        C("DimService", "Service"), C("DimAction", "Action"), C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
-        C("AuditEvents", "Status"), C("AuditEvents", "RemoteIp"), C("AuditEvents", "Message")]},
-        title="Events", sort=C("AuditEvents", "EventDateTimeLocal"))
+    # --------------------------------------------------------- 2 Agent Presence
+    # Every audit event about an agent's presence / status (IsPresenceEvent), with
+    # who made the change: the agent, another person, an integration or the system.
+    p = Page("presence", "Agent Presence",
+             filters=[boolean_filter("flt_presence_only", E, "IsPresenceEvent", True)])
+    p.date_slicer()
+    p.dropdown(E, "EntityDisplay", "Agent", 268, w=210)
+    p.dropdown(E, "ActorName", "Changed by", 486, w=210)
+    p.dropdown(E, "PresenceChangeSource", "Who changed it", 704, w=190)
+    p.card("Presence Changes", "Presence changes", 902, w=120)
+    p.card("Agents Affected", "Agents", 1030, w=110)
+    p.card("Changed By Someone Else", "Changed by someone else", 1148, w=122)
+    p.add("columnChart", 10, 86, 1260, 220,
+          roles={"Category": [C("DimDate", "Date")], "Y": [named(M("Audit Events"), "Presence changes")],
+                 "Series": [named(C(E, "PresenceChangeSource"), "Who changed it")]},
+          title="Presence changes per day", sort=C("DimDate", "Date"), sort_dir="Ascending")
+    p.add("tableEx", 10, 314, 1260, 398, roles={"Values": [
+        named(C(E, "EventDateTimeLocal"), "Date / time"), named(C(E, "EntityDisplay"), "Agent"),
+        named(C(E, "PresenceFrom"), "From"), named(C(E, "PresenceTo"), "To"),
+        named(C(E, "ActorName"), "Changed by"), named(C(E, "PresenceChangeSource"), "Who changed it"),
+        named(C(E, "Application"), "Via"), named(C(E, "Message"), "Details"),
+        named(C(E, "AuditId"), "Audit id")]},
+        title="Presence changes - newest first", sort=C(E, "EventDateTimeLocal"))
     pages.append(p)
 
-    # ---------------------------------------------------------- Users & Actors
-    p = Page("users", "Users & Actors")
-    p.slicer_rail()
-    p.add("tableEx", 200, 8, 1070, 332, roles={"Values": [
-        C("DimUser", "User"), M("User Rank"), M("Audit Events"), M("High-Risk Events"), M("Delete Events"),
-        M("Off-Hours Events"), M("Failed Events"), M("Distinct Source IPs"), M("Risk Score"),
-        C("DimUser", "First Seen"), C("DimUser", "Last Seen"), C("DimUser", "IsExternalUser")]},
-        title="Users", sort=M("Risk Score"))
-    p.add("lineChart", 200, 350, 530, 362, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")],
-                                                   "Series": [C("DimUser", "User")]},
-          title="Daily activity by user", sort=C("DimDate", "Date"), sort_dir="Ascending")
-    p.add("tableEx", 740, 350, 530, 362, roles={"Values": [
-        C("DimClient", "Client"), M("Audit Events"), M("Failed Events"), M("Distinct Source IPs"),
-        C("DimClient", "First Seen"), C("DimClient", "Last Seen")]},
-        title="OAuth clients (integrations and scripts)", sort=M("Audit Events"))
-    pages.append(p)
-
-    # ---------------------------------------------------------- Security Watch
-    p = Page("security", "Security Watch")
-    p.slicer_rail()
-    p.cards([("Off-Hours High-Risk Events", "Off-hours high-risk"), ("Users With High-Risk Actions", "Users w/ high-risk actions"),
-             ("Users With Many IPs", "Users from many IPs"), ("External User Events", "Partner-user events"),
-             ("OAuth Client Events", "OAuth client events"), ("Security Service Events", "Security-service events")], y=8)
-    p.add("tableEx", 200, 108, 1070, 252, roles={"Values": [
-        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "ActorType"),
-        C("DimService", "Service"), C("DimAction", "Action"), C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
-        C("AuditEvents", "Status"), C("AuditEvents", "RemoteIp"), C("AuditEvents", "IsOffHours")]},
-        title="High-risk actions", sort=C("AuditEvents", "EventDateTimeLocal"),
-        filters=[categorical_filter("flt_risk_high", "DimAction", "RiskLevel", ["High"])])
-    p.add("columnChart", 200, 370, 350, 342, roles={"Category": [C("DimDate", "Date")], "Y": [M("Delete Events")],
-                                                     "Series": [C("DimService", "Service")]},
-          title="Deletes by day", sort=C("DimDate", "Date"), sort_dir="Ascending")
-    p.add("barChart", 560, 370, 350, 342, roles={"Category": [C("DimService", "Service")], "Y": [M("Failure Rate")]},
-          title="Failure rate by service", sort=M("Failure Rate"))
-    p.add("tableEx", 920, 370, 350, 342, roles={"Values": [
-        C("DimDate", "Date"), M("Audit Events"), M("Daily Events Z-Score"), M("Top User")]},
-        title="Daily volume vs 30-day baseline", sort=M("Daily Events Z-Score"))
-    pages.append(p)
-
-    # ------------------------------------------------------------ Event Detail
-    p = Page("detail", "Event Detail")
-    p.slicer_rail()
-    # Who / what first, identifiers last. AuditId is the Genesys record id
-    # (quote it in tickets, feed it to /audits/query/realtime/related).
-    p.add("tableEx", 200, 8, 1070, 352, roles={"Values": [
-        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "ActorType"),
-        C("DimService", "Service"), C("AuditEvents", "Action"), C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
-        C("AuditEvents", "Status"), C("AuditEvents", "Message"), C("AuditEvents", "Application"), C("AuditEvents", "RemoteIpAll"),
-        C("AuditEvents", "Level"), C("AuditEvents", "MessageCode"), C("AuditEvents", "UserId"), C("AuditEvents", "ClientId"),
-        C("AuditEvents", "EntityId"), C("AuditEvents", "TransactionId"), C("AuditEvents", "AuditId"),
-        C("AuditEvents", "EventDateTimeUtc"), C("AuditEvents", "ContextJson")]},
-        title="Events - who did what (identifiers at the right)", sort=C("AuditEvents", "EventDateTimeLocal"))
-    # Each change row carries the actor, action and entity of its event through
-    # the AuditEvents -> AuditPropertyChanges relationship.
-    p.add("tableEx", 200, 370, 1070, 342, roles={"Values": [
-        C("AuditEvents", "EventDateTimeLocal"), C("AuditEvents", "ActorName"), C("AuditEvents", "Action"),
-        C("AuditEvents", "EntityType"), C("AuditEvents", "EntityDisplay"),
-        C("AuditPropertyChanges", "PropertyShort"), C("AuditPropertyChanges", "ChangeType"),
-        C("AuditPropertyChanges", "OldValues"), C("AuditPropertyChanges", "NewValues"),
-        C("AuditPropertyChanges", "ChangeSource"), C("AuditPropertyChanges", "ChangeEntityName"),
-        C("AuditPropertyChanges", "Property"), C("AuditPropertyChanges", "AuditId")]},
-        title="What changed - old value to new value, by person", sort=C("AuditEvents", "EventDateTimeLocal"))
-    pages.append(p)
-
-    # ------------------------------------------------------------- Data Health
-    p = Page("health", "Data Health")
-    p.heading("Data health - is the daily feed complete?", x=10, w=1260)
-    p.cards([("Data Freshness Status", "Freshness"), ("Data Age (hours)", "Hours since last event"), ("Last Event (UTC)", "Last event (UTC)"),
-             ("Source Files Loaded", "Files loaded"), ("Days of Data", "Days of data"), ("Days Without Data", "Days without data"),
-             ("Audit Events", "Events loaded")], y=55, x0=10, w=172)
-    p.add("tableEx", 10, 155, 620, 555, roles={"Values": [
-        C("AuditEvents", "SourceFile"), C("AuditEvents", "SourceFileModified"), M("Audit Events"), M("Property Changes"),
-        M("First Event (UTC)"), M("Last Event (UTC)")]},
-        title="Files loaded", sort=C("AuditEvents", "SourceFile"))
-    p.add("columnChart", 640, 155, 630, 270, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")]},
-          title="Events per day (gaps = missing files)", sort=C("DimDate", "Date"), sort_dir="Ascending")
-    p.add("tableEx", 640, 435, 310, 275, roles={"Values": [C("DimService", "ServiceName"), M("Audit Events")]},
-          title="Services not in ServiceMap", sort=M("Audit Events"),
-          filters=[categorical_filter("flt_svc_other", "DimService", "ServiceCategory", ["Other"])])
-    p.add("tableEx", 960, 435, 310, 275, roles={"Values": [C("DimAction", "Action"), M("Audit Events")]},
-          title="Actions not in ActionRiskMap", sort=M("Audit Events"),
-          filters=[categorical_filter("flt_act_other", "DimAction", "ActionCategory", ["Other"])])
+    # ---------------------------------------------------- 3 API Usage & Clients
+    # Who calls the Genesys API (OAuth client id and name), how much, with which
+    # errors, and what each client changed in the audit log.
+    p = Page("apiusage", "API Usage & Clients")
+    p.date_slicer()
+    p.dropdown("DimClient", "Client", "OAuth client", 268, w=260)
+    p.card("API Requests", "API requests", 536, w=142)
+    p.card("API Errors", "Errors (4xx + 5xx)", 686, w=142)
+    p.card("Rate Limited (429)", "Rate limited (429)", 836, w=142)
+    p.card("Active Clients", "Active clients", 986, w=136)
+    p.card("Last API Use", "Usage data up to", 1130, w=140)
+    p.add("tableEx", 10, 86, 760, 300, roles={"Values": [
+        named(C("DimClient", "Client"), "Client"), named(C("DimClient", "ClientId"), "Client id"),
+        named(C("DimClient", "Grant Type"), "Grant type"), named(C("DimClient", "State"), "State"),
+        named(M("Requests in Period"), "Requests"), named(M("API Errors"), "Errors"),
+        named(M("Rate Limited (429)"), "429s"), named(M("API Error %"), "Error %"),
+        named(M("Changes Made by Client"), "Audit changes"), named(M("Last API Use"), "Last used"),
+        named(C("DimClient", "Created"), "Created")]},
+        title="OAuth clients - click one to filter the page", sort=M("Requests in Period"),
+        filters=[categorical_filter("flt_has_client", "DimClient", "ClientKey", ["NONE"], negate=True)])
+    p.add("columnChart", 778, 86, 492, 300,
+          roles={"Category": [C("DimDate", "Date")], "Y": [named(M("API Requests"), "Requests")],
+                 "Series": [named(C("DimClient", "Client"), "Client")]},
+          title="API requests per day (UTC days)", sort=C("DimDate", "Date"), sort_dir="Ascending")
+    p.add("tableEx", 10, 394, 620, 318, roles={"Values": [
+        named(C("ApiUsage", "Endpoint"), "Endpoint (method + URL)"), named(M("API Requests"), "Requests"),
+        named(M("API Errors"), "Errors"), named(M("Rate Limited (429)"), "429s"),
+        named(M("Server Errors (5xx)"), "5xx")]},
+        title="Endpoints called", sort=M("API Requests"))
+    p.add("tableEx", 638, 394, 632, 318, roles={"Values": [
+        named(C(E, "EventDateTimeLocal"), "Date / time"), named(C("DimClient", "Client"), "Client"),
+        named(C("DimService", "Service"), "Service"), named(C(E, "Action"), "Action"),
+        named(C(E, "EntityDisplay"), "Entity"), named(C(E, "ChangeSummary"), "Changes (old → new)"),
+        named(C(E, "AuditId"), "Audit id")]},
+        title="What integrations changed (audit log)", sort=C(E, "EventDateTimeLocal"),
+        filters=[categorical_filter("flt_client_actor", E, "ActorType", ["OAuth Client"])])
     pages.append(p)
     return pages
 
@@ -730,6 +690,8 @@ def build_report(rp: Path, pages):
         page = {"$schema": S_PAGE, "name": p.name, "displayName": p.display, "displayOption": "FitToPage", "height": 720, "width": 1280}
         if p.hidden:
             page["visibility"] = "HiddenInViewMode"
+        if p.filters:
+            page["filterConfig"] = {"filters": p.filters}
         write_json(pd / "page.json", page)
         for v in p.visuals:
             (pd / "visuals" / v["name"]).mkdir(parents=True, exist_ok=True)
@@ -809,7 +771,8 @@ def build_variant(name: str, variant: dict, zip_it: bool) -> int:
                     z.write(f, f.relative_to(out))
             for f in sorted((ROOT / "sample-data").glob("*.json")):
                 z.write(f, Path("sample-data") / f.name)
-            z.write(ROOT / "docs" / "audit-api.md", "docs/audit-api.md")
+            for doc in ("audit-api.md", "report-design.md", "reference.md"):
+                z.write(ROOT / "docs" / doc, f"docs/{doc}")
         print(f"[{name}] zip: {zpath.relative_to(ROOT)} ({zpath.stat().st_size // 1024} KB)")
     return 0
 

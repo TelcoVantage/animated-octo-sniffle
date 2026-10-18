@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "auditviewer_card_10",
+  "position": {
+    "x": 948,
+    "y": 632,
+    "z": 10,
+    "height": 80,
+    "width": 322,
+    "tabOrder": 10
+  },
+  "visual": {
+    "visualType": "card",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Latest Event Loaded"
+                }
+              },
+              "queryRef": "_Measures.Latest Event Loaded",
+              "nativeQueryRef": "Latest Event Loaded"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Latest event loaded'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

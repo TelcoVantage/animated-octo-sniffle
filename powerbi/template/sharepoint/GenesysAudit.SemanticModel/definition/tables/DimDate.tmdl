@@ -205,8 +205,9 @@ table DimDate
 	partition DimDate = calculated
 		mode: import
 		source =
-				VAR _MinDate = COALESCE ( MIN ( AuditEvents[EventDateUtc] ), TODAY () - 30 )
-				VAR _MaxDate = COALESCE ( MAX ( AuditEvents[EventDateUtc] ), TODAY () )
+				// MINX / MAXX over the two facts skip a blank, so an empty ApiUsage is fine
+				VAR _MinDate = COALESCE ( MINX ( { MIN ( AuditEvents[EventDateLocal] ), MIN ( ApiUsage[Date] ) }, [Value] ), TODAY () - 30 )
+				VAR _MaxDate = COALESCE ( MAXX ( { MAX ( AuditEvents[EventDateLocal] ), MAX ( ApiUsage[Date] ) }, [Value] ), TODAY () )
 				VAR _Start   = DATE ( YEAR ( _MinDate ), 1, 1 )
 				VAR _End     = DATE ( YEAR ( _MaxDate ), 12, 31 )
 				RETURN

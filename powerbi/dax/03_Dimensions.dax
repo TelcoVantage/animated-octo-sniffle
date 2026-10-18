@@ -9,7 +9,7 @@
 //
 //  Relationships (all single direction, dimension 1 --> * fact):
 //     DimUser[UserKey]          --> AuditEvents[UserKey]
-//     DimClient[ClientKey]      --> AuditEvents[ClientKey]
+//     DimClient[ClientKey]      --> AuditEvents[ClientKey], ApiUsage[ClientKey]
 //     DimService[ServiceName]   --> AuditEvents[ServiceName]
 //     DimAction[Action]         --> AuditEvents[Action]
 //     DimEntityType[EntityType] --> AuditEvents[EntityType]
@@ -67,30 +67,57 @@ RETURN
 
 
 // ---------------------------------------------------------------------
+//  DimClient - every OAuth client seen in the audit log, in the API usage
+//  or in the client list. Name: client list first, then API usage, then id.
+// ---------------------------------------------------------------------
 DimClient =
+VAR _keys =
+    DISTINCT (
+        UNION (
+            SELECTCOLUMNS ( AuditEvents, "ClientKey", AuditEvents[ClientKey] & "" ),
+            SELECTCOLUMNS ( ApiUsage, "ClientKey", ApiUsage[ClientKey] & "" ),
+            SELECTCOLUMNS ( OAuthClients, "ClientKey", OAuthClients[ClientId] & "" )
+        )
+    )
 VAR _t =
     ADDCOLUMNS (
-        SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
-        "@ClientId",       CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
-        "@ClientName",     CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
-        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
-        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
+        _keys,
+        "@Name",
+            VAR k = [ClientKey]
+            RETURN
+                COALESCE (
+                    LOOKUPVALUE ( OAuthClients[ClientName], OAuthClients[ClientId], k ),
+                    CALCULATE ( MAX ( ApiUsage[ClientName] ), ApiUsage[ClientKey] = k ),
+                    CALCULATE ( MAX ( AuditEvents[ClientName] ), AuditEvents[ClientKey] = k )
+                ),
+        "@GrantType",     VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[GrantType], OAuthClients[ClientId], k ),
+        "@State",         VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[State], OAuthClients[ClientId], k ),
+        "@Created",       VAR k = [ClientKey] RETURN LOOKUPVALUE ( OAuthClients[DateCreated], OAuthClients[ClientId], k ),
+        "@AuditFirst",    VAR k = [ClientKey] RETURN CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), AuditEvents[ClientKey] = k ),
+        "@AuditLast",     VAR k = [ClientKey] RETURN CALCULATE ( MAX ( AuditEvents[EventDateLocal] ), AuditEvents[ClientKey] = k ),
+        "@UsageFirst",    VAR k = [ClientKey] RETURN CALCULATE ( MIN ( ApiUsage[Date] ), ApiUsage[ClientKey] = k ),
+        "@UsageLast",     VAR k = [ClientKey] RETURN CALCULATE ( MAX ( ApiUsage[Date] ), ApiUsage[ClientKey] = k ),
+        "@Events",        VAR k = [ClientKey] RETURN CALCULATE ( COUNTROWS ( AuditEvents ), AuditEvents[ClientKey] = k ),
+        "@Requests",      VAR k = [ClientKey] RETURN CALCULATE ( SUM ( ApiUsage[Requests] ), ApiUsage[ClientKey] = k )
     )
 RETURN
     SELECTCOLUMNS (
         _t,
-        "ClientKey",       AuditEvents[ClientKey] & "",
-        "ClientId",        [@ClientId],
-        "ClientName",      [@ClientName],
-        "First Seen",      [@FirstSeen],
-        "Last Seen",       [@LastSeen],
-        "Lifetime Events", [@LifetimeEvents],
+        "ClientKey",         [ClientKey] & "",
+        "ClientId",          IF ( [ClientKey] = "NONE", BLANK (), [ClientKey] ),
+        "ClientName",        [@Name],
         "Client",
             SWITCH ( TRUE (),
-                AuditEvents[ClientKey] = "NONE", "(no client)",
-                NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
-                [@ClientId] )
+                [ClientKey] = "NONE", "(no client)",
+                NOT ISBLANK ( [@Name] ) && [@Name] <> "", [@Name],
+                [ClientKey] ),
+        "Grant Type",        [@GrantType],
+        "State",             [@State],
+        "Created",           [@Created],
+        "First Seen",        MINX ( { [@AuditFirst], [@UsageFirst] }, [Value] ),
+        "Last Seen",         MAXX ( { [@AuditLast], [@UsageLast] }, [Value] ),
+        "Lifetime Events",   [@Events],
+        "Lifetime Requests", [@Requests]
     )
 
 
@@ -135,21 +162,3 @@ RETURN
         "Lifetime Events", [@LifetimeEvents],
         "Services",        [@Services]
     )
-
-
-// ---------------------------------------------------------------------
-//  "Group By" field parameter  (Modeling > New parameter > Fields)
-//  Create it through the UI and add these fields in this order; the DAX
-//  below is what the UI generates and is here only for reference.
-// ---------------------------------------------------------------------
-// Group By = {
-//     ( "Service",     NAMEOF ( 'DimService'[Service] ),        0 ),
-//     ( "Category",    NAMEOF ( 'DimService'[ServiceCategory] ),1 ),
-//     ( "Action",      NAMEOF ( 'DimAction'[Action] ),          2 ),
-//     ( "Risk level",  NAMEOF ( 'DimAction'[RiskLevel] ),       3 ),
-//     ( "Entity type", NAMEOF ( 'DimEntityType'[EntityType] ),  4 ),
-//     ( "User",        NAMEOF ( 'DimUser'[User] ),              5 ),
-//     ( "Client",      NAMEOF ( 'DimClient'[Client] ),          6 ),
-//     ( "Actor type",  NAMEOF ( 'AuditEvents'[ActorType] ),     7 ),
-//     ( "Status",      NAMEOF ( 'AuditEvents'[Status] ),        8 )
-// }

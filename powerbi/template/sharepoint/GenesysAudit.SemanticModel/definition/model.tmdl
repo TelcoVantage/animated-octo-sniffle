@@ -6,7 +6,7 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-annotation PBI_QueryOrder = ["SharePointSiteUrl", "SharePointFolder", "RangeStart", "RangeEnd", "LocalUtcOffsetHours", "BusinessHoursStart", "BusinessHoursEnd", "fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
+annotation PBI_QueryOrder = ["SharePointSiteUrl", "SharePointFolder", "RangeStart", "RangeEnd", "LocalUtcOffsetHours", "AustralianDaylightSaving", "BusinessHoursStart", "BusinessHoursEnd", "fnParseAuditFile", "SourceFiles", "OAuthClients", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges", "fnParseApiUsageFile", "ApiUsage"]
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
@@ -14,12 +14,14 @@ annotation PBI_ProTooling = ["DevMode"]
 
 ref table AuditEvents
 ref table AuditPropertyChanges
+ref table ApiUsage
 ref table DimDate
 ref table DimUser
 ref table DimClient
 ref table DimService
 ref table DimAction
 ref table DimEntityType
+ref table OAuthClients
 ref table ServiceMap
 ref table ActionRiskMap
 ref table _Measures
