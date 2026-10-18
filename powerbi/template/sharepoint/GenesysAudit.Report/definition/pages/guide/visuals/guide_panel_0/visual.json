@@ -5,7 +5,7 @@
     "x": 20,
     "y": 162,
     "z": 2,
-    "height": 118,
+    "height": 189,
     "width": 612,
     "tabOrder": 2
   },
@@ -20,7 +20,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "1  Overview",
+                    "value": "1  Audit Viewer",
                     "textStyle": {
                       "fontSize": "12pt",
                       "fontWeight": "bold",
@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "The daily glance. Six cards (events, active users, high-risk, failed, off-hours, data freshness), events per day to spot spikes, and bars by service, action and user. Click any bar to filter the page.",
+                    "value": "The same view as Admin > Audit Viewer in Genesys Cloud. Filter by date, service, entity type, action, user, client or status along the top. The table lists each audit entry: date, who (user or API client), service, entity type, action, entity, status, IP address and the message. The lower table shows the changes behind the entries: property, old value, new value. Click a row in the audit log to narrow the changes to that entry.",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

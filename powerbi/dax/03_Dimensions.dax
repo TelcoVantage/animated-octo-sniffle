@@ -87,10 +87,13 @@ RETURN
         "Last Seen",       [@LastSeen],
         "Lifetime Events", [@LifetimeEvents],
         "Client",
-            SWITCH ( TRUE (),
-                AuditEvents[ClientKey] = "NONE", "(no client)",
-                NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
-                [@ClientId] )
+            VAR _mapped = LOOKUPVALUE ( ClientMap[ClientName], ClientMap[ClientId], [@ClientId] )
+            RETURN
+                SWITCH ( TRUE (),
+                    AuditEvents[ClientKey] = "NONE", "(no client)",
+                    NOT ISBLANK ( _mapped ), _mapped,
+                    NOT ISBLANK ( [@ClientName] ) && [@ClientName] <> "", [@ClientName],
+                    [@ClientId] )
     )
 
 

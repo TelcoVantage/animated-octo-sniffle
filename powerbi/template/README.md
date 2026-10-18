@@ -5,12 +5,23 @@ DAX tables, measures, relationships) and six starter report pages. Nothing in
 here is hand-edited: `tools/build_pbip.py` generates it from the `.pq` and
 `.dax` sources.
 
-Two variants, identical except for where they read the daily JSON files:
+Two variants, identical except for where they read the daily JSON files, each in
+a **simple** build (default) and a **full** build:
 
-| Zip | Reads from | Use when |
+| Zip | Reads from | Pages |
 |---|---|---|
-| `GenesysAudit-template-local.zip` | a local / network folder (`AuditSourcePath`) | building and testing on your PC with downloaded or uploaded files |
-| `GenesysAudit-template-sharepoint.zip` | a SharePoint document-library folder (`SharePointSiteUrl` + `SharePointFolder`) | production: the Azure pipeline drops files in SharePoint, the Power BI Service refreshes from there (no gateway needed) |
+| `GenesysAudit-template-local.zip` | a local / network folder (`AuditSourcePath`) | Start Here, Audit Viewer, Agent Presence, API Clients, Data Health |
+| `GenesysAudit-template-sharepoint.zip` | a SharePoint document-library folder (`SharePointSiteUrl` + `SharePointFolder`) | same |
+| `...-local-full.zip`, `...-sharepoint-full.zip` | same sources | the simple pages plus Overview, Activity Explorer, Users & Actors, Security Watch, Event Detail |
+
+* **Audit Viewer** mirrors Admin > Audit Viewer in Genesys Cloud: filter bar on
+  top, the audit table (date, user / client, service, entity type, action,
+  entity, status, IP, details) and the old-to-new changes underneath.
+* **Agent Presence** is filtered to the Presence service: which agents changed
+  presence, from what to what, when, by whom, through which application.
+* **API Clients** shows OAuth client ids and what they do. Fill the `ClientMap`
+  table (Modeling > ClientMap) with ids and names from `GET /api/v2/oauth/clients`
+  to see names instead of ids.
 
 ## Open it
 

@@ -3,9 +3,9 @@
   "name": "guide_panel_2",
   "position": {
     "x": 20,
-    "y": 292,
+    "y": 363,
     "z": 4,
-    "height": 118,
+    "height": 189,
     "width": 612,
     "tabOrder": 4
   },
@@ -20,7 +20,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "3  Users & Actors",
+                    "value": "3  API Clients",
                     "textStyle": {
                       "fontSize": "12pt",
                       "fontWeight": "bold",
@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Review people and integrations. Users ranked by a risk score with counts, distinct IPs and first/last seen; daily activity per user; OAuth clients (integrations and scripts) with their volumes.",
+                    "value": "Everything done by OAuth clients (integrations and scripts) rather than people. Events per client, the services each client touches, failures, IP addresses, first and last seen, and the event list. The bar at the top counts all events by application, so Public API shows API usage by people as well. Client names come from the ClientMap table; fill it from GET /api/v2/oauth/clients.",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

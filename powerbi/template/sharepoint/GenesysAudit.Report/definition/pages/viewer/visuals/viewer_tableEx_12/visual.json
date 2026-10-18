@@ -1,0 +1,214 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "viewer_tableEx_12",
+  "position": {
+    "x": 20,
+    "y": 166,
+    "z": 12,
+    "height": 330,
+    "width": 1240,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EventDateTimeLocal"
+                }
+              },
+              "queryRef": "AuditEvents.EventDateTimeLocal",
+              "nativeQueryRef": "EventDateTimeLocal",
+              "displayName": "Date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "ActorName"
+                }
+              },
+              "queryRef": "AuditEvents.ActorName",
+              "nativeQueryRef": "ActorName",
+              "displayName": "User / Client"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimService"
+                    }
+                  },
+                  "Property": "Service"
+                }
+              },
+              "queryRef": "DimService.Service",
+              "nativeQueryRef": "Service",
+              "displayName": "Service"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityType"
+                }
+              },
+              "queryRef": "AuditEvents.EntityType",
+              "nativeQueryRef": "EntityType",
+              "displayName": "Entity type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Action"
+                }
+              },
+              "queryRef": "AuditEvents.Action",
+              "nativeQueryRef": "Action",
+              "displayName": "Action"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "EntityDisplay"
+                }
+              },
+              "queryRef": "AuditEvents.EntityDisplay",
+              "nativeQueryRef": "EntityDisplay",
+              "displayName": "Entity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Status"
+                }
+              },
+              "queryRef": "AuditEvents.Status",
+              "nativeQueryRef": "Status",
+              "displayName": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "RemoteIp"
+                }
+              },
+              "queryRef": "AuditEvents.RemoteIp",
+              "nativeQueryRef": "RemoteIp",
+              "displayName": "IP address"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Application"
+                }
+              },
+              "queryRef": "AuditEvents.Application",
+              "nativeQueryRef": "Application",
+              "displayName": "Application"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "AuditEvents"
+                    }
+                  },
+                  "Property": "Message"
+                }
+              },
+              "queryRef": "AuditEvents.Message",
+              "nativeQueryRef": "Message",
+              "displayName": "Details"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "AuditEvents"
+                  }
+                },
+                "Property": "EventDateTimeLocal"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Audit log'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

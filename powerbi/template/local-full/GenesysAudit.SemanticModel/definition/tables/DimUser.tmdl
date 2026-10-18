@@ -1,0 +1,144 @@
+table DimUser
+	lineageTag: 082f307a-532f-5190-8400-93e794ba014c
+
+	column UserKey
+		dataType: string
+		isHidden
+		lineageTag: a76b7850-bd7c-5587-b71a-dc43935b1b9a
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [UserKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserId
+		dataType: string
+		lineageTag: e68463ce-1a17-56e5-989e-1f23c2437f79
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [UserId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserName
+		dataType: string
+		lineageTag: c84a0494-ed31-5cd2-92b7-53b4afab2c05
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [UserName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserHomeOrgId
+		dataType: string
+		lineageTag: 1c6f2d6d-bff4-589e-8c80-112a80f040cd
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [UserHomeOrgId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'First Seen'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: efa78900-6af8-577e-bcfc-4441eebed392
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [First Seen]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Last Seen'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: d7910d7a-4ef0-544c-89d9-75a5338a3f56
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Last Seen]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Lifetime Events'
+		dataType: int64
+		formatString: 0
+		lineageTag: 31bffb44-909a-5f1e-996e-e5c2dea60243
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Lifetime Events]
+
+		annotation SummarizationSetBy = Automatic
+
+	column User
+		dataType: string
+		lineageTag: fdb42be2-511b-5e5e-90a5-ded26dcad2be
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [User]
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsExternalUser
+		dataType: boolean
+		lineageTag: dbdeb6bc-32ba-51ad-8637-9e05828a8020
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [IsExternalUser]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimUser = calculated
+		mode: import
+		source =
+				// Your own org id = the userHomeOrgId that appears on most events. A user whose
+				// home org differs is a trustee (partner) user acting under an org trust.
+				VAR _homeOrg =
+				    MAXX (
+				        TOPN ( 1,
+				            ADDCOLUMNS ( VALUES ( AuditEvents[UserHomeOrgId] ), "@n", CALCULATE ( COUNTROWS ( AuditEvents ) ) ),
+				            [@n], DESC ),
+				        AuditEvents[UserHomeOrgId] )
+				VAR _t =
+				    ADDCOLUMNS (
+				        SUMMARIZE ( AuditEvents, AuditEvents[UserKey] ),
+				        "@UserId",         CALCULATE ( MAX ( AuditEvents[UserId] ) ),
+				        "@UserName",       CALCULATE ( MAX ( AuditEvents[UserName] ) ),
+				        "@UserHomeOrgId",  CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
+				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
+				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
+				    )
+				RETURN
+				    SELECTCOLUMNS (
+				        _t,
+				        "UserKey",         AuditEvents[UserKey] & "",
+				        "UserId",          [@UserId],
+				        "UserName",        [@UserName],
+				        "UserHomeOrgId",   [@UserHomeOrgId],
+				        "First Seen",      [@FirstSeen],
+				        "Last Seen",       [@LastSeen],
+				        "Lifetime Events", [@LifetimeEvents],
+				        "User",
+				            SWITCH ( TRUE (),
+				                AuditEvents[UserKey] = "SYSTEM", "System / no user",
+				                NOT ISBLANK ( [@UserName] ) && [@UserName] <> "", [@UserName],
+				                [@UserId] ),
+				        "IsExternalUser",
+				            AuditEvents[UserKey] <> "SYSTEM"
+				                && NOT ISBLANK ( [@UserHomeOrgId] )
+				                && [@UserHomeOrgId] <> _homeOrg
+				    )
+
+	annotation PBI_ResultType = Table

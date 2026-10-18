@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "guide_panel_6",
+  "position": {
+    "x": 20,
+    "y": 402,
+    "z": 8,
+    "height": 68,
+    "width": 612,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "textbox",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "7  Security Watch",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "fontWeight": "bold",
+                      "color": "#2F6FED"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

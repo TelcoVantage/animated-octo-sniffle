@@ -13,6 +13,18 @@ Risk colours used everywhere: High `#D64545`, Medium `#E8A33D`, Low `#4C9A6A`, n
 
 ---
 
+## Default (simple) page set
+
+The generated template ships with Start Here, **Audit Viewer**, **Agent Presence**,
+**API Clients** and Data Health. The analysis pages below (Overview, Activity
+Explorer, Users & Actors, Security Watch, Event Detail) are in the `-full` build.
+
+| Page | Purpose | Key visuals |
+|---|---|---|
+| Audit Viewer | the Genesys Admin > Audit Viewer in Power BI | filter bar (Date, Service, Entity type, Action, User, Client, Status); cards; events per day; audit table with Genesys column order; changes table (property, old, new) |
+| Agent Presence | page filter `ServiceName` contains "Presence" | agents with most changes, new presence values, weekday x application, presence change table (agent, changed by, from, to) |
+| API Clients | OAuth client activity | all events by application; client table (events, services, failed, IPs, first/last seen); client events per day; client x service matrix; event list. Names via `ClientMap` |
+
 ## Page 0 – Start Here
 
 A text-only landing page: what the report is, one panel per page (what it shows,

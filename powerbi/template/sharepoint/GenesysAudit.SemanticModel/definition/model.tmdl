@@ -22,6 +22,7 @@ ref table DimAction
 ref table DimEntityType
 ref table ServiceMap
 ref table ActionRiskMap
+ref table ClientMap
 ref table _Measures
 
 ref cultureInfo en-US

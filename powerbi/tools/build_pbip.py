@@ -301,6 +301,7 @@ CALC_TABLE_COLUMNS = {
     "DimUser": [col("UserKey", STR, hidden=True), col("UserId", STR), col("UserName", STR), col("UserHomeOrgId", STR),
                 col("First Seen", DT, date=True), col("Last Seen", DT, date=True),
                 col("Lifetime Events", INT), col("User", STR), col("IsExternalUser", BOOL)],
+    "ClientMap": [col("ClientId", STR), col("ClientName", STR)],
     "DimClient": [col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
                   col("First Seen", DT, date=True), col("Last Seen", DT, date=True), col("Lifetime Events", INT),
                   col("Client", STR)],
@@ -333,7 +334,7 @@ def build_semantic_model(sm: Path, variant: dict):
         for name, expr, _c, _f in parse_dax_definitions(DAX / f):
             dax_tables[name] = expr
     measures = [(n, e, format_from_comment(c), f) for n, e, c, f in parse_dax_definitions(DAX / "04_Measures.dax")]
-    expected = {"DimDate", "ServiceMap", "ActionRiskMap", "DimUser", "DimClient", "DimService", "DimAction", "DimEntityType"}
+    expected = {"DimDate", "ServiceMap", "ActionRiskMap", "ClientMap", "DimUser", "DimClient", "DimService", "DimAction", "DimEntityType"}
     missing = expected - set(dax_tables)
     if missing:
         raise SystemExit(f"DAX tables not found in sources: {missing}")
@@ -346,7 +347,7 @@ def build_semantic_model(sm: Path, variant: dict):
         "_Measures": table_tmdl("_Measures", [col("Value", STR, hidden=True)], calc='{ "measures" }', measures=measures),
     }
     for t, cols in CALC_TABLE_COLUMNS.items():
-        files[t] = table_tmdl(t, cols, calc=dax_tables[t], hidden=t in ("ServiceMap", "ActionRiskMap"))
+        files[t] = table_tmdl(t, cols, calc=dax_tables[t], hidden=t in ("ServiceMap", "ActionRiskMap", "ClientMap"))
     for t, text in files.items():
         (d / "tables" / f"{t}.tmdl").write_text(text, encoding="utf-8")
 
@@ -372,7 +373,7 @@ def build_semantic_model(sm: Path, variant: dict):
     # --- model / database / culture --------------------------------------------
     query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
     table_order = ["AuditEvents", "AuditPropertyChanges", "DimDate", "DimUser", "DimClient", "DimService", "DimAction",
-                   "DimEntityType", "ServiceMap", "ActionRiskMap", "_Measures"]
+                   "DimEntityType", "ServiceMap", "ActionRiskMap", "ClientMap", "_Measures"]
     model = [
         "model Model",
         "\tculture: en-US",
@@ -418,10 +419,32 @@ def lit(value):
 
 
 def projection(field):
+    """field = a C()/M() dict, or (dict, "Display name") to relabel the column."""
+    display = None
+    if isinstance(field, tuple):
+        field, display = field
     kind = "Column" if "Column" in field else "Measure"
     table = field[kind]["Expression"]["SourceRef"]["Entity"]
     prop = field[kind]["Property"]
-    return {"field": field, "queryRef": f"{table}.{prop}", "nativeQueryRef": prop}
+    proj = {"field": field, "queryRef": f"{table}.{prop}", "nativeQueryRef": prop}
+    if display:
+        proj["displayName"] = display
+    return proj
+
+
+def contains_filter(name, table, column, text):
+    """Advanced filter: column contains text (case-insensitive)."""
+    return {
+        "name": name, "type": "Advanced", "field": C(table, column),
+        "filter": {
+            "Version": 2,
+            "From": [{"Name": "t", "Entity": table, "Type": 0}],
+            "Where": [{"Condition": {"Contains": {
+                "Left": {"Column": {"Expression": {"SourceRef": {"Source": "t"}}, "Property": column}},
+                "Right": {"Literal": {"Value": f"'{text}'"}},
+            }}}],
+        },
+    }
 
 
 def categorical_filter(name, table, column, values):
@@ -439,9 +462,10 @@ def categorical_filter(name, table, column, values):
 
 
 class Page:
-    def __init__(self, name, display, hidden=False):
+    def __init__(self, name, display, hidden=False, filters=None):
         self.name, self.display, self.hidden = name, display, hidden
         self.visuals = []
+        self.filters = filters or []      # page-level filterConfig
 
     def add(self, vtype, x, y, w, h, *, roles=None, title=None, sort=None, sort_dir="Descending",
             filters=None, objects=None, sync=None, name=None):
@@ -489,6 +513,13 @@ class Page:
         for i, (m, title) in enumerate(measures):
             self.add("card", x0 + i * (w + gap), y, w, h, roles={"Values": [M(m)]}, title=title)
 
+    def slicer_row(self, fields, y=8, x0=20, w=172, h=58, gap=8):
+        """Genesys-style filter bar across the top: (table, column, title) dropdowns."""
+        for i, (table, column, title) in enumerate(fields):
+            objects = None if column == "Date" else {"data": [{"properties": {"mode": lit("'Dropdown'")}}]}
+            self.add("slicer", x0 + i * (w + gap), y, w, h, roles={"Values": [C(table, column)]}, title=title,
+                     objects=objects, sync=f"sync_{table}_{column}", name=f"{self.name}_slicer_{column}")
+
     def slicer_rail(self):
         rail = [
             ("DimDate", "Date", 120, "Date"),
@@ -508,30 +539,57 @@ class Page:
             y += h + 8
 
 
+GUIDE_PANELS_SIMPLE = [
+    ("1  Audit Viewer",
+     "The same view as Admin > Audit Viewer in Genesys Cloud. Filter by date, service, entity type, action, user, "
+     "client or status along the top. The table lists each audit entry: date, who (user or API client), service, "
+     "entity type, action, entity, status, IP address and the message. The lower table shows the changes behind the "
+     "entries: property, old value, new value. Click a row in the audit log to narrow the changes to that entry."),
+    ("2  Agent Presence",
+     "Only the Presence service. Which agents' presence changed, from what to what, when, who or what changed it "
+     "(the agent, a supervisor, an integration) and through which application. Bars show the busiest agents, the new "
+     "presence values and the weekday pattern."),
+    ("3  API Clients",
+     "Everything done by OAuth clients (integrations and scripts) rather than people. Events per client, the services "
+     "each client touches, failures, IP addresses, first and last seen, and the event list. The bar at the top counts "
+     "all events by application, so Public API shows API usage by people as well. Client names come from the ClientMap "
+     "table; fill it from GET /api/v2/oauth/clients."),
+    ("4  Data Health",
+     "Checks the daily feed: freshness, files loaded with their event counts, days without data, and services or "
+     "actions missing from the mapping tables."),
+]
+
 GUIDE_PANELS = [
-    ("1  Overview",
+    ("1  Audit Viewer",
+     "The same view as Admin > Audit Viewer in Genesys Cloud: filter bar, audit table, and the old-to-new changes."),
+    ("2  Agent Presence",
+     "Presence-service events only: which agents changed presence, from what to what, when and by whom."),
+    ("3  API Clients",
+     "OAuth clients (integrations and scripts): events per client, services touched, failures, IPs, event list."),
+    ("4  Overview",
      "The daily glance. Six cards (events, active users, high-risk, failed, off-hours, data freshness), "
      "events per day to spot spikes, and bars by service, action and user. Click any bar to filter the page."),
-    ("2  Activity Explorer",
+    ("5  Activity Explorer",
      "Find a pattern. Weekday x hour heatmap in local time, service x action-category matrix, and the full "
      "event list for the current selection. This is the table to export from."),
-    ("3  Users & Actors",
+    ("6  Users & Actors",
      "Review people and integrations. Users ranked by a risk score with counts, distinct IPs and first/last seen; "
      "daily activity per user; OAuth clients (integrations and scripts) with their volumes."),
-    ("4  Security Watch",
+    ("7  Security Watch",
      "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with "
      "high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is "
      "pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal."),
-    ("5  Event Detail",
+    ("8  Event Detail",
      "The full record of each event: ids, client, application, level, IPs, transaction, message code and context. "
      "Below it every property or entity change with old and new values and the change type."),
-    ("6  Data Health",
+    ("9  Data Health",
      "Checks the feed, not the activity. Freshness, files loaded with their event counts, days without data, "
      "and the services and actions that are not yet in the mapping tables."),
 ]
 
 
-def build_guide_page():
+def build_guide_page(full: bool = False):
+    panels = GUIDE_PANELS if full else GUIDE_PANELS_SIMPLE
     p = Page("guide", "Start Here")
     p.text(20, 12, 1240, 44, [("Genesys Cloud audit log report - how to use it", "title")])
     p.text(20, 58, 1240, 92, [
@@ -543,28 +601,126 @@ def build_guide_page():
          "LocalUtcOffsetHours parameter.", "body"),
     ])
     # six panels in two columns
-    col_w, col_h, gap = 612, 118, 12
-    for i, (title, body) in enumerate(GUIDE_PANELS):
+    rows = (len(panels) + 1) // 2
+    col_w, gap = 612, 12
+    col_h = int((552 - 162 - gap * (rows - 1)) / rows)
+    for i, (title, body) in enumerate(panels):
         x = 20 + (i % 2) * (col_w + 16)
         y = 162 + (i // 2) * (col_h + gap)
         p.text(x, y, col_w, col_h, [(title, "heading"), (body, "body")], name=f"guide_panel_{i}")
     p.text(20, 552, 1240, 156, [
-        ("Slicers, risk levels and freshness", "heading"),
-        ("The slicer rail on the left of each page (Date, Service, Risk level, Actor type, User, Status) is synced, so a "
-         "selection follows you between pages. Risk level is an attribute of the action, looked up in the ActionRiskMap "
-         "table: High = destructive or privilege-changing actions (Delete, Purge, Deactivate, Revoke, Reset ...), "
-         "Medium = configuration changes and data access (Create, Update, Assign, Download, Export ...), Low = read-only "
-         "and session actions (View, Login, Logout ...). Actions not in the map are rated Medium and listed on the Data "
-         "Health page so they can be added. Actor type is User for interactive actions, OAuth Client for integrations "
-         "and scripts, System for platform actions. Data freshness is Fresh within 30 hours of the last event, "
-         "Late within 54 hours, otherwise Stale.", "body"),
+        ("Filters and a few definitions", "heading"),
+        ("The filters along the top of each page are synced, so a selection follows you between pages. "
+         "User / Client is the person's name for interactive actions, the OAuth client (integration or script) for API "
+         "actions, or System for platform actions. Entity is the thing acted on: a queue, a flow, a user, a recording. "
+         "Times are shown in local time (UTC + the LocalUtcOffsetHours parameter); the exact UTC timestamp and the "
+         "Genesys audit id are available in the field list for every event. Data freshness is Fresh within 30 hours "
+         "of the last event, Late within 54 hours, otherwise Stale.", "body"),
         ("Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.", "muted"),
     ])
     return p
 
 
-def build_pages():
-    pages = [build_guide_page()]
+VIEWER_FILTERS = [
+    ("DimDate", "Date", "Date"), ("DimService", "Service", "Service"), ("DimEntityType", "EntityType", "Entity type"),
+    ("DimAction", "Action", "Action"), ("DimUser", "User", "User"), ("DimClient", "Client", "Client"),
+    ("AuditEvents", "Status", "Status"),
+]
+
+
+def build_viewer_page():
+    """Mirrors Admin > Audit Viewer in Genesys Cloud: filter bar, audit table, change details."""
+    p = Page("viewer", "Audit Viewer")
+    p.slicer_row(VIEWER_FILTERS)
+    p.cards([("Audit Events", "Audit events"), ("Distinct Users", "Users"), ("Distinct Clients", "API clients"),
+             ("Distinct Entities", "Entities touched")], y=76, x0=20, w=172, h=80)
+    p.add("columnChart", 740, 76, 520, 80, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")]},
+          title="Events per day", sort=C("DimDate", "Date"), sort_dir="Ascending")
+    p.add("tableEx", 20, 166, 1240, 330, roles={"Values": [
+        (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("AuditEvents", "ActorName"), "User / Client"),
+        (C("DimService", "Service"), "Service"), (C("AuditEvents", "EntityType"), "Entity type"),
+        (C("AuditEvents", "Action"), "Action"), (C("AuditEvents", "EntityDisplay"), "Entity"),
+        (C("AuditEvents", "Status"), "Status"), (C("AuditEvents", "RemoteIp"), "IP address"),
+        (C("AuditEvents", "Application"), "Application"), (C("AuditEvents", "Message"), "Details")]},
+        title="Audit log", sort=C("AuditEvents", "EventDateTimeLocal"))
+    p.add("tableEx", 20, 506, 1240, 206, roles={"Values": [
+        (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("AuditEvents", "ActorName"), "User / Client"),
+        (C("AuditEvents", "Action"), "Action"), (C("AuditEvents", "EntityDisplay"), "Entity"),
+        (C("AuditPropertyChanges", "PropertyShort"), "Property"), (C("AuditPropertyChanges", "OldValues"), "Old value"),
+        (C("AuditPropertyChanges", "NewValues"), "New value"), (C("AuditPropertyChanges", "ChangeEntityName"), "Affected entity")]},
+        title="Changes (old value to new value) - select a row above to narrow this down",
+        sort=C("AuditEvents", "EventDateTimeLocal"))
+    return p
+
+
+def build_presence_page():
+    """Agent presence changes: Presence service only (page-level filter)."""
+    p = Page("presence", "Agent Presence",
+             filters=[contains_filter("flt_presence_service", "AuditEvents", "ServiceName", "Presence")])
+    p.slicer_row([("DimDate", "Date", "Date"), ("DimEntityType", "EntityType", "Entity type"),
+                  ("DimAction", "Action", "Action"), ("DimUser", "User", "Changed by"),
+                  ("AuditEvents", "EntityDisplay", "Agent"), ("AuditEvents", "Application", "Application")])
+    p.cards([("Audit Events", "Presence events"), ("Distinct Entities", "Agents affected"),
+             ("Distinct Users", "People making changes"), ("Property Changes", "Values changed")], y=76, x0=20, w=172, h=80)
+    p.add("columnChart", 740, 76, 520, 80, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")]},
+          title="Presence events per day", sort=C("DimDate", "Date"), sort_dir="Ascending")
+    p.add("barChart", 20, 166, 350, 250, roles={"Category": [C("AuditEvents", "EntityDisplay")], "Y": [M("Audit Events")]},
+          title="Agents with most presence changes", sort=M("Audit Events"))
+    p.add("barChart", 380, 166, 350, 250, roles={"Category": [C("AuditPropertyChanges", "NewValues")], "Y": [M("Property Changes")]},
+          title="New presence values", sort=M("Property Changes"))
+    p.add("barChart", 740, 166, 520, 250, roles={"Category": [C("DimDate", "Day Name")], "Y": [M("Audit Events")],
+                                                  "Series": [C("AuditEvents", "Application")]},
+          title="By weekday and application", sort=C("DimDate", "Day Name"), sort_dir="Ascending")
+    p.add("tableEx", 20, 426, 1240, 286, roles={"Values": [
+        (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("AuditEvents", "EntityDisplay"), "Agent"),
+        (C("AuditEvents", "ActorName"), "Changed by"), (C("AuditEvents", "Action"), "Action"),
+        (C("AuditPropertyChanges", "PropertyShort"), "Property"), (C("AuditPropertyChanges", "OldValues"), "From"),
+        (C("AuditPropertyChanges", "NewValues"), "To"), (C("AuditEvents", "Application"), "Application"),
+        (C("AuditEvents", "RemoteIp"), "IP address")]},
+        title="Presence changes", sort=C("AuditEvents", "EventDateTimeLocal"))
+    return p
+
+
+def build_clients_page():
+    """OAuth client ids and API usage."""
+    p = Page("clients", "API Clients")
+    oauth = [categorical_filter("flt_actor_oauth", "AuditEvents", "ActorType", ["OAuth Client"])]
+    p.slicer_row([("DimDate", "Date", "Date"), ("DimClient", "Client", "Client"), ("DimService", "Service", "Service"),
+                  ("DimAction", "Action", "Action"), ("AuditEvents", "Application", "Application")])
+    p.cards([("OAuth Client Events", "Events by API clients"), ("Distinct Clients", "Distinct clients"),
+             ("Audit Events", "All events (users + clients)")], y=76, x0=20, w=172, h=80)
+    p.add("barChart", 560, 76, 700, 80, roles={"Category": [C("AuditEvents", "Application")], "Y": [M("Audit Events")]},
+          title="All events by application (Public API = made through the API)", sort=M("Audit Events"))
+    p.add("tableEx", 20, 166, 620, 250, roles={"Values": [
+        (C("DimClient", "Client"), "Client"), (M("Audit Events"), "Events"), (M("Distinct Services"), "Services"),
+        (M("Failed Events"), "Failed"), (M("Distinct Source IPs"), "IPs"),
+        (C("DimClient", "First Seen"), "First seen"), (C("DimClient", "Last Seen"), "Last seen")]},
+        title="API clients - add names in the ClientMap table", sort=M("Audit Events"), filters=oauth)
+    p.add("columnChart", 650, 166, 610, 250, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")],
+                                                     "Series": [C("DimClient", "Client")]},
+          title="API client events per day", sort=C("DimDate", "Date"), sort_dir="Ascending", filters=oauth)
+    p.add("pivotTable", 20, 426, 620, 286, roles={"Rows": [C("DimClient", "Client")], "Columns": [C("DimService", "Service")],
+                                                  "Values": [M("Audit Events")]},
+          title="What each client touches (client x service)", filters=oauth)
+    p.add("tableEx", 650, 426, 610, 286, roles={"Values": [
+        (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("DimClient", "Client"), "Client"),
+        (C("DimService", "Service"), "Service"), (C("AuditEvents", "Action"), "Action"),
+        (C("AuditEvents", "EntityDisplay"), "Entity"), (C("AuditEvents", "Status"), "Status"),
+        (C("AuditEvents", "RemoteIp"), "IP address")]},
+        title="API client events", sort=C("AuditEvents", "EventDateTimeLocal"), filters=oauth)
+    return p
+
+
+def build_pages(full: bool = False):
+    pages = [build_guide_page(full), build_viewer_page(), build_presence_page(), build_clients_page()]
+    if full:
+        pages += build_analysis_pages()
+    pages.append(build_health_page())
+    return pages
+
+
+def build_analysis_pages():
+    pages = []
 
     # ---------------------------------------------------------------- Overview
     p = Page("overview", "Overview")
@@ -662,8 +818,10 @@ def build_pages():
         C("AuditPropertyChanges", "Property"), C("AuditPropertyChanges", "AuditId")]},
         title="What changed - old value to new value, by person", sort=C("AuditEvents", "EventDateTimeLocal"))
     pages.append(p)
+    return pages
 
-    # ------------------------------------------------------------- Data Health
+
+def build_health_page():
     p = Page("health", "Data Health")
     p.heading("Data health - is the daily feed complete?", x=10, w=1260)
     p.cards([("Data Freshness Status", "Freshness"), ("Data Age (hours)", "Hours since last event"), ("Last Event (UTC)", "Last event (UTC)"),
@@ -681,8 +839,7 @@ def build_pages():
     p.add("tableEx", 960, 435, 310, 275, roles={"Values": [C("DimAction", "Action"), M("Audit Events")]},
           title="Actions not in ActionRiskMap", sort=M("Audit Events"),
           filters=[categorical_filter("flt_act_other", "DimAction", "ActionCategory", ["Other"])])
-    pages.append(p)
-    return pages
+    return p
 
 
 def build_report(rp: Path, pages):
@@ -730,6 +887,8 @@ def build_report(rp: Path, pages):
         page = {"$schema": S_PAGE, "name": p.name, "displayName": p.display, "displayOption": "FitToPage", "height": 720, "width": 1280}
         if p.hidden:
             page["visibility"] = "HiddenInViewMode"
+        if p.filters:
+            page["filterConfig"] = {"filters": p.filters}
         write_json(pd / "page.json", page)
         for v in p.visuals:
             (pd / "visuals" / v["name"]).mkdir(parents=True, exist_ok=True)
@@ -769,8 +928,9 @@ def write_json(path: Path, obj):
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def build_variant(name: str, variant: dict, zip_it: bool) -> int:
-    out = OUT / name
+def build_variant(name: str, variant: dict, zip_it: bool, full: bool = False) -> int:
+    suffix = "-full" if full else ""
+    out = OUT / f"{name}{suffix}"
     sm = out / f"{NAME}.SemanticModel"
     rp = out / f"{NAME}.Report"
     if out.exists():
@@ -778,7 +938,7 @@ def build_variant(name: str, variant: dict, zip_it: bool) -> int:
     out.mkdir(parents=True)
 
     n_tables, n_measures = build_semantic_model(sm, variant)
-    n_visuals = build_report(rp, build_pages())
+    n_visuals = build_report(rp, build_pages(full))
     write_json(out / f"{NAME}.pbip", {
         "$schema": S_PBIP, "version": "1.0",
         "artifacts": [{"report": {"path": f"{NAME}.Report"}}],
@@ -797,12 +957,12 @@ def build_variant(name: str, variant: dict, zip_it: bool) -> int:
         S_PAGE: list((rp / "definition" / "pages").glob("*/page.json")),
         S_VISUAL: list((rp / "definition" / "pages").glob("*/visuals/*/visual.json")),
     })
-    print(f"[{name}] semantic model: {n_tables} tables, {n_measures} measures; report: {n_visuals} visuals; schema errors: {errors}")
+    print(f"[{name}{suffix}] semantic model: {n_tables} tables, {n_measures} measures; report: {n_visuals} visuals; schema errors: {errors}")
     if errors:
         return errors
 
     if zip_it:
-        zpath = OUT / f"{NAME}-template-{name}.zip"
+        zpath = OUT / f"{NAME}-template-{name}{suffix}.zip"
         with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
             for f in sorted(out.rglob("*")):
                 if f.is_file():
@@ -810,7 +970,7 @@ def build_variant(name: str, variant: dict, zip_it: bool) -> int:
             for f in sorted((ROOT / "sample-data").glob("*.json")):
                 z.write(f, Path("sample-data") / f.name)
             z.write(ROOT / "docs" / "audit-api.md", "docs/audit-api.md")
-        print(f"[{name}] zip: {zpath.relative_to(ROOT)} ({zpath.stat().st_size // 1024} KB)")
+        print(f"[{name}{suffix}] zip: {zpath.relative_to(ROOT)} ({zpath.stat().st_size // 1024} KB)")
     return 0
 
 
@@ -820,7 +980,10 @@ def main():
     ap.add_argument("--variant", choices=list(VARIANTS), help="build only this variant")
     args = ap.parse_args()
     names = [args.variant] if args.variant else list(VARIANTS)
-    errors = sum(build_variant(n, VARIANTS[n], not args.no_zip) for n in names)
+    errors = 0
+    for n in names:
+        errors += build_variant(n, VARIANTS[n], not args.no_zip, full=False)
+        errors += build_variant(n, VARIANTS[n], not args.no_zip, full=True)
     if errors:
         sys.exit(1)
 

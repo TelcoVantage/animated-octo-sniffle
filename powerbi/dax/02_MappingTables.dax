@@ -106,3 +106,18 @@ DATATABLE (
         { "Logout",            "Low",    "Session",      3 }
     }
 )
+
+
+// ---------------------------------------------------------------------
+//  ClientMap   -- OAuth client id -> readable name
+//  The audit API returns client ids only. Fill this from
+//  GET /api/v2/oauth/clients (Admin > Integrations > OAuth shows the
+//  same ids). Unknown ids keep showing the id.
+// ---------------------------------------------------------------------
+ClientMap =
+DATATABLE (
+    "ClientId", STRING, "ClientName", STRING,
+    {
+        { "00000000-0000-0000-0000-000000000000", "Example - replace me" }
+    }
+)

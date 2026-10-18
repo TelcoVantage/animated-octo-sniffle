@@ -1,0 +1,108 @@
+table ActionRiskMap
+	lineageTag: b9452df5-ce97-5474-8e92-0d27caf6ff05
+	isHidden
+
+	column Action
+		dataType: string
+		lineageTag: 1db5301c-6ffb-51af-8ebd-8be240cbcb8e
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Action]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RiskLevel
+		dataType: string
+		lineageTag: 7882abb3-1d15-59c6-8178-383a05e7a50b
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [RiskLevel]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActionCategory
+		dataType: string
+		lineageTag: 6dafeff8-36e8-584a-974f-8c56d20066a7
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ActionCategory]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RiskSort
+		dataType: int64
+		formatString: 0
+		lineageTag: eb3dc3fb-9532-54cf-aeb8-892d7a895d2c
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [RiskSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ActionRiskMap = calculated
+		mode: import
+		source =
+				DATATABLE (
+				    "Action", STRING, "RiskLevel", STRING, "ActionCategory", STRING, "RiskSort", INTEGER,
+				    {
+				        // destructive / irreversible
+				        { "Delete",            "High",   "Destructive",  1 },
+				        { "Purge",             "High",   "Destructive",  1 },
+				        { "Remove",            "High",   "Destructive",  1 },
+				        { "Terminate",         "High",   "Destructive",  1 },
+				        { "Expire",            "High",   "Destructive",  1 },
+				        // privilege / security posture
+				        { "Deactivate",        "High",   "Privilege",    1 },
+				        { "Disable",           "High",   "Privilege",    1 },
+				        { "Revoke",            "High",   "Privilege",    1 },
+				        { "Reset",             "High",   "Privilege",    1 },
+				        { "Deauthorize",       "High",   "Privilege",    1 },
+				        { "Unpublish",         "High",   "Change",       1 },
+				        { "RemoveProtection",  "High",   "Privilege",    1 },
+				        { "Authorize",         "Medium", "Privilege",    2 },
+				        { "Assign",            "Medium", "Privilege",    2 },
+				        { "Unassign",          "Medium", "Privilege",    2 },
+				        { "Activate",          "Medium", "Privilege",    2 },
+				        { "Enable",            "Medium", "Privilege",    2 },
+				        { "Reinstate",         "Medium", "Privilege",    2 },
+				        { "ApplyProtection",   "Medium", "Privilege",    2 },
+				        // configuration change
+				        { "Create",            "Medium", "Change",       2 },
+				        { "Update",            "Medium", "Change",       2 },
+				        { "Add",               "Medium", "Change",       2 },
+				        { "Publish",           "Medium", "Change",       2 },
+				        { "Move",              "Medium", "Change",       2 },
+				        { "Copy",              "Medium", "Change",       2 },
+				        { "Clone",             "Medium", "Change",       2 },
+				        { "Rename",            "Medium", "Change",       2 },
+				        { "Restore",           "Medium", "Change",       2 },
+				        { "Reassign",          "Medium", "Change",       2 },
+				        { "Apply",             "Medium", "Change",       2 },
+				        { "Execute",           "Medium", "Change",       2 },
+				        { "Checkin",           "Medium", "Change",       2 },
+				        { "Checkout",          "Medium", "Change",       2 },
+				        { "Approve",           "Medium", "Change",       2 },
+				        { "Reject",            "Medium", "Change",       2 },
+				        { "Share",             "Medium", "Change",       2 },
+				        { "Unshare",           "Medium", "Change",       2 },
+				        { "Upload",            "Medium", "Change",       2 },
+				        { "Import",            "Medium", "Change",       2 },
+				        // data access
+				        { "Download",          "Medium", "Data Access",  2 },
+				        { "Export",            "Medium", "Data Access",  2 },
+				        // read-only / session
+				        { "View",              "Low",    "Read",         3 },
+				        { "Read",              "Low",    "Read",         3 },
+				        { "Search",            "Low",    "Read",         3 },
+				        { "Open",              "Low",    "Read",         3 },
+				        { "Verify",            "Low",    "Read",         3 },
+				        { "Login",             "Low",    "Session",      3 },
+				        { "Logout",            "Low",    "Session",      3 }
+				    }
+				)
+
+	annotation PBI_ResultType = Table

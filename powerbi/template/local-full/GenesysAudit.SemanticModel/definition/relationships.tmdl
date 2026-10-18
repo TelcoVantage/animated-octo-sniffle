@@ -1,0 +1,34 @@
+relationship 56cdb126-4f8e-5620-be81-a23ba06207c0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: AuditEvents.EventDateUtc
+	toColumn: DimDate.Date
+
+relationship 77f0245c-1391-5a7e-84b8-4c5b47a59b2c
+	isActive: false
+	joinOnDateBehavior: datePartOnly
+	fromColumn: AuditEvents.EventDateLocal
+	toColumn: DimDate.Date
+
+relationship de3f1191-6394-5c3a-97df-a62658bdf15f
+	fromColumn: AuditEvents.UserKey
+	toColumn: DimUser.UserKey
+
+relationship cf317114-70f5-555a-b6e3-5ddf8e9decef
+	fromColumn: AuditEvents.ClientKey
+	toColumn: DimClient.ClientKey
+
+relationship b5340558-43b3-5068-9d9f-d06df0f4cf04
+	fromColumn: AuditEvents.ServiceName
+	toColumn: DimService.ServiceName
+
+relationship 6de3c7a5-472c-5797-b2f4-73d9f2798334
+	fromColumn: AuditEvents.Action
+	toColumn: DimAction.Action
+
+relationship 38a8baad-1fa8-5e78-9470-e5e0d09f3e91
+	fromColumn: AuditEvents.EntityType
+	toColumn: DimEntityType.EntityType
+
+relationship 29ad1988-98aa-5e77-bfab-5631afc0bcd6
+	fromColumn: AuditPropertyChanges.AuditId
+	toColumn: AuditEvents.AuditId

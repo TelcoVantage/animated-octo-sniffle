@@ -5,7 +5,7 @@
     "x": 648,
     "y": 162,
     "z": 3,
-    "height": 118,
+    "height": 189,
     "width": 612,
     "tabOrder": 3
   },
@@ -20,7 +20,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "2  Activity Explorer",
+                    "value": "2  Agent Presence",
                     "textStyle": {
                       "fontSize": "12pt",
                       "fontWeight": "bold",
@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Find a pattern. Weekday x hour heatmap in local time, service x action-category matrix, and the full event list for the current selection. This is the table to export from.",
+                    "value": "Only the Presence service. Which agents' presence changed, from what to what, when, who or what changed it (the agent, a supervisor, an integration) and through which application. Bars show the busiest agents, the new presence values and the weekday pattern.",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

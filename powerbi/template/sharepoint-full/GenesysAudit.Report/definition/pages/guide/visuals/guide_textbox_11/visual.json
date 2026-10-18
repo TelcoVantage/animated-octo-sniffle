@@ -1,0 +1,59 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "guide_textbox_11",
+  "position": {
+    "x": 20,
+    "y": 552,
+    "z": 11,
+    "height": 156,
+    "width": 1240,
+    "tabOrder": 11
+  },
+  "visual": {
+    "visualType": "textbox",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Filters and a few definitions",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "fontWeight": "bold",
+                      "color": "#2F6FED"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The filters along the top of each page are synced, so a selection follows you between pages. User / Client is the person's name for interactive actions, the OAuth client (integration or script) for API actions, or System for platform actions. Entity is the thing acted on: a queue, a flow, a user, a recording. Times are shown in local time (UTC + the LocalUtcOffsetHours parameter); the exact UTC timestamp and the Genesys audit id are available in the field list for every event. Data freshness is Fresh within 30 hours of the last event, Late within 54 hours, otherwise Stale.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#5F6B7A"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

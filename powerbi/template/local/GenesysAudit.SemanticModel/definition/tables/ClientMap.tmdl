@@ -1,0 +1,35 @@
+table ClientMap
+	lineageTag: b088aa76-e207-5ad0-96a0-65c174cad6db
+	isHidden
+
+	column ClientId
+		dataType: string
+		lineageTag: 623c42e1-5964-55eb-83f1-cf4d4e3c2774
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ClientId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClientName
+		dataType: string
+		lineageTag: 2de368c1-958d-5d9e-9762-4fb180ab2caa
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ClientName]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ClientMap = calculated
+		mode: import
+		source =
+				DATATABLE (
+				    "ClientId", STRING, "ClientName", STRING,
+				    {
+				        { "00000000-0000-0000-0000-000000000000", "Example - replace me" }
+				    }
+				)
+
+	annotation PBI_ResultType = Table

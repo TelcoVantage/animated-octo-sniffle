@@ -3,9 +3,9 @@
   "name": "guide_panel_3",
   "position": {
     "x": 648,
-    "y": 292,
+    "y": 363,
     "z": 5,
-    "height": 118,
+    "height": 189,
     "width": 612,
     "tabOrder": 5
   },
@@ -20,7 +20,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "4  Security Watch",
+                    "value": "4  Data Health",
                     "textStyle": {
                       "fontSize": "12pt",
                       "fontWeight": "bold",
@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "The reviewer's page: empty visuals are good news. Cards for off-hours high-risk actions, users with high-risk actions, users from many IPs, partner users, OAuth clients and security services. The feed is pre-filtered to High risk. Deletes by day, failure rate by service, and days whose volume is abnormal.",
+                    "value": "Checks the daily feed: freshness, files loaded with their event counts, days without data, and services or actions missing from the mapping tables.",
                     "textStyle": {
                       "fontSize": "10pt"
                     }
