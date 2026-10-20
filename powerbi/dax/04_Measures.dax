@@ -233,6 +233,28 @@ RETURN
     MAXX ( TOPN ( 1, _t, [@n], DESC ), DimUser[User] )
 
 
+// ==================== Related audits ===================================
+//  Same set as POST /api/v2/audits/query/realtime/related: every audit
+//  created by the same action as the selected one (shared TransactionKey).
+
+Is Related =                                     // 0   visual-level filter "= 1" on the Related audits table
+IF (
+    HASONEVALUE ( AuditEvents[AuditId] ),
+    IF ( SELECTEDVALUE ( RelatedEvents[TransactionKey] ) IN VALUES ( AuditEvents[TransactionKey] ), 1, 0 ),
+    0
+)
+
+Related Audits =                                 // #,0   events in the selected transaction (incl. the selected one)
+IF (
+    HASONEVALUE ( AuditEvents[AuditId] ),
+    VAR _k = VALUES ( AuditEvents[TransactionKey] )
+    RETURN COUNTROWS ( FILTER ( ALL ( RelatedEvents ), RelatedEvents[TransactionKey] IN _k ) )
+)
+
+Selected Audit Id =                              // text
+SELECTEDVALUE ( AuditEvents[AuditId], "click one row in the audit log" )
+
+
 // ==================== Data health =====================================
 
 First Event (UTC) =                              // dd MMM yyyy HH:mm

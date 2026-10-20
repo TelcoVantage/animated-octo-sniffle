@@ -51,9 +51,14 @@ let
                         each [PropertyChangeCount] > 0 or [EntityChangeCount] > 0, type logical),
     AddIsFailure  = Table.AddColumn(AddHasChanges, "IsFailure",
                         each [Status] = "FAILURE", type logical),
+    // initiatingAction.transactionId is the audit id of the event that started the
+    // transaction; every audit created by the same action carries it. That is what
+    // POST /audits/query/realtime/related returns. Events without one are their own group.
+    AddTxKey      = Table.AddColumn(AddIsFailure, "TransactionKey",
+                        each if [TransactionId] <> null and [TransactionId] <> "" then [TransactionId] else [AuditId], type text),
 
     // Column order that reads well in the Data view
-    Reordered = Table.ReorderColumns(AddIsFailure, {
+    Reordered = Table.ReorderColumns(AddTxKey, {
         "AuditId", "EventDateTimeUtc", "EventDateUtc", "EventHourUtc",
         "EventDateTimeLocal", "EventDateLocal", "EventHourLocal", "EventDayOfWeekLocal", "IsOffHours",
         "ServiceName", "Action", "EntityType", "EntityId", "EntityName", "EntityDisplay",
@@ -61,7 +66,7 @@ let
         "ActorType", "ActorName", "UserKey", "UserId", "UserName", "ClientKey", "ClientId", "ClientName",
         "RemoteIp", "RemoteIpAll", "RemoteIpCount",
         "MessageCode", "Message", "MessageTemplate", "PropertyChangeCount", "EntityChangeCount", "HasPropertyChanges", "ContextJson",
-        "TransactionId", "InitiatingActionContext", "TransactionInitiator", "UserHomeOrgId",
+        "TransactionId", "TransactionKey", "InitiatingActionContext", "TransactionInitiator", "UserHomeOrgId",
         "SourceFile", "SourceFileModified"
     })
 in

@@ -1,0 +1,251 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "viewer_tableEx_14",
+  "position": {
+    "x": 590,
+    "y": 476,
+    "z": 14,
+    "height": 236,
+    "width": 670,
+    "tabOrder": 14
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "EventDateTimeLocal"
+                }
+              },
+              "queryRef": "RelatedEvents.EventDateTimeLocal",
+              "nativeQueryRef": "EventDateTimeLocal",
+              "displayName": "Date"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "ActorName"
+                }
+              },
+              "queryRef": "RelatedEvents.ActorName",
+              "nativeQueryRef": "ActorName",
+              "displayName": "User / Client"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "ServiceName"
+                }
+              },
+              "queryRef": "RelatedEvents.ServiceName",
+              "nativeQueryRef": "ServiceName",
+              "displayName": "Service"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "Action"
+                }
+              },
+              "queryRef": "RelatedEvents.Action",
+              "nativeQueryRef": "Action",
+              "displayName": "Action"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "EntityType"
+                }
+              },
+              "queryRef": "RelatedEvents.EntityType",
+              "nativeQueryRef": "EntityType",
+              "displayName": "Entity type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "EntityDisplay"
+                }
+              },
+              "queryRef": "RelatedEvents.EntityDisplay",
+              "nativeQueryRef": "EntityDisplay",
+              "displayName": "Entity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "Status"
+                }
+              },
+              "queryRef": "RelatedEvents.Status",
+              "nativeQueryRef": "Status",
+              "displayName": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "TransactionInitiator"
+                }
+              },
+              "queryRef": "RelatedEvents.TransactionInitiator",
+              "nativeQueryRef": "TransactionInitiator",
+              "displayName": "Initiator"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "RelatedEvents"
+                    }
+                  },
+                  "Property": "Message"
+                }
+              },
+              "queryRef": "RelatedEvents.Message",
+              "nativeQueryRef": "Message",
+              "displayName": "Details"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "RelatedEvents"
+                  }
+                },
+                "Property": "EventDateTimeLocal"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Related audits (same action as the selected row, like Related in Genesys)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "flt_is_related",
+        "type": "Advanced",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "Is Related"
+          }
+        },
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "m",
+              "Entity": "_Measures",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Comparison": {
+                  "ComparisonKind": 0,
+                  "Left": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "m"
+                        }
+                      },
+                      "Property": "Is Related"
+                    }
+                  },
+                  "Right": {
+                    "Literal": {
+                      "Value": "1L"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

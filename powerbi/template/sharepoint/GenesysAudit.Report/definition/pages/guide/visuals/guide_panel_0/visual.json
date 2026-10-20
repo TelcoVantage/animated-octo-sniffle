@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "The same view as Admin > Audit Viewer in Genesys Cloud. Filter by date, service, entity type, action, user, client or status along the top. The table lists each audit entry: date, who (user or API client), service, entity type, action, entity, status, IP address and the message. The lower table shows the changes behind the entries: property, old value, new value. Click a row in the audit log to narrow the changes to that entry.",
+                    "value": "The same view as Admin > Audit Viewer in Genesys Cloud. Filter by date, service, entity type, action, user, client or status along the top. The table lists each audit entry: date, who (user or API client), service, entity type, action, entity, status, IP address and the message. The lower table shows the changes behind the entries: property, old value, new value. Click a row in the audit log: the changes narrow to that entry and the Related audits table lists every audit created by the same action, like Related in Genesys (for example all the user, role and group updates behind one SCIM provisioning call).",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

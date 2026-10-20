@@ -319,6 +319,30 @@ table _Measures
 		displayFolder: Share & ranking
 		lineageTag: 9d91f8bf-0355-5650-8dcd-3e29cfc74556
 
+	measure 'Is Related' =
+			IF (
+			    HASONEVALUE ( AuditEvents[AuditId] ),
+			    IF ( SELECTEDVALUE ( RelatedEvents[TransactionKey] ) IN VALUES ( AuditEvents[TransactionKey] ), 1, 0 ),
+			    0
+			)
+		formatString: 0
+		displayFolder: Related audits
+		lineageTag: c0496994-7cbe-5f67-8d3e-e94b5a09c0de
+
+	measure 'Related Audits' =
+			IF (
+			    HASONEVALUE ( AuditEvents[AuditId] ),
+			    VAR _k = VALUES ( AuditEvents[TransactionKey] )
+			    RETURN COUNTROWS ( FILTER ( ALL ( RelatedEvents ), RelatedEvents[TransactionKey] IN _k ) )
+			)
+		formatString: #,0
+		displayFolder: Related audits
+		lineageTag: ffa8e2e8-bc9c-5fb7-867b-1c190bce05ae
+
+	measure 'Selected Audit Id' = SELECTEDVALUE ( AuditEvents[AuditId], "click one row in the audit log" )
+		displayFolder: Related audits
+		lineageTag: c8429f40-9d52-5f19-af4f-f5c96bdac222
+
 	measure 'First Event (UTC)' = MIN ( AuditEvents[EventDateTimeUtc] )
 		formatString: dd MMM yyyy HH:mm
 		displayFolder: Data health

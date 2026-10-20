@@ -19,6 +19,10 @@
                 Daily run overwrites it with the complete day. Genesys only
                 indexes ~14 days for the realtime endpoint.
       Backfill  Daily, looped over an inclusive date range.
+      Related   POST /api/v2/audits/query/realtime/related for one -AuditId: the
+                audits created by the same action (what "Related" shows in the
+                Genesys Audit Viewer). Writes genesys-audit-related_<auditId>.json.
+                In Power BI the same set is the rows sharing TransactionKey.
 
     Exit code 0 on success, 1 on any failure (so the pipeline step fails).
 
@@ -44,7 +48,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('Daily', 'Realtime', 'Backfill')]
+    [ValidateSet('Daily', 'Realtime', 'Backfill', 'Related')]
     [string]$Mode = 'Daily',
 
     [string]$Region = 'mypurecloud.com.au',
@@ -63,6 +67,9 @@ param(
 
     # Optional: restrict to one service (see GET /api/v2/audits/query/servicemapping)
     [string]$ServiceName = '',
+
+    # Related mode: the audit id to look up
+    [string]$AuditId = '',
 
     # Async results page size (API max 500) and realtime page size
     [int]$PageSize = 500,
@@ -306,6 +313,20 @@ function Get-AuditsRealtime {
     return , $pages
 }
 
+function Get-AuditsRelated {
+    param([string]$Id)
+    $request = @{
+        auditId = $Id
+        sort    = @( @{ name = 'Timestamp'; sortOrder = 'ascending' } )
+    }
+    $resp = Invoke-GenesysApi -Method 'Post' -Path '/api/v2/audits/query/realtime/related?expand=user' -Body $request
+    if ($null -eq $resp) { throw "Related call for $Id returned nothing" }
+    $entities = @()
+    if ($null -ne $resp.entities) { $entities = @($resp.entities) }
+    Write-Log "Related audits for $Id : $($entities.Count)"
+    return , @(, $entities)
+}
+
 # =============================================================================
 #  Output
 # =============================================================================
@@ -408,6 +429,25 @@ try {
         $pages = Get-AuditsRealtime -Interval $interval
         $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
         Write-Log "Realtime done: $n events for $interval"
+    }
+    elseif ($Mode -eq 'Related') {
+        if (-not $AuditId) { throw 'Related needs -AuditId' }
+        $pages = Get-AuditsRelated -Id $AuditId
+        if (-not (Test-Path -Path $OutputFolder)) { New-Item -ItemType Directory -Path $OutputFolder | Out-Null }
+        $parts = @()
+        foreach ($page in $pages) { foreach ($ev in $page) { $parts += ($ev | ConvertTo-Json -Depth 20 -Compress) } }
+        $path = Join-Path -Path $OutputFolder -ChildPath ("genesys-audit-related_" + $AuditId + ".json")
+        Set-Content -Path $path -Value ('[' + ($parts -join ',') + ']') -Encoding UTF8 -NoNewline
+        foreach ($page in $pages) {
+            foreach ($ev in $page) {
+                $who = ''
+                if ($null -ne $ev.user) { $who = [string]$ev.user.name } elseif ($null -ne $ev.client) { $who = [string]$ev.client.id }
+                $what = ''
+                if ($null -ne $ev.entity) { $what = [string]$ev.entity.name }
+                Write-Host ("  {0}  {1,-28} {2,-18} {3,-12} {4,-14} {5}" -f $ev.eventDate, $who, $ev.serviceName, $ev.action, $ev.entityType, $what)
+            }
+        }
+        Write-Log "Related done: wrote $path"
     }
     elseif ($Mode -eq 'Backfill') {
         if (-not $From -or -not $To) { throw 'Backfill needs -From and -To (yyyy-MM-dd)' }

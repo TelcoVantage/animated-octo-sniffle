@@ -21,7 +21,7 @@ Explorer, Users & Actors, Security Watch, Event Detail) are in the `-full` build
 
 | Page | Purpose | Key visuals |
 |---|---|---|
-| Audit Viewer | the Genesys Admin > Audit Viewer in Power BI | filter bar (Date, Service, Entity type, Action, User, Client, Status); cards; events per day; audit table with Genesys column order; changes table (property, old, new) |
+| Audit Viewer | the Genesys Admin > Audit Viewer in Power BI | filter bar (Date, Service, Entity type, Action, User, Client, Status); cards; events per day; audit table with Genesys column order; changes table (property, old, new); **Related audits** table = rows sharing the selected row's `TransactionKey` (what `POST /audits/query/realtime/related` returns), built on the disconnected `RelatedEvents` table with the `[Is Related] = 1` visual filter |
 | Agent Presence | page filter `ServiceName` contains "Presence" | agents with most changes, new presence values, weekday x application, presence change table (agent, changed by, from, to) |
 | API Clients | OAuth client activity | all events by application; client table (events, services, failed, IPs, first/last seen); client events per day; client x service matrix; event list. Names via `ClientMap` |
 

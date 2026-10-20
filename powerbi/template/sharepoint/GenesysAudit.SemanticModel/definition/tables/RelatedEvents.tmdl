@@ -1,0 +1,144 @@
+table RelatedEvents
+	lineageTag: df767321-ed0d-5b57-ba8d-19fadea40a2a
+
+	column AuditId
+		dataType: string
+		lineageTag: 07e4fd4c-25fa-5537-8c7c-809e8cac0322
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [AuditId]
+
+		annotation SummarizationSetBy = Automatic
+
+	column TransactionKey
+		dataType: string
+		lineageTag: 31bbe759-c0ca-5093-a0f5-5fb8282bb131
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [TransactionKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventDateTimeLocal
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5af4038c-aaf9-52ac-9e22-2954db5193ee
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [EventDateTimeLocal]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActorName
+		dataType: string
+		lineageTag: 2cf30438-0a81-5c3e-b6c2-f4192f8b63d7
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ActorName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceName
+		dataType: string
+		lineageTag: fae8ac83-fa0a-565a-b16e-2431cfd6daa3
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [ServiceName]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Action
+		dataType: string
+		lineageTag: 7bd0c987-c2c5-5bbf-8ecf-caeefcdc2d40
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Action]
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityType
+		dataType: string
+		lineageTag: e59427ae-41be-5f4e-968e-fd49228e003e
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [EntityType]
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityDisplay
+		dataType: string
+		lineageTag: ad900a3c-d217-5086-b638-7d1a83470253
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [EntityDisplay]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 54dd03a1-16ea-5c0d-a184-be9c1fc60e4e
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Status]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Application
+		dataType: string
+		lineageTag: 63558c37-0a96-5034-ad55-22576c38ec8e
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Application]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Message
+		dataType: string
+		lineageTag: d5c9c1f8-ccdd-582b-857d-d897efe83ff1
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [Message]
+
+		annotation SummarizationSetBy = Automatic
+
+	column TransactionInitiator
+		dataType: boolean
+		lineageTag: 03735666-09a3-5dd5-a1e9-5cc41cd1d76b
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: [TransactionInitiator]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition RelatedEvents = calculated
+		mode: import
+		source =
+				SELECTCOLUMNS (
+				    AuditEvents,
+				    "AuditId",            AuditEvents[AuditId] & "",
+				    "TransactionKey",     AuditEvents[TransactionKey] & "",
+				    "EventDateTimeLocal", AuditEvents[EventDateTimeLocal] + 0,
+				    "ActorName",          AuditEvents[ActorName] & "",
+				    "ServiceName",        AuditEvents[ServiceName] & "",
+				    "Action",             AuditEvents[Action] & "",
+				    "EntityType",         AuditEvents[EntityType] & "",
+				    "EntityDisplay",      AuditEvents[EntityDisplay] & "",
+				    "Status",             AuditEvents[Status] & "",
+				    "Application",        AuditEvents[Application] & "",
+				    "Message",            AuditEvents[Message] & "",
+				    "TransactionInitiator", AuditEvents[TransactionInitiator] = TRUE ()
+				)
+
+	annotation PBI_ResultType = Table

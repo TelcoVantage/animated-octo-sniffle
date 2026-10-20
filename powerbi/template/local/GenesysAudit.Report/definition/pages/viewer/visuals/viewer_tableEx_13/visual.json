@@ -3,10 +3,10 @@
   "name": "viewer_tableEx_13",
   "position": {
     "x": 20,
-    "y": 506,
+    "y": 476,
     "z": 13,
-    "height": 206,
-    "width": 1240,
+    "height": 236,
+    "width": 560,
     "tabOrder": 13
   },
   "visual": {
@@ -45,21 +45,6 @@
               "queryRef": "AuditEvents.ActorName",
               "nativeQueryRef": "ActorName",
               "displayName": "User / Client"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditEvents"
-                    }
-                  },
-                  "Property": "Action"
-                }
-              },
-              "queryRef": "AuditEvents.Action",
-              "nativeQueryRef": "Action",
-              "displayName": "Action"
             },
             {
               "field": {
@@ -120,21 +105,6 @@
               "queryRef": "AuditPropertyChanges.NewValues",
               "nativeQueryRef": "NewValues",
               "displayName": "New value"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "AuditPropertyChanges"
-                    }
-                  },
-                  "Property": "ChangeEntityName"
-                }
-              },
-              "queryRef": "AuditPropertyChanges.ChangeEntityName",
-              "nativeQueryRef": "ChangeEntityName",
-              "displayName": "Affected entity"
             }
           ]
         }
@@ -172,7 +142,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Changes (old value to new value) - select a row above to narrow this down'"
+                  "Value": "'Changes (old value to new value)'"
                 }
               }
             }

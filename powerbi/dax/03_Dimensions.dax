@@ -141,6 +141,32 @@ RETURN
 
 
 // ---------------------------------------------------------------------
+//  RelatedEvents - a disconnected copy of the events used by the
+//  "Related audits" table: when one row of the audit log is selected, the
+//  [Is Related] measure keeps the rows that share its TransactionKey
+//  (the same set POST /audits/query/realtime/related returns).
+//  NO relationships on this table - that is what lets it ignore the
+//  selection that filters everything else.
+// ---------------------------------------------------------------------
+RelatedEvents =
+SELECTCOLUMNS (
+    AuditEvents,
+    "AuditId",            AuditEvents[AuditId] & "",
+    "TransactionKey",     AuditEvents[TransactionKey] & "",
+    "EventDateTimeLocal", AuditEvents[EventDateTimeLocal] + 0,
+    "ActorName",          AuditEvents[ActorName] & "",
+    "ServiceName",        AuditEvents[ServiceName] & "",
+    "Action",             AuditEvents[Action] & "",
+    "EntityType",         AuditEvents[EntityType] & "",
+    "EntityDisplay",      AuditEvents[EntityDisplay] & "",
+    "Status",             AuditEvents[Status] & "",
+    "Application",        AuditEvents[Application] & "",
+    "Message",            AuditEvents[Message] & "",
+    "TransactionInitiator", AuditEvents[TransactionInitiator] = TRUE ()
+)
+
+
+// ---------------------------------------------------------------------
 //  "Group By" field parameter  (Modeling > New parameter > Fields)
 //  Create it through the UI and add these fields in this order; the DAX
 //  below is what the UI generates and is here only for reference.

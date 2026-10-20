@@ -277,7 +277,7 @@ AUDIT_EVENTS_COLUMNS = [
     col("RemoteIp", STR), col("RemoteIpAll", STR), col("RemoteIpCount", INT),
     col("MessageCode", STR), col("Message", STR), col("MessageTemplate", STR),
     col("PropertyChangeCount", INT), col("EntityChangeCount", INT), col("HasPropertyChanges", BOOL),
-    col("ContextJson", STR), col("TransactionId", STR), col("InitiatingActionContext", STR), col("TransactionInitiator", BOOL),
+    col("ContextJson", STR), col("TransactionId", STR), col("TransactionKey", STR), col("InitiatingActionContext", STR), col("TransactionInitiator", BOOL),
     col("UserHomeOrgId", STR), col("SourceFile", STR),
     col("SourceFileModified", DT, fmt="General Date"),
 ]
@@ -302,6 +302,10 @@ CALC_TABLE_COLUMNS = {
                 col("First Seen", DT, date=True), col("Last Seen", DT, date=True),
                 col("Lifetime Events", INT), col("User", STR), col("IsExternalUser", BOOL)],
     "ClientMap": [col("ClientId", STR), col("ClientName", STR)],
+    "RelatedEvents": [col("AuditId", STR), col("TransactionKey", STR), col("EventDateTimeLocal", DT, fmt="General Date"),
+                      col("ActorName", STR), col("ServiceName", STR), col("Action", STR), col("EntityType", STR),
+                      col("EntityDisplay", STR), col("Status", STR), col("Application", STR), col("Message", STR),
+                      col("TransactionInitiator", BOOL)],
     "DimClient": [col("ClientKey", STR, hidden=True), col("ClientId", STR), col("ClientName", STR),
                   col("First Seen", DT, date=True), col("Last Seen", DT, date=True), col("Lifetime Events", INT),
                   col("Client", STR)],
@@ -334,7 +338,7 @@ def build_semantic_model(sm: Path, variant: dict):
         for name, expr, _c, _f in parse_dax_definitions(DAX / f):
             dax_tables[name] = expr
     measures = [(n, e, format_from_comment(c), f) for n, e, c, f in parse_dax_definitions(DAX / "04_Measures.dax")]
-    expected = {"DimDate", "ServiceMap", "ActionRiskMap", "ClientMap", "DimUser", "DimClient", "DimService", "DimAction", "DimEntityType"}
+    expected = {"DimDate", "ServiceMap", "ActionRiskMap", "ClientMap", "RelatedEvents", "DimUser", "DimClient", "DimService", "DimAction", "DimEntityType"}
     missing = expected - set(dax_tables)
     if missing:
         raise SystemExit(f"DAX tables not found in sources: {missing}")
@@ -373,7 +377,7 @@ def build_semantic_model(sm: Path, variant: dict):
     # --- model / database / culture --------------------------------------------
     query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
     table_order = ["AuditEvents", "AuditPropertyChanges", "DimDate", "DimUser", "DimClient", "DimService", "DimAction",
-                   "DimEntityType", "ServiceMap", "ActionRiskMap", "ClientMap", "_Measures"]
+                   "DimEntityType", "ServiceMap", "ActionRiskMap", "ClientMap", "RelatedEvents", "_Measures"]
     model = [
         "model Model",
         "\tculture: en-US",
@@ -430,6 +434,22 @@ def projection(field):
     if display:
         proj["displayName"] = display
     return proj
+
+
+def measure_equals_filter(name, measure, value_literal):
+    """Visual-level filter on a measure, e.g. [Is Related] = 1  (literal '1L')."""
+    return {
+        "name": name, "type": "Advanced", "field": M(measure),
+        "filter": {
+            "Version": 2,
+            "From": [{"Name": "m", "Entity": "_Measures", "Type": 0}],
+            "Where": [{"Condition": {"Comparison": {
+                "ComparisonKind": 0,
+                "Left": {"Measure": {"Expression": {"SourceRef": {"Source": "m"}}, "Property": measure}},
+                "Right": {"Literal": {"Value": value_literal}},
+            }}}],
+        },
+    }
 
 
 def contains_filter(name, table, column, text):
@@ -544,7 +564,9 @@ GUIDE_PANELS_SIMPLE = [
      "The same view as Admin > Audit Viewer in Genesys Cloud. Filter by date, service, entity type, action, user, "
      "client or status along the top. The table lists each audit entry: date, who (user or API client), service, "
      "entity type, action, entity, status, IP address and the message. The lower table shows the changes behind the "
-     "entries: property, old value, new value. Click a row in the audit log to narrow the changes to that entry."),
+     "entries: property, old value, new value. Click a row in the audit log: the changes narrow to that entry and the "
+     "Related audits table lists every audit created by the same action, like Related in Genesys (for example all the "
+     "user, role and group updates behind one SCIM provisioning call)."),
     ("2  Agent Presence",
      "Only the Presence service. Which agents' presence changed, from what to what, when, who or what changed it "
      "(the agent, a supervisor, an integration) and through which application. Bars show the busiest agents, the new "
@@ -636,20 +658,31 @@ def build_viewer_page():
              ("Distinct Entities", "Entities touched")], y=76, x0=20, w=172, h=80)
     p.add("columnChart", 740, 76, 520, 80, roles={"Category": [C("DimDate", "Date")], "Y": [M("Audit Events")]},
           title="Events per day", sort=C("DimDate", "Date"), sort_dir="Ascending")
-    p.add("tableEx", 20, 166, 1240, 330, roles={"Values": [
+    p.add("tableEx", 20, 166, 1240, 300, roles={"Values": [
         (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("AuditEvents", "ActorName"), "User / Client"),
         (C("DimService", "Service"), "Service"), (C("AuditEvents", "EntityType"), "Entity type"),
         (C("AuditEvents", "Action"), "Action"), (C("AuditEvents", "EntityDisplay"), "Entity"),
         (C("AuditEvents", "Status"), "Status"), (C("AuditEvents", "RemoteIp"), "IP address"),
         (C("AuditEvents", "Application"), "Application"), (C("AuditEvents", "Message"), "Details")]},
-        title="Audit log", sort=C("AuditEvents", "EventDateTimeLocal"))
-    p.add("tableEx", 20, 506, 1240, 206, roles={"Values": [
+        title="Audit log - click a row to see its changes and related audits below", sort=C("AuditEvents", "EventDateTimeLocal"))
+    p.add("tableEx", 20, 476, 560, 236, roles={"Values": [
         (C("AuditEvents", "EventDateTimeLocal"), "Date"), (C("AuditEvents", "ActorName"), "User / Client"),
-        (C("AuditEvents", "Action"), "Action"), (C("AuditEvents", "EntityDisplay"), "Entity"),
+        (C("AuditEvents", "EntityDisplay"), "Entity"),
         (C("AuditPropertyChanges", "PropertyShort"), "Property"), (C("AuditPropertyChanges", "OldValues"), "Old value"),
-        (C("AuditPropertyChanges", "NewValues"), "New value"), (C("AuditPropertyChanges", "ChangeEntityName"), "Affected entity")]},
-        title="Changes (old value to new value) - select a row above to narrow this down",
-        sort=C("AuditEvents", "EventDateTimeLocal"))
+        (C("AuditPropertyChanges", "NewValues"), "New value")]},
+        title="Changes (old value to new value)", sort=C("AuditEvents", "EventDateTimeLocal"))
+    # Related audits = same transaction as the selected row (Genesys "Related" /
+    # POST /audits/query/realtime/related). Built on the disconnected RelatedEvents
+    # table so the selection does not filter it; [Is Related] = 1 keeps the siblings.
+    p.add("tableEx", 590, 476, 670, 236, roles={"Values": [
+        (C("RelatedEvents", "EventDateTimeLocal"), "Date"), (C("RelatedEvents", "ActorName"), "User / Client"),
+        (C("RelatedEvents", "ServiceName"), "Service"), (C("RelatedEvents", "Action"), "Action"),
+        (C("RelatedEvents", "EntityType"), "Entity type"), (C("RelatedEvents", "EntityDisplay"), "Entity"),
+        (C("RelatedEvents", "Status"), "Status"), (C("RelatedEvents", "TransactionInitiator"), "Initiator"),
+        (C("RelatedEvents", "Message"), "Details")]},
+        title="Related audits (same action as the selected row, like Related in Genesys)",
+        sort=C("RelatedEvents", "EventDateTimeLocal"), sort_dir="Ascending",
+        filters=[measure_equals_filter("flt_is_related", "Is Related", "1L")])
     return p
 
 

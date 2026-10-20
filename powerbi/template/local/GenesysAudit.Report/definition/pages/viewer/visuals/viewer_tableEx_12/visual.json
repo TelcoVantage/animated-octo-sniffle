@@ -5,7 +5,7 @@
     "x": 20,
     "y": 166,
     "z": 12,
-    "height": 330,
+    "height": 300,
     "width": 1240,
     "tabOrder": 12
   },
@@ -202,7 +202,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Audit log'"
+                  "Value": "'Audit log - click a row to see its changes and related audits below'"
                 }
               }
             }
