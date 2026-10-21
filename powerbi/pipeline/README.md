@@ -67,11 +67,12 @@ PowerShell task fails when the pull fails.
   (default 900). `Failed` / `Cancelled` states fail the run.
 * **Paging**: results are fetched with `pageSize=500` (the API maximum) and the
   cursor until no cursor is returned. Every page is logged with its count and
-  whether a cursor came back. If a full page arrives with no cursor the log says
-  so; re-run with `-SliceHours 1` to query the day hour by hour (each slice is
-  still cursor-paged, slices never overlap, ids are de-duplicated on write). `allowRedirect` is deliberately not used:
-  following a presigned-URL redirect from `Invoke-RestMethod` would forward the
-  bearer header to S3, which rejects it.
+  whether a cursor came back.
+* **Automatic splitting**: if a query returns a full page with no cursor, the
+  script assumes it was cut short, splits that time range in half and queries
+  each half again, repeating down to one-minute pieces if needed. Pieces never
+  overlap and ids are de-duplicated on write. Nothing to configure: a normal day
+  is one query, a very busy day splits itself.
 * **Output**: the JSON array is assembled from per-event `ConvertTo-Json
   -Compress` strings, because one `ConvertTo-Json` over tens of thousands of
   objects is very slow in PowerShell 5.1. Files are UTF-8 (with BOM, which the

@@ -75,12 +75,6 @@ param(
     [int]$PageSize = 500,
     [int]$RealtimePageSize = 100,
 
-    # Daily / Backfill: split the day into slices of this many hours and run one
-    # async query per slice (0 = one query for the whole day). Each slice is still
-    # cursor-paged. Use 1, 2, 3, 4, 6, 8 or 12 on very busy orgs, or if a run ever
-    # reports "full page but no cursor".
-    [int]$SliceHours = 0,
-
     # How long to wait for an async query to reach Succeeded
     [int]$StatusTimeoutSeconds = 900,
 
@@ -92,6 +86,7 @@ $ErrorActionPreference = 'Stop'
 $script:ApiBase   = "https://api.$Region"
 $script:LoginBase = "https://login.$Region"
 $script:Token     = ''
+$script:LastQueryTruncated = $false
 
 # =============================================================================
 #  Helpers
@@ -261,6 +256,8 @@ function Get-AuditsAsync {
     }
     Write-Log "Query $transactionId Succeeded - fetching results (pageSize $PageSize, expand=user)"
 
+    $script:LastQueryTruncated = $false
+
     # 3. page the results with the cursor; collect pages (array of arrays) to
     #    avoid O(n^2) array growth on big days
     $pages = @()
@@ -283,7 +280,10 @@ function Get-AuditsAsync {
         if ($next) { $cursorNote = 'cursor returned (' + $next.Length + ' chars) - more pages follow' }
         Write-Log "  page $pageNo : $($entities.Count) events (running total $total) - $cursorNote"
         if (-not $next -and $entities.Count -ge $PageSize) {
-            Write-Log "  page $pageNo was full ($($entities.Count) events) but the API returned no cursor. If the day really has more events, re-run with -SliceHours 1 (one query per hour) so no page can hit the limit." 'WARN'
+            # A full page with no cursor means the API may have stopped early.
+            # The caller splits this interval and re-queries automatically.
+            $script:LastQueryTruncated = $true
+            Write-Log "  page $pageNo was full ($($entities.Count) events) but no cursor came back - this interval will be split and re-queried" 'WARN'
         }
         if (-not $next -or $next -eq $cursor) { break }
         $cursor = $next
@@ -292,29 +292,42 @@ function Get-AuditsAsync {
     return , $pages
 }
 
-# One UTC day as N async queries of -SliceHours each (or one query if 0).
-# Slices are half-open [start, end) so they never overlap; the writer also
-# de-duplicates on id as a safety net.
+# Fetches one time range with the async query. If the result looks truncated
+# (a full page and no cursor), the range is split in half and each half is
+# fetched the same way, until every piece comes back complete or the piece is
+# one minute long. Ranges are half-open [start, end) so pieces never overlap;
+# Write-AuditFile also de-duplicates on id. No parameter needed: a normal day
+# is one query, a very busy day splits itself.
+function Format-ApiTime {
+    param([datetime]$Value)
+    return $Value.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z'
+}
+
+function Get-AuditsRange {
+    param([datetime]$Start, [datetime]$End, [int]$Depth = 0)
+    $interval = (Format-ApiTime -Value $Start) + '/' + (Format-ApiTime -Value $End)
+    $pages = Get-AuditsAsync -Interval $interval
+    if (-not $script:LastQueryTruncated) { return , $pages }
+
+    $minutes = ($End - $Start).TotalMinutes
+    if ($minutes -le 1) {
+        Write-Log "Interval $interval is one minute and still returned a full page without a cursor - keeping what was returned" 'WARN'
+        return , $pages
+    }
+    $mid = $Start.AddMinutes([int]($minutes / 2))
+    if ($mid -le $Start) { $mid = $Start.AddMinutes(1) }
+    Write-Log "Splitting $interval at $(Format-ApiTime -Value $mid) (depth $($Depth + 1))"
+    $left  = Get-AuditsRange -Start $Start -End $mid -Depth ($Depth + 1)
+    $right = Get-AuditsRange -Start $mid -End $End -Depth ($Depth + 1)
+    $all = @()
+    foreach ($pg in $left)  { $all += , $pg }
+    foreach ($pg in $right) { $all += , $pg }
+    return , $all
+}
+
 function Get-AuditsForDay {
     param([datetime]$Day)
-    if ($SliceHours -le 0 -or $SliceHours -ge 24) {
-        return , (Get-AuditsAsync -Interval (Get-DayInterval -Day $Day))
-    }
-    $pages = @()
-    $sliceStart = $Day
-    $dayEnd = $Day.AddDays(1)
-    $n = 0
-    while ($sliceStart -lt $dayEnd) {
-        $sliceEnd = $sliceStart.AddHours($SliceHours)
-        if ($sliceEnd -gt $dayEnd) { $sliceEnd = $dayEnd }
-        $n++
-        $interval = $sliceStart.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z/' + $sliceEnd.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z'
-        Write-Log "Slice $n : $interval"
-        $slicePages = Get-AuditsAsync -Interval $interval
-        foreach ($sp in $slicePages) { $pages += , $sp }
-        $sliceStart = $sliceEnd
-    }
-    return , $pages
+    return , (Get-AuditsRange -Start $Day -End $Day.AddDays(1))
 }
 
 # =============================================================================
@@ -454,7 +467,7 @@ function Get-DayInterval {
 #  Main
 # =============================================================================
 try {
-    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder PageSize=$PageSize SliceHours=$SliceHours"
+    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder PageSize=$PageSize"
     $script:Token = Get-AccessToken
     $nowUtc = (Get-Date).ToUniversalTime()
 
