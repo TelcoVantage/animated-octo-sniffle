@@ -10,7 +10,7 @@ folder to SharePoint is the pipeline's job and is not in this script.
 
 | Mode | Endpoint | Interval | Output file |
 |---|---|---|---|
-| `Daily` (default) | `POST /api/v2/audits/query` (async: create, poll, cursor-page) | one full UTC day, default yesterday, or `-Date yyyy-MM-dd` | `genesys-audit_<day>.json` |
+| `Daily` (default) | `POST /api/v2/audits/query` (async: create, poll, cursor-page), one query per service, split by time when capped | one full UTC day, default yesterday, or `-Date yyyy-MM-dd` | `genesys-audit_<day>.json` + `summary\genesys-audit-summary_<day>.csv` |
 | `Realtime` | `POST /api/v2/audits/query/realtime` (sync, page-numbered) | today 00:00Z to now | `genesys-audit_<today>.json` (overwritten by tomorrow's Daily run) |
 | `Backfill` | async, looped | `-From` .. `-To` inclusive | one file per day |
 
@@ -68,11 +68,20 @@ PowerShell task fails when the pull fails.
 * **Paging**: results are fetched with `pageSize=500` (the API maximum) and the
   cursor until no cursor is returned. Every page is logged with its count and
   whether a cursor came back.
-* **Automatic splitting**: if a query returns a full page with no cursor, the
-  script assumes it was cut short, splits that time range in half and queries
-  each half again, repeating down to one-minute pieces if needed. Pieces never
-  overlap and ids are de-duplicated on write. Nothing to configure: a normal day
-  is one query, a very busy day splits itself.
+* **Breakdown by service, then by time**: `Daily` and `Backfill` read the
+  service list from `GET /api/v2/audits/query/servicemapping` once per run and
+  run one async query per service for the full day. Each query is cursor-paged.
+  A query is treated as capped when a full page arrives with no cursor, or when
+  the result ends on an exact multiple of the page size (500, 1000, 10000 ...).
+  A capped query is split in half by time and each half re-queried, down to
+  one-minute pieces. Pieces never overlap and ids are de-duplicated on write.
+  `-ServiceName` limits the run to one service. Nothing else to configure.
+* **Per-day breakdown and count check**: after each day the log prints a table
+  per service (events, queries, splits) and writes it to
+  `<OutputFolder>\summary\genesys-audit-summary_<day>.csv`. For days within the
+  last 13, each service is also counted with the realtime endpoint
+  (`pageSize=1`, read `total`) and marked `OK` or `SHORT`. `n/a` means the
+  realtime index does not cover that service or day.
 * **Output**: the JSON array is assembled from per-event `ConvertTo-Json
   -Compress` strings, because one `ConvertTo-Json` over tens of thousands of
   objects is very slow in PowerShell 5.1. Files are UTF-8 (with BOM, which the

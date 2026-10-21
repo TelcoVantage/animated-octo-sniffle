@@ -87,6 +87,10 @@ $script:ApiBase   = "https://api.$Region"
 $script:LoginBase = "https://login.$Region"
 $script:Token     = ''
 $script:LastQueryTruncated = $false
+$script:LastQueryTotal = 0
+$script:QueryCount = 0
+$script:SplitCount = 0
+$script:ServiceList = $null
 
 # =============================================================================
 #  Helpers
@@ -221,21 +225,26 @@ function Invoke-GenesysApi {
 #  Endpoint 1: POST /api/v2/audits/query  (asynchronous)
 # =============================================================================
 function Get-AuditsAsync {
-    param([string]$Interval)   # "2026-10-15T00:00:00.000Z/2026-10-16T00:00:00.000Z"
+    param(
+        [string]$Interval,     # "2026-10-15T00:00:00.000Z/2026-10-16T00:00:00.000Z"
+        [string]$Service = ''  # one serviceName, or '' for all services
+    )
 
     # 1. create the query execution
     $request = @{
         interval = $Interval
         sort     = @( @{ name = 'Timestamp'; sortOrder = 'ascending' } )
     }
-    if ($ServiceName) { $request['serviceName'] = $ServiceName }
+    if ($Service) { $request['serviceName'] = $Service }
 
     $created = Invoke-GenesysApi -Method 'Post' -Path '/api/v2/audits/query' -Body $request
     if ($null -eq $created -or -not $created.id) {
         throw "POST /api/v2/audits/query returned no id: $($created | ConvertTo-Json -Compress -Depth 5)"
     }
     $transactionId = [string]$created.id
-    Write-Log "Async query created: $transactionId (state $($created.state)) for $Interval"
+    $label = 'all services'
+    if ($Service) { $label = $Service }
+    Write-Log "Async query created: $transactionId (state $($created.state)) for $label $Interval"
 
     # 2. poll until Succeeded
     $deadline = (Get-Date).AddSeconds($StatusTimeoutSeconds)
@@ -289,6 +298,16 @@ function Get-AuditsAsync {
         $cursor = $next
         if ($pageNo -ge 20000) { throw 'Cursor loop guard tripped (20000 pages)' }
     }
+
+    # Second cap signal: the chain ended on an exact multiple of the page size
+    # (500, 1000, 10000 ...). A real result rarely lands exactly on one; a capped
+    # result always does. Splitting costs a few extra queries, never data.
+    if (-not $script:LastQueryTruncated -and $total -ge $PageSize -and ($total % $PageSize) -eq 0) {
+        $script:LastQueryTruncated = $true
+        Write-Log "  result ended on an exact multiple of $PageSize ($total events) - treating as possibly capped, will split" 'WARN'
+    }
+    $script:LastQueryTotal = $total
+    $script:QueryCount++
     return , $pages
 }
 
@@ -304,9 +323,9 @@ function Format-ApiTime {
 }
 
 function Get-AuditsRange {
-    param([datetime]$Start, [datetime]$End, [int]$Depth = 0)
+    param([datetime]$Start, [datetime]$End, [string]$Service = '', [int]$Depth = 0)
     $interval = (Format-ApiTime -Value $Start) + '/' + (Format-ApiTime -Value $End)
-    $pages = Get-AuditsAsync -Interval $interval
+    $pages = Get-AuditsAsync -Interval $interval -Service $Service
     if (-not $script:LastQueryTruncated) { return , $pages }
 
     $minutes = ($End - $Start).TotalMinutes
@@ -316,18 +335,108 @@ function Get-AuditsRange {
     }
     $mid = $Start.AddMinutes([int]($minutes / 2))
     if ($mid -le $Start) { $mid = $Start.AddMinutes(1) }
+    $script:SplitCount++
     Write-Log "Splitting $interval at $(Format-ApiTime -Value $mid) (depth $($Depth + 1))"
-    $left  = Get-AuditsRange -Start $Start -End $mid -Depth ($Depth + 1)
-    $right = Get-AuditsRange -Start $mid -End $End -Depth ($Depth + 1)
+    $left  = Get-AuditsRange -Start $Start -End $mid -Service $Service -Depth ($Depth + 1)
+    $right = Get-AuditsRange -Start $mid -End $End -Service $Service -Depth ($Depth + 1)
     $all = @()
     foreach ($pg in $left)  { $all += , $pg }
     foreach ($pg in $right) { $all += , $pg }
     return , $all
 }
 
+# The services Genesys can audit, from GET /api/v2/audits/query/servicemapping.
+# Fetched once per run. Empty list = fall back to one all-services query.
+function Get-AuditServices {
+    if ($null -ne $script:ServiceList) { return , $script:ServiceList }
+    $names = @()
+    try {
+        $map = Invoke-GenesysApi -Method 'Get' -Path '/api/v2/audits/query/servicemapping'
+        if ($null -ne $map -and $null -ne $map.services) {
+            foreach ($svc in @($map.services)) { if ($svc.name) { $names += [string]$svc.name } }
+        }
+    } catch {
+        Write-Log "Could not read service mapping ($([string]$_.Exception.Message)) - using one all-services query per range" 'WARN'
+    }
+    $names = @($names | Sort-Object -Unique)
+    Write-Log "Service mapping: $($names.Count) services"
+    $script:ServiceList = $names
+    return , $names
+}
+
+# Realtime total for one service and day, as an independent count to check the
+# async pull against. Only for the last 13 days (the realtime index covers ~14)
+# and only for services the realtime index has. -1 = not available.
+function Get-RealtimeTotal {
+    param([string]$Service, [datetime]$Start, [datetime]$End)
+    if ($Start -lt (Get-Date).ToUniversalTime().Date.AddDays(-13)) { return -1 }
+    $request = @{
+        interval   = (Format-ApiTime -Value $Start) + '/' + (Format-ApiTime -Value $End)
+        pageNumber = 1
+        pageSize   = 1
+    }
+    if ($Service) { $request['serviceName'] = $Service }
+    try {
+        $resp = Invoke-GenesysApi -Method 'Post' -Path '/api/v2/audits/query/realtime' -Body $request -MaxAttempts 2
+        if ($null -ne $resp -and $null -ne $resp.total) { return [int]$resp.total }
+    } catch { }
+    return -1
+}
+
+# One UTC day, broken down by service and, where needed, by time. Every
+# service gets its own async query for the full day; any query that looks
+# capped is split in half and re-queried (Get-AuditsRange). A per-service
+# summary is logged and written to <OutputFolder>\summary so counts can be checked.
 function Get-AuditsForDay {
     param([datetime]$Day)
-    return , (Get-AuditsRange -Start $Day -End $Day.AddDays(1))
+    $dayEnd = $Day.AddDays(1)
+    $services = @()
+    if ($ServiceName) { $services = @($ServiceName) } else { $services = Get-AuditServices }
+    if ($services.Count -eq 0) { $services = @('') }
+
+    $all = @()
+    $summary = @()
+    $short = 0
+    foreach ($svc in $services) {
+        $q0 = $script:QueryCount
+        $s0 = $script:SplitCount
+        $svcPages = Get-AuditsRange -Start $Day -End $dayEnd -Service $svc
+        $svcCount = 0
+        foreach ($pg in $svcPages) { $all += , $pg; $svcCount += @($pg).Count }
+        $rt = Get-RealtimeTotal -Service $svc -Start $Day -End $dayEnd
+        $check = 'n/a'
+        if ($rt -ge 0) {
+            if ($svcCount -ge $rt) { $check = 'OK' } else { $check = 'SHORT'; $short++ }
+        }
+        $name = $svc
+        if (-not $name) { $name = '(all services)' }
+        if ($svcCount -gt 0 -or $rt -gt 0) {
+            $summary += New-Object PSObject -Property @{
+                Service       = $name
+                Events        = $svcCount
+                Queries       = ($script:QueryCount - $q0)
+                Splits        = ($script:SplitCount - $s0)
+                RealtimeTotal = $rt
+                Check         = $check
+            }
+        }
+    }
+
+    $dayLabel = $Day.ToString('yyyy-MM-dd')
+    $grand = 0
+    foreach ($row in $summary) { $grand += $row.Events }
+    $ordered = @($summary | Sort-Object Events -Descending | Select-Object Service, Events, Queries, Splits, RealtimeTotal, Check)
+    Write-Log "Breakdown for $dayLabel ($grand events, $($ordered.Count) services with activity):"
+    Write-Host ($ordered | Format-Table -AutoSize | Out-String)
+    if ($short -gt 0) {
+        Write-Log "$short service(s) returned fewer events than the realtime index reports - see the SHORT rows above" 'WARN'
+    }
+    $sumFolder = Join-Path -Path $OutputFolder -ChildPath 'summary'
+    if (-not (Test-Path -Path $sumFolder)) { New-Item -ItemType Directory -Path $sumFolder | Out-Null }
+    if ($ordered.Count -gt 0) {
+        $ordered | Export-Csv -Path (Join-Path -Path $sumFolder -ChildPath ("genesys-audit-summary_" + $dayLabel + ".csv")) -NoTypeInformation -Encoding UTF8
+    }
+    return , $all
 }
 
 # =============================================================================
