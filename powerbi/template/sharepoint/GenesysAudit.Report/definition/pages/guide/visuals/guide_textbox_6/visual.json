@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "The filters along the top of each page are synced, so a selection follows you between pages. User / Client is the person's name for interactive actions, the OAuth client (integration or script) for API actions, or System for platform actions. Entity is the thing acted on: a queue, a flow, a user, a recording. Times are shown in local time (UTC + the LocalUtcOffsetHours parameter); the exact UTC timestamp and the Genesys audit id are available in the field list for every event. Data freshness is Fresh within 30 hours of the last event, Late within 54 hours, otherwise Stale.",
+                    "value": "The filters along the top of each page are synced, so a selection follows you between pages. User / Client is the person's name for interactive actions, the OAuth client (integration or script) for API actions, or System for platform actions. Entity is the thing acted on: a queue, a flow, a user, a recording. Times are shown in Sydney time (AEST/AEDT, daylight saving applied); the exact UTC timestamp and the Genesys audit id are available in the field list for every event. Data freshness is Fresh within 30 hours of the last event, Late within 54 hours, otherwise Stale.",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

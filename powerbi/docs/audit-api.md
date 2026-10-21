@@ -30,7 +30,7 @@ which is also the right source to keep `ServiceMap` / `ActionRiskMap` in the mod
 
 ## 1. `POST /api/v2/audits/query` - asynchronous, full history
 
-Use this for the **daily production pull**: one call per UTC day, all services,
+Use this for the **daily production pull**: one call per day (the script uses Sydney days), all services,
 any size. It is a three-step job.
 
 ### 1a. Create the query execution
@@ -163,8 +163,10 @@ In the model the same grouping is available offline through `TransactionId`.
 
 ## 4. Recommended production pattern
 
-1. **Daily, after 00:30 UTC**: async `/query` for the previous UTC day, all
-   services, `expand=user`, `pageSize=500`, cursor loop, `allowRedirect=true`.
+1. **Daily, after 00:30 Sydney time**: async `/query` for the previous Sydney day
+   (its UTC interval, e.g. `2026-10-19T13:00:00Z/2026-10-20T13:00:00Z` in AEDT), one
+   query per service, `expand=user`, `pageSize=500`, cursor loop, then
+   `/query/realtime/related` once per transaction to add any related audits.
    Write `genesys-audit_<that day>.json` to the SharePoint folder. Overwrite if it exists.
 2. **Optional, hourly**: realtime `/query/realtime` for today so far
    (`<today>T00:00Z/<now>`), all pages, written to `genesys-audit_<today>.json`.

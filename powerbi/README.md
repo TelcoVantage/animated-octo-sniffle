@@ -19,7 +19,7 @@ powerbi/
 ├── docs/audit-api.md              <- POST /audits/query (async) and /audits/query/realtime, from the swagger
 ├── docs/report-design.md          <- page-by-page visual design, slicers, drill-through, formatting
 ├── power-query/                   <- paste into Power Query Advanced Editor, one query per file
-│   ├── 00_Parameters.pq           <- AuditSourcePath, RangeStart, RangeEnd, LocalUtcOffsetHours, ...
+│   ├── 00_Parameters.pq           <- AuditSourcePath / SharePoint*, RangeStart, RangeEnd, BusinessHours*
 │   ├── 01_fnParseAuditFile.pq     <- function: one daily file -> flat event table
 │   ├── 02_AuditEventsRaw.pq       <- staging: list files, filter window, parse, de-dupe (load disabled)
 │   ├── 03_AuditEvents.pq          <- FACT: one row per audit event
@@ -61,7 +61,7 @@ The short version:
 | API field | Model column | Notes |
 |---|---|---|
 | `id` | `AuditEvents[AuditId]` | de-dupe key; relationship to `AuditPropertyChanges` |
-| `eventDate` | `EventDateTimeUtc`, `EventDateUtc`, `EventHourUtc`, `*Local` | UTC in the API; local = UTC + `LocalUtcOffsetHours` |
+| `eventDate` | `EventDateTimeUtc`, `EventDateUtc`, `EventHourUtc`, `*Local` | UTC in the API; `*Local` = Australia/Sydney with daylight saving (`fnUtcToSydney`) |
 | `serviceName` | `ServiceName` -> `DimService` | friendly name + category via `ServiceMap` |
 | `action` | `Action` -> `DimAction` | risk level + category via `ActionRiskMap` |
 | `entityType` | `EntityType` -> `DimEntityType` | |
@@ -93,7 +93,7 @@ field in the API never fails a refresh.
 | Rule | Value |
 |---|---|
 | Location | one folder: local (`AuditSourcePath`) or a SharePoint library folder (`SharePointSiteUrl` + `SharePointFolder`); Azure Blob/ADLS one-liners are in `02_AuditEventsRaw.pq` |
-| File name | `<anything>_YYYY-MM-DD.json`, date = the UTC day queried (virtual sub-folders are fine) |
+| File name | `<anything>_YYYY-MM-DD.json`, date = the Sydney day queried (virtual sub-folders are fine) |
 | Content | a JSON array of `AuditLogMessage`, **or** the raw results object `{ "entities": [...] }`, **or** newline-delimited JSON |
 | Re-runs | overwrite the day's file; the model also de-duplicates on `id` |
 | Timestamps | leave as returned (`...Z`), the model converts |
@@ -192,10 +192,12 @@ Cross-filter direction: single, from the "one" side, everywhere.
 
 ## 5. Decisions worth knowing about
 
-* **UTC vs local.** Everything is stored in UTC; `LocalUtcOffsetHours` creates the
-  local columns used only for business-hours logic. Power Query has no time-zone
-  database, so DST is not applied. If that matters, add a DST rule to the
-  `AddLocalDT` step or let the pipeline add a `localEventDate` field.
+* **Sydney time.** Genesys returns UTC and the files keep it. `fnUtcToSydney`
+  converts to Australia/Sydney with daylight saving (AEST +10, AEDT +11), and the
+  calendar joins on the Sydney date, so a day in every chart is a Sydney day. The
+  UTC date stays available through the inactive relationship and the
+  `Events (UTC Date)` measure. Power Query has no time-zone database, so the
+  rule is written out; it matches the IANA database for 2008-2040.
 * **Trustee (partner) users.** The API has no "is external" flag. `DimUser`
   takes the `userHomeOrgId` that appears on most events as your own org and
   flags users whose home org differs.
@@ -233,7 +235,7 @@ python generate_sample_audit.py --layout ndjson   --out /tmp/ndjson
 ```
 
 Point `AuditSourcePath` at the folder (use `Folder.Files` in `AuditEventsRaw`), set
-`LocalUtcOffsetHours` = 10 (the sample is shaped for UTC+10 office hours) and refresh.
+refresh (the sample is shaped for Sydney office hours).
 What the report should show:
 
 | Pattern in the sample | Where it appears |

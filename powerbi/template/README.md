@@ -44,7 +44,6 @@ a **simple** build (default) and a **full** build:
      (the site, not the library) and `SharePointFolder` = `Shared Documents/GenesysAudit`.
      The default library is called `Shared Documents` in the API even when the
      UI shows `Documents`. Sign in with your organisational account when asked.
-   * `LocalUtcOffsetHours`: your office UTC offset (e.g. `10` for Sydney, `0` London).
    * `RangeStart` / `RangeEnd`: must cover the dates of your files (defaults
      cover Sept-Dec 2026; widen them if your data is older).
 6. **Home > Refresh**. Desktop builds the model, then every page fills.

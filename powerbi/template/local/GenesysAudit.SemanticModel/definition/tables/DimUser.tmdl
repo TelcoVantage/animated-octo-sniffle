@@ -116,8 +116,8 @@ table DimUser
 				        "@UserId",         CALCULATE ( MAX ( AuditEvents[UserId] ) ),
 				        "@UserName",       CALCULATE ( MAX ( AuditEvents[UserName] ) ),
 				        "@UserHomeOrgId",  CALCULATE ( MAX ( AuditEvents[UserHomeOrgId] ) ),
-				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateLocal] ) ),
+				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateLocal] ) ),
 				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
 				    )
 				RETURN

@@ -93,8 +93,8 @@ table _Measures
 		lineageTag: e461657a-6e77-5427-8d3e-4047de4eee6b
 
 	measure 'Daily Avg Events' =
-			VAR _first = MIN ( AuditEvents[EventDateUtc] )
-			VAR _last  = MAX ( AuditEvents[EventDateUtc] )
+			VAR _first = MIN ( AuditEvents[EventDateLocal] )
+			VAR _last  = MAX ( AuditEvents[EventDateLocal] )
 			RETURN
 			    AVERAGEX (
 			        FILTER ( VALUES ( DimDate[Date] ), DimDate[Date] >= _first && DimDate[Date] <= _last ),
@@ -138,10 +138,15 @@ table _Measures
 		displayFolder: Time intelligence
 		lineageTag: f44450aa-d99e-51e8-a5fc-82be8da93e72
 
-	measure 'Events (Local Date)' = CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateLocal] ) )
+	measure 'Events (Local Date)' = [Audit Events]
 		formatString: #,0
 		displayFolder: Time intelligence
 		lineageTag: c95fbb7c-27d0-594e-b6ba-9b861cbd7217
+
+	measure 'Events (UTC Date)' = CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateUtc] ) )
+		formatString: #,0
+		displayFolder: Time intelligence
+		lineageTag: 81a3068f-7d09-5959-9915-5544390f10e0
 
 	measure 'Delete Events' = CALCULATE ( [Audit Events], DimAction[Action] = "Delete" )
 		formatString: #,0
@@ -225,7 +230,7 @@ table _Measures
 			        FILTER (
 			            VALUES ( AuditEvents[UserKey] ),
 			            AuditEvents[UserKey] <> "SYSTEM"
-			                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+			                && CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), REMOVEFILTERS ( DimDate ) ) >= _start
 			        )
 			    )
 		formatString: #,0
@@ -239,7 +244,7 @@ table _Measures
 			        FILTER (
 			            VALUES ( AuditEvents[RemoteIp] ),
 			            NOT ISBLANK ( AuditEvents[RemoteIp] )
-			                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+			                && CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), REMOVEFILTERS ( DimDate ) ) >= _start
 			        )
 			    )
 		formatString: #,0
@@ -348,12 +353,12 @@ table _Measures
 		displayFolder: Data health
 		lineageTag: f2621113-2d75-52bd-b76e-aba2d1bfb4a2
 
-	measure 'First Event Date' = MIN ( AuditEvents[EventDateUtc] )
+	measure 'First Event Date' = MIN ( AuditEvents[EventDateLocal] )
 		formatString: dd MMM yyyy
 		displayFolder: Data health
 		lineageTag: 035d952b-f31d-5a9d-a158-49c82534e45a
 
-	measure 'Last Event Date' = MAX ( AuditEvents[EventDateUtc] )
+	measure 'Last Event Date' = MAX ( AuditEvents[EventDateLocal] )
 		formatString: dd MMM yyyy
 		displayFolder: Data health
 		lineageTag: 11eb2160-64ac-5aae-831c-ac662c5c45e8
@@ -364,16 +369,16 @@ table _Measures
 		lineageTag: e70b2015-dc48-5281-8caf-a37e73586f60
 
 	measure 'Days of Data' =
-			VAR _f = MIN ( AuditEvents[EventDateUtc] )
-			VAR _l = MAX ( AuditEvents[EventDateUtc] )
+			VAR _f = MIN ( AuditEvents[EventDateLocal] )
+			VAR _l = MAX ( AuditEvents[EventDateLocal] )
 			RETURN IF ( NOT ISBLANK ( _f ), DATEDIFF ( _f, _l, DAY ) + 1 )
 		formatString: #,0
 		displayFolder: Data health
 		lineageTag: a05504ad-905e-55f7-897d-3e3752f537a8
 
 	measure 'Days Without Data' =
-			VAR _f = MIN ( AuditEvents[EventDateUtc] )
-			VAR _l = MAX ( AuditEvents[EventDateUtc] )
+			VAR _f = MIN ( AuditEvents[EventDateLocal] )
+			VAR _l = MAX ( AuditEvents[EventDateLocal] )
 			RETURN
 			    IF (
 			        NOT ISBLANK ( _f ),

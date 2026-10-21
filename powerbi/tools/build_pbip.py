@@ -217,7 +217,6 @@ COMMON_PARAMETERS = [
     # name, M expression, result type
     ("RangeStart", '#datetime(2026, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
     ("RangeEnd", '#datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]', "DateTime"),
-    ("LocalUtcOffsetHours", '0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
     ("BusinessHoursStart", '8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
     ("BusinessHoursEnd", '18 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]', "Number"),
 ]
@@ -316,8 +315,8 @@ CALC_TABLE_COLUMNS = {
 }
 RELATIONSHIPS = [
     # from (many) , to (one), active, date
-    ("AuditEvents", "EventDateUtc", "DimDate", "Date", True, True),
-    ("AuditEvents", "EventDateLocal", "DimDate", "Date", False, True),
+    ("AuditEvents", "EventDateLocal", "DimDate", "Date", True, True),   # Sydney date drives the calendar
+    ("AuditEvents", "EventDateUtc", "DimDate", "Date", False, True),
     ("AuditEvents", "UserKey", "DimUser", "UserKey", True, False),
     ("AuditEvents", "ClientKey", "DimClient", "ClientKey", True, False),
     ("AuditEvents", "ServiceName", "DimService", "ServiceName", True, False),
@@ -359,6 +358,7 @@ def build_semantic_model(sm: Path, variant: dict):
     parameters = variant["parameters"] + COMMON_PARAMETERS
     ex = [expression_tmdl(n, e, rt) for n, e, rt in parameters]
     ex.append(expression_tmdl("fnParseAuditFile", read_pq("01_fnParseAuditFile.pq"), "Function"))
+    ex.append(expression_tmdl("fnUtcToSydney", read_pq("05_fnUtcToSydney.pq"), "Function"))
     ex.append(expression_tmdl("AuditEventsRaw", staging_query(variant["active_block"]), "Table"))
     (d / "expressions.tmdl").write_text("\n".join(ex), encoding="utf-8")
 
@@ -375,7 +375,7 @@ def build_semantic_model(sm: Path, variant: dict):
     (d / "relationships.tmdl").write_text("\n".join(rel), encoding="utf-8")
 
     # --- model / database / culture --------------------------------------------
-    query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
+    query_order = [n for n, _, _ in parameters] + ["fnParseAuditFile", "fnUtcToSydney", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
     table_order = ["AuditEvents", "AuditPropertyChanges", "DimDate", "DimUser", "DimClient", "DimService", "DimAction",
                    "DimEntityType", "ServiceMap", "ActionRiskMap", "ClientMap", "RelatedEvents", "_Measures"]
     model = [
@@ -619,8 +619,8 @@ def build_guide_page(full: bool = False):
         ("Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. "
          "A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a "
          "star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, "
-         "service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the "
-         "LocalUtcOffsetHours parameter.", "body"),
+         "service, action and entity type. Genesys stores times in UTC; the report shows Australia/Sydney time with "
+         "daylight saving applied, and each daily file covers one Sydney day (midnight to midnight).", "body"),
     ])
     # six panels in two columns
     rows = (len(panels) + 1) // 2
@@ -635,7 +635,7 @@ def build_guide_page(full: bool = False):
         ("The filters along the top of each page are synced, so a selection follows you between pages. "
          "User / Client is the person's name for interactive actions, the OAuth client (integration or script) for API "
          "actions, or System for platform actions. Entity is the thing acted on: a queue, a flow, a user, a recording. "
-         "Times are shown in local time (UTC + the LocalUtcOffsetHours parameter); the exact UTC timestamp and the "
+         "Times are shown in Sydney time (AEST/AEDT, daylight saving applied); the exact UTC timestamp and the "
          "Genesys audit id are available in the field list for every event. Data freshness is Fresh within 30 hours "
          "of the last event, Late within 54 hours, otherwise Stale.", "body"),
         ("Source files: genesys-audit_YYYY-MM-DD.json, one per UTC day, read from the configured SharePoint folder.", "muted"),

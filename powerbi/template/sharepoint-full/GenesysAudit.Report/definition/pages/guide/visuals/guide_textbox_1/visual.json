@@ -32,7 +32,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, service, action and entity type. Times are stored in UTC; the local columns and the off-hours flag use the LocalUtcOffsetHours parameter.",
+                    "value": "Every change, view, download, login and configuration edit in Genesys Cloud is written to the audit log. A daily pipeline exports each UTC day to a JSON file; this report loads those files and turns them into a star model: one row per audit event, one row per changed property, and dimensions for date, user, OAuth client, service, action and entity type. Genesys stores times in UTC; the report shows Australia/Sydney time with daylight saving applied, and each daily file covers one Sydney day (midnight to midnight).",
                     "textStyle": {
                       "fontSize": "10pt"
                     }

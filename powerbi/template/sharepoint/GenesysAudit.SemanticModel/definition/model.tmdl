@@ -6,7 +6,7 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-annotation PBI_QueryOrder = ["SharePointSiteUrl", "SharePointFolder", "RangeStart", "RangeEnd", "LocalUtcOffsetHours", "BusinessHoursStart", "BusinessHoursEnd", "fnParseAuditFile", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
+annotation PBI_QueryOrder = ["SharePointSiteUrl", "SharePointFolder", "RangeStart", "RangeEnd", "BusinessHoursStart", "BusinessHoursEnd", "fnParseAuditFile", "fnUtcToSydney", "AuditEventsRaw", "AuditEvents", "AuditPropertyChanges"]
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 

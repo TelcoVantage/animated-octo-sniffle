@@ -64,8 +64,8 @@ Audit Events L30D =                              // #,0
 CALCULATE ( [Audit Events], DATESINPERIOD ( DimDate[Date], MAX ( DimDate[Date] ), -30, DAY ) )
 
 Daily Avg Events =                               // #,0.0   (average per calendar day with data span)
-VAR _first = MIN ( AuditEvents[EventDateUtc] )
-VAR _last  = MAX ( AuditEvents[EventDateUtc] )
+VAR _first = MIN ( AuditEvents[EventDateLocal] )
+VAR _last  = MAX ( AuditEvents[EventDateLocal] )
 RETURN
     AVERAGEX (
         FILTER ( VALUES ( DimDate[Date] ), DimDate[Date] >= _first && DimDate[Date] <= _last ),
@@ -98,8 +98,11 @@ RETURN
 Is Anomaly Day =                                 // 0   (1 = anomaly) for conditional formatting
 IF ( ABS ( [Daily Events Z-Score] ) >= 3, 1, 0 )
 
-Events (Local Date) =                            // #,0   use with DimDate when the visual should follow local time
-CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateLocal] ) )
+Events (Local Date) =                            // #,0   Sydney date (the calendar's default join; kept for existing visuals)
+[Audit Events]
+
+Events (UTC Date) =                              // #,0   use with DimDate when a visual must follow the UTC date
+CALCULATE ( [Audit Events], USERELATIONSHIP ( DimDate[Date], AuditEvents[EventDateUtc] ) )
 
 
 // ==================== Risk & security =================================
@@ -158,7 +161,7 @@ RETURN
         FILTER (
             VALUES ( AuditEvents[UserKey] ),
             AuditEvents[UserKey] <> "SYSTEM"
-                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+                && CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), REMOVEFILTERS ( DimDate ) ) >= _start
         )
     )
 
@@ -169,7 +172,7 @@ RETURN
         FILTER (
             VALUES ( AuditEvents[RemoteIp] ),
             NOT ISBLANK ( AuditEvents[RemoteIp] )
-                && CALCULATE ( MIN ( AuditEvents[EventDateUtc] ), REMOVEFILTERS ( DimDate ) ) >= _start
+                && CALCULATE ( MIN ( AuditEvents[EventDateLocal] ), REMOVEFILTERS ( DimDate ) ) >= _start
         )
     )
 
@@ -261,22 +264,22 @@ First Event (UTC) =                              // dd MMM yyyy HH:mm
 MIN ( AuditEvents[EventDateTimeUtc] )
 
 First Event Date =                               // dd MMM yyyy   (per IP / user / file row in tables)
-MIN ( AuditEvents[EventDateUtc] )
+MIN ( AuditEvents[EventDateLocal] )
 
 Last Event Date =                                // dd MMM yyyy
-MAX ( AuditEvents[EventDateUtc] )
+MAX ( AuditEvents[EventDateLocal] )
 
 Last Event (UTC) =                               // dd MMM yyyy HH:mm
 MAX ( AuditEvents[EventDateTimeUtc] )
 
 Days of Data =                                   // #,0
-VAR _f = MIN ( AuditEvents[EventDateUtc] )
-VAR _l = MAX ( AuditEvents[EventDateUtc] )
+VAR _f = MIN ( AuditEvents[EventDateLocal] )
+VAR _l = MAX ( AuditEvents[EventDateLocal] )
 RETURN IF ( NOT ISBLANK ( _f ), DATEDIFF ( _f, _l, DAY ) + 1 )
 
 Days Without Data =                              // #,0   (gaps inside the loaded span = pipeline misses)
-VAR _f = MIN ( AuditEvents[EventDateUtc] )
-VAR _l = MAX ( AuditEvents[EventDateUtc] )
+VAR _f = MIN ( AuditEvents[EventDateLocal] )
+VAR _l = MAX ( AuditEvents[EventDateLocal] )
 RETURN
     IF (
         NOT ISBLANK ( _f ),

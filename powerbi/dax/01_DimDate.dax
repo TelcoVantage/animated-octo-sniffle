@@ -2,12 +2,12 @@
 //  DimDate   (Modeling > New table)
 //  After creating:  Table tools > Mark as date table > column [Date]
 //  Sort-by:  Month -> Month Number | Day Name -> Day of Week | Year-Month -> Year-Month Sort
-//  Relationship:  DimDate[Date] 1 --> * AuditEvents[EventDateUtc]   (active)
-//                 DimDate[Date] 1 --> * AuditEvents[EventDateLocal] (inactive, use USERELATIONSHIP)
+//  Relationship:  DimDate[Date] 1 --> * AuditEvents[EventDateLocal] (active, Sydney date)
+//                 DimDate[Date] 1 --> * AuditEvents[EventDateUtc]   (inactive, use USERELATIONSHIP)
 // =====================================================================
 DimDate =
-VAR _MinDate = COALESCE ( MIN ( AuditEvents[EventDateUtc] ), TODAY () - 30 )
-VAR _MaxDate = COALESCE ( MAX ( AuditEvents[EventDateUtc] ), TODAY () )
+VAR _MinDate = COALESCE ( MIN ( AuditEvents[EventDateLocal] ), TODAY () - 30 )
+VAR _MaxDate = COALESCE ( MAX ( AuditEvents[EventDateLocal] ), TODAY () )
 VAR _Start   = DATE ( YEAR ( _MinDate ), 1, 1 )
 VAR _End     = DATE ( YEAR ( _MaxDate ), 12, 31 )
 RETURN

@@ -87,8 +87,8 @@ table DimClient
 				        SUMMARIZE ( AuditEvents, AuditEvents[ClientKey] ),
 				        "@ClientId",       CALCULATE ( MAX ( AuditEvents[ClientId] ) ),
 				        "@ClientName",     CALCULATE ( MAX ( AuditEvents[ClientName] ) ),
-				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateUtc] ) ),
-				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateUtc] ) ),
+				        "@FirstSeen",      CALCULATE ( MIN ( AuditEvents[EventDateLocal] ) ),
+				        "@LastSeen",       CALCULATE ( MAX ( AuditEvents[EventDateLocal] ) ),
 				        "@LifetimeEvents", CALCULATE ( COUNTROWS ( AuditEvents ) )
 				    )
 				RETURN

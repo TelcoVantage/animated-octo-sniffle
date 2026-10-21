@@ -26,13 +26,6 @@ expression RangeEnd = #datetime(2026, 12, 31, 0, 0, 0) meta [IsParameterQuery=tr
 
 	annotation PBI_ResultType = DateTime
 
-expression LocalUtcOffsetHours = 0 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
-	lineageTag: 5023a8ee-32d7-50e1-aaf2-e0ae8cd0e8b8
-
-	annotation PBI_NavigationStepName = Navigation
-
-	annotation PBI_ResultType = Number
-
 expression BusinessHoursStart = 8 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
 	lineageTag: 74f68303-4d91-5015-9b35-3a011603f007
 
@@ -165,6 +158,39 @@ expression fnParseAuditFile =
 		in
 		    typed
 	lineageTag: f5a61431-760b-59a4-aa85-0bcb6db19447
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+expression fnUtcToSydney =
+		// =====================================================================
+		//  fnUtcToSydney
+		//  Blank Query > Advanced Editor > paste > rename query to fnUtcToSydney
+		//
+		//  Converts a UTC datetime to Australia/Sydney wall-clock time with
+		//  daylight saving applied. Power Query has no time-zone database, so the
+		//  rule is written out (in force since 2008, same rule as the pipeline script):
+		//    AEST = UTC+10
+		//    AEDT = UTC+11 from 02:00 AEST on the first Sunday in October
+		//                  to   03:00 AEDT on the first Sunday in April
+		//  Both changes happen at 16:00 UTC on the Saturday before that Sunday.
+		//  Checked against the IANA tz database for every half hour 2008-2040.
+		// =====================================================================
+		(utc as nullable datetime) as nullable datetime =>
+		    if utc = null then null
+		    else
+		        let
+		            y           = Date.Year(utc),
+		            firstSunday = (yr as number, mo as number) as datetime =>
+		                              let d = #date(yr, mo, 1)
+		                              in  DateTime.From(Date.AddDays(d, Number.Mod(7 - Date.DayOfWeek(d, Day.Sunday), 7))),
+		            dstStartUtc = firstSunday(y, 10) - #duration(0, 8, 0, 0),
+		            dstEndUtc   = firstSunday(y, 4)  - #duration(0, 8, 0, 0),
+		            offsetHours = if utc >= dstStartUtc or utc < dstEndUtc then 11 else 10
+		        in
+		            utc + #duration(0, offsetHours, 0, 0)
+	lineageTag: 2b2fde43-5576-5d40-98bb-8f931c534a4f
 
 	annotation PBI_NavigationStepName = Navigation
 

@@ -10,8 +10,8 @@ folder to SharePoint is the pipeline's job and is not in this script.
 
 | Mode | Endpoint | Interval | Output file |
 |---|---|---|---|
-| `Daily` (default) | `POST /api/v2/audits/query` (async: create, poll, cursor-page), one query per service, split by time when capped | one full UTC day, default yesterday, or `-Date yyyy-MM-dd` | `genesys-audit_<day>.json` + `summary\genesys-audit-summary_<day>.csv` |
-| `Realtime` | `POST /api/v2/audits/query/realtime` (sync, page-numbered) | today 00:00Z to now | `genesys-audit_<today>.json` (overwritten by tomorrow's Daily run) |
+| `Daily` (default) | `POST /api/v2/audits/query` (async: create, poll, cursor-page), one query per service, split by time when capped, then related audits added | one full **Sydney** day, default yesterday in Sydney, or `-Date yyyy-MM-dd` | `genesys-audit_<day>.json` + `summary\genesys-audit-summary_<day>.csv` |
+| `Realtime` | `POST /api/v2/audits/query/realtime` (sync, page-numbered), then related audits added | today in Sydney, midnight to now | `genesys-audit_<today>.json` (overwritten by tomorrow's Daily run) |
 | `Backfill` | async, looped | `-From` .. `-To` inclusive | one file per day |
 
 Both endpoints return the same `AuditLogMessage` objects, written as a JSON
@@ -58,6 +58,19 @@ PowerShell task fails when the pull fails.
 ```
 
 ## Behaviour worth knowing
+
+* **Sydney days**: every day is Sydney midnight to Sydney midnight, AEST (UTC+10)
+  or AEDT (UTC+11, first Sunday in October to first Sunday in April). Daylight-
+  saving change days are 23 or 25 hours long. The rule is plain date arithmetic
+  because Constrained Language Mode blocks the .NET time-zone classes and Azure
+  agents run in UTC. Event timestamps inside the files stay UTC.
+* **Related audits**: after each day's pull the script calls
+  `POST /api/v2/audits/query/realtime/related?expand=user` once per distinct
+  transaction (the `initiatingAction.transactionId`, or the audit's own id when
+  it is the transaction initiator) and adds any audit not already collected. The
+  log and the summary CSV report how many transactions were checked and how many
+  audits were added. Runs only for days within the last 13 (the realtime index
+  covers about 14). `-SkipRelated` turns it off.
 
 * **Retries**: `429` and `5xx` are retried up to 6 times with a fixed backoff
   (15 s x attempt for 429, 5 s x attempt otherwise). Reading the `Retry-After`

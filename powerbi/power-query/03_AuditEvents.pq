@@ -13,8 +13,9 @@ let
     // ---- Time columns ---------------------------------------------------------
     AddDateUtc   = Table.AddColumn(NoNullKeys, "EventDateUtc", each Date.From([EventDateTimeUtc]), type date),
     AddHourUtc   = Table.AddColumn(AddDateUtc, "EventHourUtc", each Time.Hour([EventDateTimeUtc]), Int64.Type),
+    // Local = Australia/Sydney with daylight saving (fnUtcToSydney)
     AddLocalDT   = Table.AddColumn(AddHourUtc, "EventDateTimeLocal",
-                        each [EventDateTimeUtc] + Duration.From(LocalUtcOffsetHours / 24), type datetime),
+                        each fnUtcToSydney([EventDateTimeUtc]), type datetime),
     AddLocalDate = Table.AddColumn(AddLocalDT, "EventDateLocal", each Date.From([EventDateTimeLocal]), type date),
     AddLocalHour = Table.AddColumn(AddLocalDate, "EventHourLocal", each Time.Hour([EventDateTimeLocal]), Int64.Type),
     AddLocalDow  = Table.AddColumn(AddLocalHour, "EventDayOfWeekLocal",

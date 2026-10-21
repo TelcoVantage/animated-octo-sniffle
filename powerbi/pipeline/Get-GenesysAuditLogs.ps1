@@ -1,7 +1,9 @@
 <#
 .SYNOPSIS
-    Pulls Genesys Cloud audit logs and writes one JSON file per UTC day in the
-    layout the Power BI template reads:  genesys-audit_YYYY-MM-DD.json
+    Pulls Genesys Cloud audit logs and writes one JSON file per Australia/Sydney
+    day in the layout the Power BI template reads:  genesys-audit_YYYY-MM-DD.json
+    (the date in the file name is the Sydney date; event timestamps inside stay UTC
+    exactly as Genesys returns them).
 
 .DESCRIPTION
     Windows PowerShell 5.1, Constrained Language Mode safe:
@@ -10,14 +12,26 @@
       - URL encoding is a minimal .Replace() chain
       - HTTP status is read as [int]$_.Exception.Response.StatusCode
 
-    Three modes:
-      Daily     POST /api/v2/audits/query (asynchronous) for ONE full UTC day,
-                default = yesterday. Poll the status, page the results with the
-                cursor, write genesys-audit_<day>.json. Use this for the scheduled run.
-      Realtime  POST /api/v2/audits/query/realtime (synchronous) for today so
-                far (00:00Z to now). Writes genesys-audit_<today>.json; tomorrow's
-                Daily run overwrites it with the complete day. Genesys only
-                indexes ~14 days for the realtime endpoint.
+    Sydney time: day boundaries are Sydney midnight, AEST (UTC+10) or AEDT
+    (UTC+11, from 02:00 on the first Sunday in October to 03:00 on the first
+    Sunday in April). Computed with plain date arithmetic because Constrained
+    Language Mode blocks the .NET time-zone classes, and Azure agents run in UTC.
+
+    Related audits: after each pull the script calls
+    POST /api/v2/audits/query/realtime/related?expand=user once per distinct
+    transaction found in the data and adds any audit not already collected, so
+    the file holds every audit created by the same action. The realtime index
+    covers about 14 days, so this step runs for days within the last 13.
+    -SkipRelated turns it off.
+
+    Modes:
+      Daily     POST /api/v2/audits/query (asynchronous) for ONE full Sydney day,
+                default = yesterday in Sydney. One query per service, cursor-paged,
+                split by time when capped, then related audits added.
+                Writes genesys-audit_<day>.json. Use this for the scheduled run.
+      Realtime  POST /api/v2/audits/query/realtime (synchronous) for today in
+                Sydney so far. Writes genesys-audit_<today>.json; tomorrow's
+                Daily run overwrites it with the complete day.
       Backfill  Daily, looped over an inclusive date range.
       Related   POST /api/v2/audits/query/realtime/related for one -AuditId: the
                 audits created by the same action (what "Related" shows in the
@@ -58,10 +72,10 @@ param(
 
     [string]$OutputFolder = '.\out',
 
-    # Daily: the UTC day to pull (yyyy-MM-dd). Default = yesterday UTC.
+    # Daily: the Sydney day to pull (yyyy-MM-dd). Default = yesterday in Sydney.
     [string]$Date = '',
 
-    # Backfill: inclusive range (yyyy-MM-dd)
+    # Backfill: inclusive range of Sydney days (yyyy-MM-dd)
     [string]$From = '',
     [string]$To = '',
 
@@ -79,7 +93,10 @@ param(
     [int]$StatusTimeoutSeconds = 900,
 
     # Also write a flat CSV next to each JSON file
-    [switch]$AlsoCsv
+    [switch]$AlsoCsv,
+
+    # Do not call /audits/query/realtime/related (faster, not recommended)
+    [switch]$SkipRelated
 )
 
 $ErrorActionPreference = 'Stop'
@@ -127,6 +144,51 @@ function ConvertTo-Base64Ascii {
         $i += 3
     }
     return $out
+}
+
+# =============================================================================
+#  Australia/Sydney time without the .NET time-zone classes (blocked in CLM)
+#  AEST = UTC+10. AEDT = UTC+11 from 02:00 AEST on the first Sunday in October
+#  to 03:00 AEDT on the first Sunday in April (rule in force since 2008). Both
+#  transitions fall at 16:00 UTC on the Saturday before that Sunday.
+# =============================================================================
+function Get-FirstSunday {
+    param([int]$Year, [int]$Month)
+    $first = (Get-Date -Year $Year -Month $Month -Day 1).Date
+    $dow = [int]$first.DayOfWeek            # Sunday = 0
+    return $first.AddDays((7 - $dow) % 7)
+}
+
+# Offset in hours for a UTC instant.
+function Get-SydneyOffsetForUtc {
+    param([datetime]$Utc)
+    $y = $Utc.Year
+    $dstStartUtc = (Get-FirstSunday -Year $y -Month 10).AddHours(-8)
+    $dstEndUtc   = (Get-FirstSunday -Year $y -Month 4).AddHours(-8)
+    if ($Utc -ge $dstStartUtc -or $Utc -lt $dstEndUtc) { return 11 }
+    return 10
+}
+
+# Offset in hours for a Sydney wall-clock time.
+function Get-SydneyOffsetForLocal {
+    param([datetime]$Local)
+    $y = $Local.Year
+    $dstStartLocal = (Get-FirstSunday -Year $y -Month 10).AddHours(2)
+    $dstEndLocal   = (Get-FirstSunday -Year $y -Month 4).AddHours(3)
+    if ($Local -ge $dstStartLocal -or $Local -lt $dstEndLocal) { return 11 }
+    return 10
+}
+
+# UTC instant of Sydney midnight at the start of a Sydney date.
+function Get-SydneyMidnightUtc {
+    param([datetime]$SydneyDate)
+    $d = $SydneyDate.Date
+    return $d.AddHours(-1 * (Get-SydneyOffsetForLocal -Local $d))
+}
+
+function Get-SydneyNow {
+    $u = (Get-Date).ToUniversalTime()
+    return $u.AddHours((Get-SydneyOffsetForUtc -Utc $u))
 }
 
 # Minimal query-string value encoding (enough for cursors and ids).
@@ -383,13 +445,16 @@ function Get-RealtimeTotal {
     return -1
 }
 
-# One UTC day, broken down by service and, where needed, by time. Every
+# One Sydney day, broken down by service and, where needed, by time. Every
 # service gets its own async query for the full day; any query that looks
-# capped is split in half and re-queried (Get-AuditsRange). A per-service
-# summary is logged and written to <OutputFolder>\summary so counts can be checked.
+# capped is split in half and re-queried (Get-AuditsRange). Related audits are
+# then added. A per-service summary is logged and written to
+# <OutputFolder>\summary so counts can be checked.
 function Get-AuditsForDay {
-    param([datetime]$Day)
-    $dayEnd = $Day.AddDays(1)
+    param([datetime]$Day)      # a Sydney calendar date
+    $dayStartUtc = Get-SydneyMidnightUtc -SydneyDate $Day
+    $dayEndUtc   = Get-SydneyMidnightUtc -SydneyDate $Day.AddDays(1)
+    Write-Log "Sydney day $($Day.ToString('yyyy-MM-dd')) = UTC $(Format-ApiTime -Value $dayStartUtc) to $(Format-ApiTime -Value $dayEndUtc) ($(($dayEndUtc - $dayStartUtc).TotalHours) h)"
     $services = @()
     if ($ServiceName) { $services = @($ServiceName) } else { $services = Get-AuditServices }
     if ($services.Count -eq 0) { $services = @('') }
@@ -400,10 +465,10 @@ function Get-AuditsForDay {
     foreach ($svc in $services) {
         $q0 = $script:QueryCount
         $s0 = $script:SplitCount
-        $svcPages = Get-AuditsRange -Start $Day -End $dayEnd -Service $svc
+        $svcPages = Get-AuditsRange -Start $dayStartUtc -End $dayEndUtc -Service $svc
         $svcCount = 0
         foreach ($pg in $svcPages) { $all += , $pg; $svcCount += @($pg).Count }
-        $rt = Get-RealtimeTotal -Service $svc -Start $Day -End $dayEnd
+        $rt = Get-RealtimeTotal -Service $svc -Start $dayStartUtc -End $dayEndUtc
         $check = 'n/a'
         if ($rt -ge 0) {
             if ($svcCount -ge $rt) { $check = 'OK' } else { $check = 'SHORT'; $short++ }
@@ -423,6 +488,18 @@ function Get-AuditsForDay {
     }
 
     $dayLabel = $Day.ToString('yyyy-MM-dd')
+    $rel = Get-MissingRelatedAudits -Pages $all -DayStartUtc $dayStartUtc -Label $dayLabel
+    foreach ($pg in $rel.Pages) { $all += , $pg }
+    if (-not $rel.Skipped) {
+        $summary += New-Object PSObject -Property @{
+            Service       = '(related audits added)'
+            Events        = $rel.Added
+            Queries       = $rel.Transactions
+            Splits        = 0
+            RealtimeTotal = -1
+            Check         = ('failed calls: ' + $rel.Failed)
+        }
+    }
     $grand = 0
     foreach ($row in $summary) { $grand += $row.Events }
     $ordered = @($summary | Sort-Object Events -Descending | Select-Object Service, Events, Queries, Splits, RealtimeTotal, Check)
@@ -483,6 +560,69 @@ function Get-AuditsRelated {
     if ($null -ne $resp.entities) { $entities = @($resp.entities) }
     Write-Log "Related audits for $Id : $($entities.Count)"
     return , @(, $entities)
+}
+
+# Adds every related audit to a collected set. One related call per distinct
+# transaction: the key is initiatingAction.transactionId (the id of the audit
+# that started the transaction), or the event's own id when it is flagged as a
+# transaction initiator. Events with neither belong to no transaction and are
+# their own related set. Returns the extra audits as pages (array of arrays).
+function Get-MissingRelatedAudits {
+    param($Pages, [datetime]$DayStartUtc, [string]$Label)
+    $result = @{ Pages = @(); Transactions = 0; Added = 0; Failed = 0; Skipped = $false }
+    if ($SkipRelated) { $result.Skipped = $true; return $result }
+    if ($DayStartUtc -lt (Get-Date).ToUniversalTime().Date.AddDays(-13)) {
+        Write-Log "Related audits: $Label is older than the realtime index (~14 days) - not checked" 'WARN'
+        $result.Skipped = $true
+        return $result
+    }
+
+    $seen = @{}
+    $keys = @{}
+    foreach ($page in $Pages) {
+        foreach ($ev in $page) {
+            $id = [string]$ev.id
+            if ($id) { $seen[$id] = $true }
+            $tx = ''
+            if ($null -ne $ev.initiatingAction) { $tx = [string]$ev.initiatingAction.transactionId }
+            if ($tx) { $keys[$tx] = $true }
+            elseif ($ev.transactionInitiator -eq $true -and $id) { $keys[$id] = $true }
+        }
+    }
+    $keyList = @($keys.Keys)
+    $result.Transactions = $keyList.Count
+    Write-Log "Related audits: checking $($keyList.Count) transaction(s) for $Label"
+
+    $extra = @()
+    $n = 0
+    foreach ($key in $keyList) {
+        $n++
+        $request = @{
+            auditId = $key
+            sort    = @( @{ name = 'Timestamp'; sortOrder = 'ascending' } )
+        }
+        try {
+            $resp = Invoke-GenesysApi -Method 'Post' -Path '/api/v2/audits/query/realtime/related?expand=user' -Body $request -MaxAttempts 4
+        } catch {
+            $result.Failed++
+            if ($result.Failed -le 10) { Write-Log "  related for $key failed: $([string]$_.Exception.Message)" 'WARN' }
+            continue
+        }
+        if ($null -ne $resp -and $null -ne $resp.entities) {
+            foreach ($ev in @($resp.entities)) {
+                $id = [string]$ev.id
+                if ($id -and -not $seen.ContainsKey($id)) {
+                    $seen[$id] = $true
+                    $extra += $ev
+                    $result.Added++
+                }
+            }
+        }
+        if (($n % 200) -eq 0) { Write-Log "  related: $n / $($keyList.Count) transactions, $($result.Added) audit(s) added so far" }
+    }
+    if ($extra.Count -gt 0) { $result.Pages = @(, $extra) }
+    Write-Log "Related audits for $Label : $($result.Transactions) transaction(s) checked, $($result.Added) audit(s) added, $($result.Failed) call(s) failed"
+    return $result
 }
 
 # =============================================================================
@@ -565,32 +705,31 @@ function Write-AuditFile {
     return $count
 }
 
-function Get-DayInterval {
-    param([datetime]$Day)
-    $start = $Day.ToString('yyyy-MM-dd') + 'T00:00:00.000Z'
-    $end   = $Day.AddDays(1).ToString('yyyy-MM-dd') + 'T00:00:00.000Z'
-    return "$start/$end"
-}
-
 # =============================================================================
 #  Main
 # =============================================================================
 try {
-    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder PageSize=$PageSize"
+    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder PageSize=$PageSize TimeZone=Australia/Sydney Related=$(-not $SkipRelated)"
     $script:Token = Get-AccessToken
     $nowUtc = (Get-Date).ToUniversalTime()
 
+    $nowSydney = Get-SydneyNow
+    Write-Log "Now: $(Format-ApiTime -Value $nowUtc) UTC = $($nowSydney.ToString('yyyy-MM-dd HH:mm')) Sydney (UTC+$(Get-SydneyOffsetForUtc -Utc $nowUtc))"
+
     if ($Mode -eq 'Daily') {
-        $day = $nowUtc.Date.AddDays(-1)
+        $day = $nowSydney.Date.AddDays(-1)
         if ($Date) { $day = (Get-Date -Date $Date).Date }
         $pages = Get-AuditsForDay -Day $day
         $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
         Write-Log "Daily done: $n events for $($day.ToString('yyyy-MM-dd'))"
     }
     elseif ($Mode -eq 'Realtime') {
-        $day = $nowUtc.Date
-        $interval = $day.ToString('yyyy-MM-dd') + 'T00:00:00.000Z/' + $nowUtc.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z'
+        $day = $nowSydney.Date
+        $startUtc = Get-SydneyMidnightUtc -SydneyDate $day
+        $interval = (Format-ApiTime -Value $startUtc) + '/' + (Format-ApiTime -Value $nowUtc)
         $pages = Get-AuditsRealtime -Interval $interval
+        $rel = Get-MissingRelatedAudits -Pages $pages -DayStartUtc $startUtc -Label ('today ' + $day.ToString('yyyy-MM-dd'))
+        foreach ($pg in $rel.Pages) { $pages += , $pg }
         $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
         Write-Log "Realtime done: $n events for $interval"
     }
