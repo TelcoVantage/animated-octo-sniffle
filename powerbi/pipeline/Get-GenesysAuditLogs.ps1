@@ -75,6 +75,12 @@ param(
     [int]$PageSize = 500,
     [int]$RealtimePageSize = 100,
 
+    # Daily / Backfill: split the day into slices of this many hours and run one
+    # async query per slice (0 = one query for the whole day). Each slice is still
+    # cursor-paged. Use 1, 2, 3, 4, 6, 8 or 12 on very busy orgs, or if a run ever
+    # reports "full page but no cursor".
+    [int]$SliceHours = 0,
+
     # How long to wait for an async query to reach Succeeded
     [int]$StatusTimeoutSeconds = 900,
 
@@ -271,12 +277,42 @@ function Get-AuditsAsync {
         if ($null -ne $page.entities) { $entities = @($page.entities) }
         if ($entities.Count -gt 0) { $pages += , $entities }
         $total += $entities.Count
-        Write-Log "  page $pageNo : $($entities.Count) events (running total $total)"
         $next = ''
         if ($null -ne $page.cursor) { $next = [string]$page.cursor }
+        $cursorNote = 'no cursor returned - last page'
+        if ($next) { $cursorNote = 'cursor returned (' + $next.Length + ' chars) - more pages follow' }
+        Write-Log "  page $pageNo : $($entities.Count) events (running total $total) - $cursorNote"
+        if (-not $next -and $entities.Count -ge $PageSize) {
+            Write-Log "  page $pageNo was full ($($entities.Count) events) but the API returned no cursor. If the day really has more events, re-run with -SliceHours 1 (one query per hour) so no page can hit the limit." 'WARN'
+        }
         if (-not $next -or $next -eq $cursor) { break }
         $cursor = $next
         if ($pageNo -ge 20000) { throw 'Cursor loop guard tripped (20000 pages)' }
+    }
+    return , $pages
+}
+
+# One UTC day as N async queries of -SliceHours each (or one query if 0).
+# Slices are half-open [start, end) so they never overlap; the writer also
+# de-duplicates on id as a safety net.
+function Get-AuditsForDay {
+    param([datetime]$Day)
+    if ($SliceHours -le 0 -or $SliceHours -ge 24) {
+        return , (Get-AuditsAsync -Interval (Get-DayInterval -Day $Day))
+    }
+    $pages = @()
+    $sliceStart = $Day
+    $dayEnd = $Day.AddDays(1)
+    $n = 0
+    while ($sliceStart -lt $dayEnd) {
+        $sliceEnd = $sliceStart.AddHours($SliceHours)
+        if ($sliceEnd -gt $dayEnd) { $sliceEnd = $dayEnd }
+        $n++
+        $interval = $sliceStart.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z/' + $sliceEnd.ToString('yyyy-MM-dd\THH:mm:ss') + '.000Z'
+        Write-Log "Slice $n : $interval"
+        $slicePages = Get-AuditsAsync -Interval $interval
+        foreach ($sp in $slicePages) { $pages += , $sp }
+        $sliceStart = $sliceEnd
     }
     return , $pages
 }
@@ -341,14 +377,20 @@ function Write-AuditFile {
     # joined per page first so array growth with += stays small (<= page size).
     $pageParts = @()
     $count = 0
+    $dupes = 0
+    $seen = @{}
     foreach ($page in $Pages) {
         $eventParts = @()
         foreach ($ev in $page) {
+            $id = [string]$ev.id
+            if ($id -and $seen.ContainsKey($id)) { $dupes++; continue }
+            if ($id) { $seen[$id] = $true }
             $eventParts += ($ev | ConvertTo-Json -Depth 20 -Compress)
             $count++
         }
         if ($eventParts.Count -gt 0) { $pageParts += ($eventParts -join ',') }
     }
+    if ($dupes -gt 0) { Write-Log "Skipped $dupes duplicate audit id(s)" }
     $json = '[' + ($pageParts -join ',') + ']'
     Set-Content -Path $jsonPath -Value $json -Encoding UTF8 -NoNewline
     Write-Log "Wrote $count events to $jsonPath"
@@ -412,14 +454,14 @@ function Get-DayInterval {
 #  Main
 # =============================================================================
 try {
-    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder"
+    Write-Log "Mode=$Mode Region=$Region Output=$OutputFolder PageSize=$PageSize SliceHours=$SliceHours"
     $script:Token = Get-AccessToken
     $nowUtc = (Get-Date).ToUniversalTime()
 
     if ($Mode -eq 'Daily') {
         $day = $nowUtc.Date.AddDays(-1)
         if ($Date) { $day = (Get-Date -Date $Date).Date }
-        $pages = Get-AuditsAsync -Interval (Get-DayInterval -Day $day)
+        $pages = Get-AuditsForDay -Day $day
         $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
         Write-Log "Daily done: $n events for $($day.ToString('yyyy-MM-dd'))"
     }
@@ -455,7 +497,7 @@ try {
         $last = (Get-Date -Date $To).Date
         if ($day -gt $last) { throw '-From is after -To' }
         while ($day -le $last) {
-            $pages = Get-AuditsAsync -Interval (Get-DayInterval -Day $day)
+            $pages = Get-AuditsForDay -Day $day
             $n = Write-AuditFile -Pages $pages -Day $day.ToString('yyyy-MM-dd')
             Write-Log "Backfill: $n events for $($day.ToString('yyyy-MM-dd'))"
             $day = $day.AddDays(1)

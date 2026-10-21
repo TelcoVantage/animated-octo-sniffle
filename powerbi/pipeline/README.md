@@ -66,7 +66,10 @@ PowerShell task fails when the pull fails.
 * **Async query**: polls the status every 3 s, up to `-StatusTimeoutSeconds`
   (default 900). `Failed` / `Cancelled` states fail the run.
 * **Paging**: results are fetched with `pageSize=500` (the API maximum) and the
-  cursor until no cursor is returned. `allowRedirect` is deliberately not used:
+  cursor until no cursor is returned. Every page is logged with its count and
+  whether a cursor came back. If a full page arrives with no cursor the log says
+  so; re-run with `-SliceHours 1` to query the day hour by hour (each slice is
+  still cursor-paged, slices never overlap, ids are de-duplicated on write). `allowRedirect` is deliberately not used:
   following a presigned-URL redirect from `Invoke-RestMethod` would forward the
   bearer header to S3, which rejects it.
 * **Output**: the JSON array is assembled from per-event `ConvertTo-Json
